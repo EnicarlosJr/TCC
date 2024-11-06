@@ -1,0 +1,114 @@
+{% extends 'menu.html'%}
+
+{%block content%}
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tela Inicial</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      /* Remova o padding da body para que ele não interfira */
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      margin-top: 80px;
+      /* Adicione uma margem superior para compensar o menu fixo */
+    }
+
+    .title {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 40px;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 20px;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      color: #0056b3;
+      margin-bottom: 15px;
+    }
+
+    .card p {
+      margin-bottom: 20px;
+      color: #666;
+    }
+
+    .btn {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .navbar.fixed-top {
+      z-index: 1030;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="title">Bem-vindo à Farmácia Escola</h1>
+    <div class="card-container">
+      <div class="card">
+        <h3>Pacientes</h3>
+        <p>Visualizar e gerenciar os pacientes registrados no sistema.</p>
+        <a href="/listagem_pacientes/paciente_list" class="btn">Acessar Pacientes</a>
+      </div>
+
+      <div class="card">
+        <h3>Consultas</h3>
+        <p>Adicionar ou visualizar consultas dos pacientes.</p>
+        <a href="#" class="btn">Acessar Consultas</a>
+      </div>
+
+      <div class="card">
+        <h3>Relatórios</h3>
+        <p>Gerar relatórios de pacientes e consultas.</p>
+        <a href="#" class="btn">Acessar Relatórios</a>
+      </div>
+      <!-- Adicione mais cards conforme necessário -->
+    </div>
+  </div>
+</body>
+
+</html>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends 'menu.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Estilo geral */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0f8ff;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Container */
+    .container {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    /* Títulos */
+    h2 {
+        color: #2c7a7b;
+        border-bottom: 2px solid #2c7a7b;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+
+    /* Botões */
+    .btn-primary {
+        background-color: #3182ce;
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 1.1em;
+        margin-right: 10px; /* Espaço entre os botões */
+    }
+
+    .btn-primary:hover {
+        background-color: #2b6cb0;
+    }
+
+    .btn-secondary {
+        background-color: #718096;
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 1.1em;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4a5568;
+    }
+
+    /* Tabela */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .table thead {
+        background-color: #ebf8ff;
+        color: #2c5282;
+    }
+
+    .table-header th {
+        padding: 10px 15px;
+        text-align: left;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #f7fafc;
+    }
+
+    .table tbody tr:hover {
+        background-color: #edf2f7;
+    }
+
+    .table td,
+    .table th {
+        padding: 12px 15px;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #718096;
+    }
+
+    /* Paginação */
+    .pagination {
+        display: flex;
+        justify-content: center; /* Centraliza a paginação */
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        margin: 0 5px; /* Adiciona espaço entre os botões da paginação */
+        padding: 8px 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #3182ce;
+        background-color: #fff;
+    }
+
+    .pagination a:hover {
+        background-color: #3182ce;
+        color: #fff;
+    }
+
+    .pagination span {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    /* Alinhamento dos botões */
+    .button-group {
+        display: flex;
+        justify-content: space-between; /* Distribui espaço entre os botões */
+        margin-bottom: 20px; /* Espaço abaixo do grupo de botões */
+    }
+
+    /* Estilo para os botões de paginação e voltar */
+    .pagination .btn-primary,
+    .pagination .btn-secondary {
+        padding: 8px 15px;
+        border-radius: 5px;
+        margin: 0 5px;
+        font-size: 1em;
+    }
+
+</style>
+
+<div class="container">
+    <h2>Consultas de {{ paciente.nome }}</h2>
+
+    <!-- Botões para adicionar nova consulta e voltar -->
+    <div class="button-group">
+        <a href="{% url 'adicionar_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
+        <a href=" /listagem_pacientes/paciente_list/ " class="btn btn-secondary">Voltar</a> <!-- Botão "Voltar" para a página anterior -->
+    </div>
+
+    <!-- Tabela de Consultas -->
+    <table class="table table-striped">
+        <thead class="table-header">
+            <tr>
+                <th>Ordem</th> <!-- Nova coluna para numeração -->
+                <th>Data</th>
+                <th>Motivo</th>
+                <th class="text-center">Abrir Consulta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consulta in consultas %}
+            <tr>
+                <td>{{ forloop.counter }}</td> <!-- Exibe a numeração da consulta -->
+                <td>{{ consulta.data_consulta }}</td>
+                <td>{{ consulta.motivo_consulta }}</td>
+                <td class="text-center">
+                    <a href="{% url 'detalhe_consulta' consulta.id %}" class="btn btn-info btn-sm">Ver Detalhes</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center text-muted">Nenhuma consulta registrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <div class="pagination">
+        <span class="text-muted">Página {{ consultas.number }} de {{ consultas.paginator.num_pages }}</span>
+        {% if consultas.has_previous %}
+            <a href="?page={{ consultas.previous_page_number }}" class="btn btn-primary">Anterior</a>
+        {% endif %}
+        {% if consultas.has_next %}
+            <a href="?page={{ consultas.next_page_number }}" class="btn btn-primary">Próxima</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

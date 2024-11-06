@@ -1,0 +1,224 @@
+{% extends 'menu.html' %}
+
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Paciente</title>
+    <style>
+        /* Estilos Globais */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2b6cb0; /* Verde */
+            margin-bottom: 20px;
+            font-size: 2em; /* Aumentar tamanho do título */
+        }
+
+        /* Estilo dos Cards e Dropdown */
+        .card {
+            background-color: #fff;
+            border-left: 5px solid #2b6cb0;
+            /* Bordas azuis para cada card */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            cursor: pointer;
+            background-color: #2b6cb0;
+            color: #fff;
+            padding: 15px;
+            margin: 0;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card h2:hover {
+            background-color: #265a9f;
+        }
+
+        .card h2 .toggle-icon {
+            font-size: 24px;
+            transition: transform 0.3s;
+        }
+
+        .card h2.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .card-content {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .card-content p {
+            font-size: 16px;
+            margin: 8px 0;
+            color: #4a5568;
+        }
+
+        .card-content p strong {
+            color: #2f855a;
+            /* Verde para destaques */
+        }
+
+        /* Estilos de Botão */
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2b6cb0;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-button:hover {
+            background-color: #265a9f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Detalhes de {{ paciente.nome }}</h1>
+
+        <!-- Informações Pessoais -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Informações Pessoais <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p><strong>Telefone:</strong> {{ paciente.telefone }}</p>
+                <p><strong>Número do Formulário:</strong> {{ paciente.numero_formulario }}</p>
+                <p><strong>Responsável:</strong> {{ paciente.responsavel }}</p>
+                <p><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento }}</p>
+                <p><strong>Gênero:</strong> {{ paciente.get_genero_display }}</p>
+                <p><strong>Estado Civil:</strong> {{ paciente.get_estado_civil_display }}</p>
+                <p><strong>Bairro:</strong> {{ paciente.bairro }}</p>
+                <p><strong>Distrito:</strong> {{ paciente.get_distrito_display }}</p>
+                <p><strong>Município:</strong> {{ paciente.municipio }}</p>
+                <p><strong>Escolaridade:</strong> {{ paciente.get_escolaridade_display }}</p>
+                <p><strong>Ocupação:</strong> {{ paciente.ocupacao }}</p>
+                <p><strong>Raça:</strong> {{ paciente.get_raca_display }}</p>
+            </div>
+        </div>
+
+        <!-- História Social - Consumo de Bebida -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">História Social - Consumo de Bebida <span class="toggle-icon">&#9662;</span>
+            </h2>
+            <div class="card-content">
+                <p><strong>Consome bebida:</strong> {{ paciente.get_consome_bebida_display }}</p>
+                <p><strong>Tipos de bebidas:</strong> {{ paciente.get_tipos_bebidas_display }}</p>
+                <p><strong>Quantidade ingerida:</strong> {{ paciente.get_quantidade_ingerida_display }}</p>
+                <p><strong>Frequência de uso:</strong> {{ paciente.get_frequencia_uso_display }}</p>
+            </div>
+        </div>
+
+        <!-- História Social - Tabagismo -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">História Social - Tabagismo <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p><strong>Fumante:</strong> {{ paciente.get_fumante_display }}</p>
+                <p><strong>Tempo que parou de fumar:</strong> {{ paciente.tempo_parou }}</p>
+                <p><strong>Tempo que permaneceu fumando:</strong> {{ paciente.tempo_fumou }}</p>
+            </div>
+        </div>
+
+        <!-- Atividade Física -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Atividade Física <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p><strong>Pratica atividade física:</strong> {{ paciente.pratica_atividade_fisica }}</p>
+                <p><strong>Tipos de atividades:</strong> {{ paciente.get_atividades_fisicas_display }}</p>
+                <p><strong>Frequência de atividade física:</strong> {{ paciente.get_frequencia_atividade_display }}</p>
+            </div>
+        </div>
+
+        <!-- Hábitos Alimentares -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Hábitos Alimentares <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p><strong>Horário que acorda:</strong> {{ paciente.horario_acorda }}</p>
+                <p><strong>Café da manhã:</strong> {{ paciente.cafe_da_manha }}</p>
+                <p><strong>Almoço:</strong> {{ paciente.almoco }}</p>
+                <p><strong>Jantar:</strong> {{ paciente.jantar }}</p>
+                <p><strong>Horário que dorme:</strong> {{ paciente.horario_dorme }}</p>
+            </div>
+        </div>
+
+        <!-- Perfil Clínico -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Perfil Clínico <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p><strong>Doenças hereditárias:</strong> {{ paciente.doencas_hereditarias }}</p>
+                <p><strong>Capacidade de realizar atividades:</strong> {{ paciente.get_capacidade_atividade_display }}
+                </p>
+                <p><strong>Quantidade de medicamentos:</strong> {{ paciente.quantidade_medicamentos }}</p>
+            </div>
+        </div>
+
+        <!-- Autonomia em Medicamentos -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Autonomia em Medicamentos <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p><strong>Assistência com medicamentos:</strong> {{ paciente.assistencia_medicamento }}</p>
+                <p><strong>Dificuldade em tomar medicamentos:</strong> {{ paciente.dificuldade_tomar }}</p>
+                <p><strong>Esquece de tomar medicamentos:</strong> {{ paciente.esquecimento_medicamentos }}</p>
+            </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Observações <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                <p>{{ paciente.observacoes }}</p>
+            </div>
+        </div>
+
+        <!-- Botão de Voltar -->
+        <a href="{% url 'paciente_list' %}" class="back-button">Voltar à Lista de Pacientes</a>
+    </div>
+
+    <script>
+        function toggleCard(element) {
+            var content = element.nextElementSibling;
+            var icon = element.querySelector('.toggle-icon');
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                icon.classList.remove("active");
+            } else {
+                content.style.display = "block";
+                icon.classList.add("active");
+            }
+        }
+    </script>
+</body>
+{% endblock %}
