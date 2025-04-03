@@ -1,6 +1,6 @@
 # consulta/forms.py
 from django import forms
-from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
+from consulta.models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
 
 class ConsultaForm(forms.ModelForm):
     class Meta:
@@ -39,6 +39,7 @@ class MedicamentoForm(forms.ModelForm):
             'utilizada': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'para_que_servir': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Para que serve o medicamento...'}),
         }
+
 
 
 class AvaliacaoForm(forms.ModelForm):

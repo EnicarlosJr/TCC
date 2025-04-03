@@ -13,14 +13,15 @@ class Consulta(models.Model):
     def __str__(self):
         return f"Consulta de {self.paciente.nome} em {self.data_consulta}"
 
-
 class ProblemaSaude(models.Model):
-    consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='problemas_de_saude')
+    consulta = models.ForeignKey('Consulta', related_name='problemas_saude', on_delete=models.CASCADE)
     problema = models.CharField(max_length=255)
     inicio = models.DateField()
     controlado = models.BooleanField(default=False)
     preocupa = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"{self.problema} em {self.consulta.data_consulta}"
 
 class Medicamento(models.Model):
     consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='medicamentos')
@@ -31,17 +32,21 @@ class Medicamento(models.Model):
     utilizada = models.BooleanField(default=False)
     para_que_servir = models.TextField()
 
+    def __str__(self):
+        return f"{self.nome} - {self.classe}"
 
 class Avaliacao(models.Model):
     consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='avaliacoes')
-    n = models.BooleanField(default=False)
-    e = models.BooleanField(default=False)
-    s = models.BooleanField(default=False)
+    n = models.BooleanField(default=False)  # Necessidade
+    e = models.BooleanField(default=False)  # Efetividade
+    s = models.BooleanField(default=False)  # Segurança
     classificacao_rnm_1 = models.CharField(max_length=255)
     classificacao_rnm_2 = models.CharField(max_length=255)
     situacao_problema_saude = models.CharField(max_length=255)
     causa_rnm = models.TextField()
 
+    def __str__(self):
+        return f"Avaliação da consulta em {self.consulta.data_consulta}"
 
 class PlanoAtuacao(models.Model):
     consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='planos_de_atuacao')
@@ -56,3 +61,6 @@ class PlanoAtuacao(models.Model):
     resultado = models.TextField()
     rnm_resolvido = models.BooleanField(default=False)
     o_que_aconteceu = models.TextField()
+
+    def __str__(self):
+        return f"Plano de Ação para consulta em {self.consulta.data_consulta}"

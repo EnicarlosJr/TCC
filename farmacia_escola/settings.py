@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SECURE_SSL_REDIRECT = False
+
 
 # Application definition
 
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'listagem_pacientes',
     'consulta',
     'tela_inicial',
+    'relatorios',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +61,7 @@ ROOT_URLCONF = 'farmacia_escola.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,12 +119,21 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
+import os
+from pathlib import Path
 
-STATIC_URL = 'static/'
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# URL para acessar os arquivos estáticos (para desenvolvimento)
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "paciente/static",
+    # outros diretórios estáticos, se houver
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

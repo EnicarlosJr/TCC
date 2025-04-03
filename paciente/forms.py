@@ -1,5 +1,6 @@
 from django import forms
-from .models import Paciente
+from .models import Paciente, Doenca, Medicamento
+from django.forms import inlineformset_factory
 
 class PacienteForm(forms.ModelForm):
     class Meta:
@@ -74,13 +75,11 @@ class PerfilClinicoForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
-    outro_doenca = forms.CharField(max_length=100, required=False, label='Especificar outra doença')
     
     class Meta:
         model = Paciente
         fields = [
             'doencas_hereditarias',
-            'outro_doenca',
             'desde_quando_conhecimento',
             'quantidade_medicamentos',
             'capacidade_atividade',
@@ -89,7 +88,6 @@ class PerfilClinicoForm(forms.ModelForm):
         widgets = {
             'desde_quando_conhecimento': forms.DateInput(attrs={'type': 'date'}),
             'observacoes_importantes': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
-            'outro_doenca': forms.TextInput(attrs={'placeholder': 'Digite aqui se houver outra doença'}),
         }
 
         data_conhecimento_doenca = forms.DateField(
@@ -131,6 +129,34 @@ class SaudeForm(forms.ModelForm):
             'pressao_controlada': 'Pressão arterial está controlada?',
             'observacoes': 'Observações Importantes:',
         }
+
+
+class DoencaPacienteForm(forms.ModelForm):
+    class Meta:
+        model = Doenca
+        fields = ['nome']
+
+# Corrigido inlineformset_factory para Doenca
+DoencaPacienteFormSet = inlineformset_factory(
+    Paciente, Doenca,
+    form=DoencaPacienteForm,  # Usando o form DoencaPacienteForm
+    extra=1,  # Começa com um formulário vazio
+    can_delete=True
+)
+
+class MedicamentoPacienteForm(forms.ModelForm):
+    class Meta:
+        model = Medicamento
+        fields = ['nome']
+
+# Corrigido inlineformset_factory para Medicamento
+MedicamentoPacienteFormSet = inlineformset_factory(
+    Paciente, Medicamento,
+    form=MedicamentoPacienteForm,  # Usando o form MedicamentoPacienteForm
+    extra=1,  # Começa com um formulário vazio
+    can_delete=True
+)
+
 
 
 class AutonomiaMedicamentosForm(forms.ModelForm):

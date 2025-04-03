@@ -1,6 +1,8 @@
 from datetime import date, time, datetime
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .forms import (
+    DoencaPacienteFormSet,
+    MedicamentoPacienteFormSet,
     PacienteForm, 
     HistoriaSocialAlcolismoForm, 
     HistoriaSocialTabagismoForm, 
@@ -9,24 +11,7 @@ from .forms import (
     AutonomiaMedicamentosForm,
     SaudeForm
 )
-from .models import Paciente
-
-# Função para salvar os dados do formulário na sessão
-def save_to_session(request, form_name, form_data):
-    # Converte objetos date e time para strings antes de salvar na sessão
-    for key, value in form_data.items():
-        if isinstance(value, date):
-            form_data[key] = value.isoformat()  # Converte date para string no formato ISO
-        elif isinstance(value, time):
-            form_data[key] = value.isoformat()  # Converte time para string no formato ISO
-
-    # Salva os dados convertidos na sessão
-    if form_name in request.session:
-        request.session[form_name].update(form_data)
-    else:
-        request.session[form_name] = form_data
-
-    request.session.modified = True  # Marca a sessão como modificada
+from .models import Doenca, Medicamento, Paciente
 
 def paciente_create(request):
     if request.method == 'POST':
@@ -101,13 +86,72 @@ def saude_create(request):
         form = SaudeForm(request.POST)
         if form.is_valid():
             save_to_session(request, 'saude_form', form.cleaned_data)
-            return redirect('autonomia_medicamentos_create')  # Redireciona para a próxima etapa
+            return redirect('medicamentos_e_doencas_create')  # Redireciona para a próxima etapa
     else:
         # Preencher o formulário com dados salvos na sessão, se existirem
         form_data = request.session.get('saude_form', {})
         form = SaudeForm(initial=form_data)
 
     return render(request, 'saude_create.html', {'form': form})
+
+
+def medicamentos_e_doencas_create(request):
+    if request.method == 'POST':
+        # Carregar os formsets de Medicamento e Doença com os dados do POST
+        medicamento_formset = MedicamentoPacienteFormSet(request.POST)
+        doenca_formset = DoencaPacienteFormSet(request.POST)
+
+        # Verificar se ambos os formsets são válidos
+        if medicamento_formset.is_valid() and doenca_formset.is_valid():
+            # Salvar os formsets (o paciente será salvo durante o processo de formset)
+            paciente = medicamento_formset.save(commit=False)[0]  # Aqui assume-se que o paciente já foi associado
+            paciente.save()  # Salve o paciente após associá-lo aos medicamentos e doenças
+
+            # Associar medicamentos e doenças selecionadas ao paciente
+            medicamentos_selecionados = request.POST.getlist('medicamentos_selecionados')
+            doencas_selecionadas = request.POST.getlist('doencas_selecionadas')
+
+            # Associar os medicamentos selecionados ao paciente
+            for medicamento_id in medicamentos_selecionados:
+                try:
+                    medicamento = Medicamento.objects.get(id=medicamento_id)
+                    paciente.medicamentos.add(medicamento)
+                except Medicamento.DoesNotExist:
+                    pass  # Caso o medicamento não exista
+
+            # Associar as doenças selecionadas ao paciente
+            for doenca_id in doencas_selecionadas:
+                try:
+                    doenca = Doenca.objects.get(id=doenca_id)
+                    paciente.doencas.add(doenca)
+                except Doenca.DoesNotExist:
+                    pass  # Caso a doença não exista
+
+            # Salvar os formsets de medicamentos e doenças
+            medicamento_formset.save()
+            doenca_formset.save()
+
+            # Redirecionar para a próxima etapa
+            return redirect('autonomia_medicamentos_create')
+
+    else:
+        # Para o método GET, preenche os formsets com dados da sessão, se existir
+        medicamento_formset = MedicamentoPacienteFormSet()
+        doenca_formset = DoencaPacienteFormSet()
+
+    # Passando a lista de medicamentos e doenças já salvas na sessão (se existirem)
+    medicamentos_salvos = Medicamento.objects.all()
+    doencas_salvas = Doenca.objects.all()
+
+    return render(request, 'medicamentos_e_doencas_create.html', {
+        'medicamento_formset': medicamento_formset,
+        'doenca_formset': doenca_formset,
+        'medicamentos_salvos': medicamentos_salvos,
+        'doencas_salvas': doencas_salvas,
+    })
+
+
+
 
 def autonomia_medicamentos_create(request):
     if request.method == 'POST':
@@ -132,10 +176,31 @@ def autonomia_medicamentos_create(request):
             # Limpar a sessão
             request.session.flush()
 
-            return redirect('paciente_create')  # Redireciona para o início
+            return redirect('/listagem_pacientes/paciente_list')  # Redireciona para o início
     else:
         # Preencher o formulário com dados salvos na sessão, se existirem
         form_data = request.session.get('autonomia_medicamentos_form', {})
         form = AutonomiaMedicamentosForm(initial=form_data)
 
     return render(request, 'autonomia_medicamentos.html', {'form': form})
+
+# Função para salvar os dados do formulário na sessão
+def save_to_session(request, form_name, form_data):
+    # Converte objetos date e time para strings antes de salvar na sessão
+    for key, value in form_data.items():
+        if isinstance(value, date):
+            form_data[key] = value.isoformat()  # Converte date para string no formato ISO
+        elif isinstance(value, time):
+            form_data[key] = value.isoformat()  # Converte time para string no formato ISO
+
+    # Salva os dados convertidos na sessão
+    if form_name in request.session:
+        request.session[form_name].update(form_data)
+    else:
+        request.session[form_name] = form_data
+
+    request.session.modified = True  # Marca a sessão como modificada
+
+
+
+

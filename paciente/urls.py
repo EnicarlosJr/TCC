@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import (
+    medicamentos_e_doencas_create,
     paciente_create,
     historia_social_alcolismo_create,
     historia_social_tabagismo_create,
@@ -17,4 +18,5 @@ urlpatterns = [
     path('perfil-clinico/', perfil_clinico_create, name='perfil_clinico'),
     path('saude/', saude_create, name='saude_create'),
     path('autonomia_medicamentos/create/', autonomia_medicamentos_create, name='autonomia_medicamentos_create'),
-]
+    path('medicamentos_e_doencas_create/', medicamentos_e_doencas_create, name='medicamentos_e_doencas_create'),
+    ]

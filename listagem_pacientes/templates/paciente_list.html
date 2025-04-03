@@ -1,56 +1,69 @@
-{% extends "menu.html" %} 
+{% extends "menu.html" %}
 
 {% block content %}
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listagem de Pacientes</title>
+    <title>Pacientes</title>
     <!-- Inclua o CSS do Bootstrap para estilizar os cards -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
         }
+
         h1 {
             color: #007bff;
         }
+
         .card {
             border: 1px solid #007bff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
         }
+
         .card:hover {
             transform: translateY(-5px);
         }
+
         .card-title {
             font-weight: bold;
         }
+
         .card-footer {
             background-color: #f1f1f1;
         }
-        .btn-primary, .btn-success, .btn-secondary {
+
+        .btn-primary,
+        .btn-success,
+        .btn-secondary {
             background-color: #007bff;
             border-color: #007bff;
         }
+
         .pagination .page-item .page-link {
             color: #007bff;
         }
+
         .pagination .page-item.active .page-link {
             background-color: #007bff;
             border-color: #007bff;
         }
     </style>
 </head>
+
 <body>
     <div class="container my-4">
-        <h1 class="mb-4">Listagem de Pacientes</h1>
+        <h1 class="mb-4">Pacientes</h1>
 
         <!-- Formulário de busca -->
         <form method="GET" class="mb-4">
             <div class="input-group">
-                <input type="text" class="form-control" name="q" placeholder="Buscar por nome, telefone ou município" value="{{ request.GET.q }}">
+                <input type="text" class="form-control" name="q" placeholder="Buscar por nome, telefone ou município"
+                    value="{{ request.GET.q }}">
                 <button type="submit" class="btn btn-primary">Buscar</button>
             </div>
         </form>
@@ -73,14 +86,22 @@
                         <a href="{% url 'detalhe_paciente' paciente.id %}">Ver detalhes</a>
                     </div>
                     <div class="card-footer text-muted">
-                        Atualizado em: {{ paciente.modified_date|date:"d/m/Y" }}
+                        Última consulta em: 
+                        {% if paciente.ultima_consulta %}
+                            {{ paciente.ultima_consulta|date:"d/m/Y" }}
+                        {% else %}
+                            Nenhuma consulta registrada
+                        {% endif %}
                     </div>
+                    
                     <div class="card mb-3">
-                      <div class="card-body">
-                          <a href="{% url 'adicionar_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
-                          <a href="{% url 'listar_consultas' paciente.id %}" class="btn btn-secondary">Ver Consultas</a>
-                      </div>
-                  </div>
+                        <div class="card-body">
+                            <a href="{% url 'adicionar_consulta' paciente.id %}" class="btn btn-primary">Adicionar
+                                Consulta</a>
+                            <a href="{% url 'listar_consultas' paciente.id %}" class="btn btn-secondary">Ver
+                                Consultas</a>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% empty %}
@@ -91,32 +112,41 @@
         </div>
 
         <!-- Paginação -->
+        <!-- Paginação -->
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 {% if pacientes.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page=1">Primeira</a>
+                    <a class="page-link" href="?q={{ request.GET.q|default:'' }}&page=1">Primeira</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ pacientes.previous_page_number }}">Anterior</a>
+                    <a class="page-link"
+                        href="?q={{ request.GET.q|default:'' }}&page={{ pacientes.previous_page_number }}">Anterior</a>
                 </li>
                 {% endif %}
 
-                <li class="page-item disabled">
-                    <span class="page-link">Página {{ pacientes.number }} de {{ pacientes.paginator.num_pages }}</span>
+                {% for num in pacientes.paginator.page_range %}
+                <li class="page-item {% if num == pacientes.number %}active{% endif %}">
+                    <a class="page-link" href="?q={{ request.GET.q|default:'' }}&page={{ num }}">{{ num }}</a>
                 </li>
+                {% endfor %}
 
                 {% if pacientes.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ pacientes.next_page_number }}">Próxima</a>
+                    <a class="page-link"
+                        href="?q={{ request.GET.q|default:'' }}&page={{ pacientes.next_page_number }}">Próxima</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ pacientes.paginator.num_pages }}">Última</a>
+                    <a class="page-link"
+                        href="?q={{ request.GET.q|default:'' }}&page={{ pacientes.paginator.num_pages }}">Última</a>
                 </li>
                 {% endif %}
             </ul>
         </nav>
+
+
     </div>
 </body>
+
 </html>
 {% endblock %}

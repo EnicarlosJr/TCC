@@ -1,0 +1,184 @@
+{% extends 'menu.html' %}
+
+{% block content %}
+<style>
+    .card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.form-label {
+    font-size: 14px;
+}
+
+</style>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Dashboard de Consultas</h1>
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <label for="inicio" class="form-label">Início</label>
+            <input type="date" id="inicio" name="inicio" class="form-control" value="{{ filtro_inicio }}">
+        </div>
+        <div class="col-md-3">
+            <label for="fim" class="form-label">Fim</label>
+            <input type="date" id="fim" name="fim" class="form-control" value="{{ filtro_fim }}">
+        </div>
+        <div class="col-md-3">
+            <label for="problema" class="form-label">Problema de Saúde</label>
+            <select name="problema" id="problema" class="form-select">
+                <option value="">Selecione...</option>
+                {% for problema in problemas_list %}
+                    <option value="{{ problema.problema }}" {% if problema.problema == filtro_problema %}selected{% endif %}>{{ problema.problema }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="medicamento" class="form-label">Medicamento</label>
+            <select name="medicamento" id="medicamento" class="form-select">
+                <option value="">Selecione...</option>
+                {% for medicamento in medicamentos_list %}
+                    <option value="{{ medicamento.nome }}" {% if medicamento.nome == filtro_medicamento %}selected{% endif %}>{{ medicamento.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-12 mt-3 text-center">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </div>
+    </form>
+    <div class="row">
+        <!-- Card Total de Consultas -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Consultas</h5>
+                    <p class="card-text text-center">{{ total_consultas }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Medicamentos Prescritos -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Medicamentos Prescritos</h5>
+                    <p class="card-text text-center">{{ medicamentos_prescritos }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Medicamentos Não Prescritos -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Medicamentos Não Prescritos</h5>
+                    <p class="card-text text-center">{{ medicamentos_nao_prescritos }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Problemas de Saúde -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Problemas de Saúde</h5>
+                    <p class="card-text text-center">{{ problemas_saude_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Card Problemas Comuns -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Problemas Comuns (Hipertensão e Diabetes)</h5>
+                    <p class="card-text text-center">{{ problemas_comuns }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card RNM Resolvido -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">RNM Resolvido</h5>
+                    <p class="card-text text-center">{{ rnm_resolvido }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row">
+        <!-- Card Consultas por Paciente -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Consultas por Paciente</h5>
+                    <canvas id="consultasPorPacienteChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Medicamentos Prescritos -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Medicamentos Prescritos</h5>
+                    <canvas id="medicamentosPrescritosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico Consultas por Paciente
+    var ctx = document.getElementById('consultasPorPacienteChart').getContext('2d');
+    var consultasPorPacienteChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ pacientes_nome|safe }},
+            datasets: [{
+                label: 'Consultas',
+                data: {{ consultas_por_paciente_data|safe }},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico Medicamentos Prescritos
+    var ctx2 = document.getElementById('medicamentosPrescritosChart').getContext('2d');
+    var medicamentosPrescritosChart = new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: {{ medicamentos_nome|safe }},
+            datasets: [{
+                label: 'Medicamentos Prescritos',
+                data: {{ medicamentos_count|safe }},
+                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(255, 205, 86, 0.5)', 'rgba(75, 192, 192, 0.5)'],
+                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 205, 86, 1)', 'rgba(75, 192, 192, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+</script>
+
+{% endblock %}
