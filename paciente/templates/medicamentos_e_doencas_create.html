@@ -12,7 +12,6 @@
 </head>
 
 <body>
-
     <h1>Medicamentos e Doenças do Paciente</h1>
 
     <form method="POST">
@@ -21,82 +20,69 @@
         <!-- Formulários de Medicamento -->
         <div class="form-section">
             <h2>Medicamentos</h2>
-            <div>
+            <div id="medicamento-forms">
                 {% for form in medicamento_formset %}
-                <div>
-                    {{ form.as_p }}
-                </div>
+                <div class="medicamento-form">{{ form.as_p }}</div>
                 {% endfor %}
             </div>
+            <button type="button" onclick="adicionarMedicamento()">Adicionar Medicamento</button>
         </div>
 
         <!-- Formulários de Doenças -->
         <div class="form-section">
             <h2>Doenças</h2>
-            <div>
+            <div id="doenca-forms">
                 {% for form in doenca_formset %}
-                <div>
-                    {{ form.as_p }}
-                </div>
+                <div class="doenca-form">{{ form.as_p }}</div>
                 {% endfor %}
             </div>
+            <button type="button" onclick="adicionarDoenca()">Adicionar Doença</button>
         </div>
 
-        <!-- Medicamentos já salvos -->
+        <!-- Medicamentos Selecionáveis -->
         <div class="form-section">
             <h2>Medicamentos Selecionados</h2>
-            <div class="checkbox-container" id="medicamentos-container">
+            <select name="medicamentos_selecionados" multiple>
                 {% for medicamento in medicamentos_salvos %}
-                <div>
-                    <label>
-                        <input type="checkbox" name="medicamentos_selecionados" value="{{ medicamento.id }}">
-                        {{ medicamento.nome }}
-                    </label>
-                </div>
+                <option value="{{ medicamento.id }}">{{ medicamento.nome }}</option>
                 {% endfor %}
-            </div>
+            </select>
         </div>
 
-        <!-- Doenças já salvas -->
+        <!-- Doenças Selecionáveis -->
         <div class="form-section">
             <h2>Doenças Selecionadas</h2>
-            <div class="checkbox-container" id="doencas-container">
+            <select name="doencas_selecionadas" multiple>
                 {% for doenca in doencas_salvas %}
-                <div>
-                    <label>
-                        <input type="checkbox" name="doencas_selecionadas" value="{{ doenca.id }}">
-                        {{ doenca.nome }}
-                    </label>
-                </div>
+                <option value="{{ doenca.id }}">{{ doenca.nome }}</option>
                 {% endfor %}
-            </div>
+            </select>
         </div>
 
-        <!-- Botão para submeter -->
         <button type="submit">Salvar</button>
     </form>
 
     <p><a href="{% url 'autonomia_medicamentos_create' %}">Próxima Etapa</a></p>
 
-    <!-- JavaScript para adicionar interatividade -->
     <script>
-        // Função para exibir ou ocultar os medicamentos e doenças já selecionados
-        document.addEventListener('DOMContentLoaded', function () {
-            const medicamentosContainer = document.getElementById('medicamentos-container');
-            const doencasContainer = document.getElementById('doencas-container');
-
-            // Alternar a visibilidade das listas de medicamentos e doenças
-            medicamentosContainer.style.display = 'block';
-            doencasContainer.style.display = 'block';
-
-            // Exemplo de melhorar a interação, você pode adicionar mais funcionalidades aqui
-        });
+        function adicionarMedicamento() {
+            const container = document.getElementById('medicamento-forms');
+            const newForm = container.children[0].cloneNode(true);
+            newForm.querySelectorAll('input').forEach(input => input.value = '');
+            container.appendChild(newForm);
+        }
+        
+        function adicionarDoenca() {
+            const container = document.getElementById('doenca-forms');
+            const newForm = container.children[0].cloneNode(true);
+            newForm.querySelectorAll('input').forEach(input => input.value = '');
+            container.appendChild(newForm);
+        }
     </script>
 
     <footer>
         <p>&copy; 2024 Farmácia Escola. Todos os direitos reservados.</p>
     </footer>
 </body>
-
 </html>
 {% endblock %}

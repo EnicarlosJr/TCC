@@ -1,5 +1,5 @@
 from django import forms
-from .models import Paciente, Doenca, Medicamento
+from paciente.models import DoencaPaciente, MedicamentoPaciente, Paciente, DoencaPaciente, MedicamentoPaciente
 from django.forms import inlineformset_factory
 
 class PacienteForm(forms.ModelForm):
@@ -133,30 +133,29 @@ class SaudeForm(forms.ModelForm):
 
 class DoencaPacienteForm(forms.ModelForm):
     class Meta:
-        model = Doenca
-        fields = ['nome']
+        model = DoencaPaciente
+        fields = ['nome', 'controlada']  # Agora inclui o campo "controlada"
 
-# Corrigido inlineformset_factory para Doenca
+# Atualizado inlineformset_factory para DoencaPaciente
 DoencaPacienteFormSet = inlineformset_factory(
-    Paciente, Doenca,
-    form=DoencaPacienteForm,  # Usando o form DoencaPacienteForm
+    Paciente, DoencaPaciente,
+    form=DoencaPacienteForm,
     extra=1,  # Começa com um formulário vazio
     can_delete=True
 )
 
 class MedicamentoPacienteForm(forms.ModelForm):
     class Meta:
-        model = Medicamento
-        fields = ['nome']
+        model = MedicamentoPaciente
+        fields = ['nome', 'uso_continuo']  # Agora inclui o campo "uso_continuo"
 
-# Corrigido inlineformset_factory para Medicamento
+# Atualizado inlineformset_factory para MedicamentoPaciente
 MedicamentoPacienteFormSet = inlineformset_factory(
-    Paciente, Medicamento,
-    form=MedicamentoPacienteForm,  # Usando o form MedicamentoPacienteForm
+    Paciente, MedicamentoPaciente,
+    form=MedicamentoPacienteForm,
     extra=1,  # Começa com um formulário vazio
     can_delete=True
 )
-
 
 
 class AutonomiaMedicamentosForm(forms.ModelForm):

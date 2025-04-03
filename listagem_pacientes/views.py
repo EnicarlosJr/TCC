@@ -1,9 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Max
 from consulta.models import Consulta
-from paciente.models import Paciente
+from paciente.models import DoencaPaciente, MedicamentoPaciente, Paciente
 
 class PacienteListView(ListView):
     model = Paciente
@@ -53,3 +53,13 @@ class PacienteDetailView(DetailView):
     model = Paciente
     template_name = 'detalhe_paciente.html'
     context_object_name = 'paciente'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        paciente = self.get_object()
+        
+        # Adicionando doenças e medicamentos ao contexto
+        context['doencas'] = DoencaPaciente.objects.filter(paciente=paciente)
+        context['medicamentos'] = MedicamentoPaciente.objects.filter(paciente=paciente)
+
+        return context

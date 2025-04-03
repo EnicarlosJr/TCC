@@ -231,17 +231,19 @@ class Paciente(models.Model):
         return self.nome
 
 
-class Doenca(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='doencas')
+class DoencaPaciente(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='doencas_paciente')
     nome = models.CharField(max_length=255)
+    controlada = models.BooleanField(default=False)  # Se a doença está controlada ou não
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} - {self.paciente.nome}"
 
 
-class Medicamento(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='medicamentos')
+class MedicamentoPaciente(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='medicamentos_paciente')
     nome = models.CharField(max_length=255)
+    uso_continuo = models.BooleanField(default=True)  # Se o paciente usa continuamente ou não
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} - {self.paciente.nome}"

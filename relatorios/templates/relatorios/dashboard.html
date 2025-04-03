@@ -52,6 +52,10 @@
                 <div class="card-body">
                     <h5 class="card-title">Total de Consultas</h5>
                     <p class="card-text text-center">{{ total_consultas }}</p>
+                    <hr>
+                    <p class="card-text text-center">
+                        <strong>Média de Consultas por Paciente:</strong> {{ media_consultas_por_paciente }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -66,21 +70,11 @@
             </div>
         </div>
 
-        <!-- Card Medicamentos Não Prescritos -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Medicamentos Não Prescritos</h5>
-                    <p class="card-text text-center">{{ medicamentos_nao_prescritos }}</p>
-                </div>
-            </div>
-        </div>
-
         <!-- Card Problemas de Saúde -->
         <div class="col-md-3 mb-4">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Problemas de Saúde</h5>
+                    <h5 class="card-title">Número de problemas de sáude (consulta)</h5>
                     <p class="card-text text-center">{{ problemas_saude_count }}</p>
                 </div>
             </div>

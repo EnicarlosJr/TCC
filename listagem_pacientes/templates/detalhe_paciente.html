@@ -17,7 +17,7 @@
             color: #333;
             margin: 0;
             padding: 0;
-            
+
         }
 
         .container {
@@ -31,9 +31,11 @@
 
         h1 {
             text-align: center;
-            color: #2b6cb0; /* Verde */
+            color: #2b6cb0;
+            /* Verde */
             margin-bottom: 20px;
-            font-size: 2em; /* Aumentar tamanho do título */
+            font-size: 2em;
+            /* Aumentar tamanho do título */
         }
 
         /* Estilo dos Cards e Dropdown */
@@ -182,6 +184,39 @@
                 <p><strong>Capacidade de realizar atividades:</strong> {{ paciente.get_capacidade_atividade_display }}
                 </p>
                 <p><strong>Quantidade de medicamentos:</strong> {{ paciente.quantidade_medicamentos }}</p>
+            </div>
+        </div>
+        <!-- Doenças do Paciente -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Doenças <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                {% if doencas %}
+                <ul>
+                    {% for doenca in doencas %}
+                    <li><strong>{{ doenca.nome }}</strong> - {% if doenca.controlada %}Controlada{% else %}Não
+                        Controlada{% endif %}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Sem doenças registradas.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Medicamentos do Paciente -->
+        <div class="card">
+            <h2 onclick="toggleCard(this)">Medicamentos <span class="toggle-icon">&#9662;</span></h2>
+            <div class="card-content">
+                {% if medicamentos %}
+                <ul>
+                    {% for medicamento in medicamentos %}
+                    <li><strong>{{ medicamento.nome }}</strong> - {% if medicamento.uso_continuo %}Uso Contínuo{% else
+                        %}Uso Ocasional{% endif %}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>Sem medicamentos registrados.</p>
+                {% endif %}
             </div>
         </div>
 

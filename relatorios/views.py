@@ -115,6 +115,10 @@ def dashboard(request):
     # Obter lista de problemas de saúde e medicamentos para os filtros
     lista_problemas = ProblemaSaude.objects.all()
     lista_medicamentos = Medicamento.objects.all()
+    # Calcular a média de consultas por paciente
+    total_pacientes = Paciente.objects.count()
+    media_consultas_por_paciente = total_consultas / total_pacientes if total_pacientes > 0 else 0
+
 
     return render(request, 'relatorios/dashboard.html', {
         'total_consultas': total_consultas,
@@ -135,4 +139,5 @@ def dashboard(request):
         'filtro_fim': filtro_fim,
         'filtro_problema': filtro_problema,
         'filtro_medicamento': filtro_medicamento,
+        'media_consultas_por_paciente': media_consultas_por_paciente
     })
