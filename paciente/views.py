@@ -1,180 +1,115 @@
-from datetime import date, time
-from django.shortcuts import get_object_or_404, render, redirect
-
-from paciente.models import Paciente
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import AutonomiaMedicamentos, HabitosAlimentares, HistoriaSocial, Paciente, PerfilClinico, Saude
 from .forms import (
-    DoencaPacienteFormSet,
-    MedicamentoPacienteFormSet,
-    PacienteForm, 
-    HistoriaSocialAlcolismoForm, 
-    HistoriaSocialTabagismoForm, 
-    HabitosAlimentaresForm, 
-    PerfilClinicoForm, 
-    AutonomiaMedicamentosForm,
-    SaudeForm,
+    PacienteForm, HistoriaSocialForm, HabitosAlimentaresForm,
+    PerfilClinicoForm, AutonomiaMedicamentosForm, SaudeForm,
 )
 
-def paciente_create(request):
-    if request.method == 'POST':
+def cadastrar_paciente(request):
+    if request.method == "POST":
+        
         form = PacienteForm(request.POST)
         if form.is_valid():
-            # Salva os dados do formulário na sessão
-            save_to_session(request, 'paciente_form', form.cleaned_data)
-            return redirect('historia_social_alcolismo')  # Redireciona para a próxima etapa
+            paciente = form.save()
+            # Criação automática das relações se não existirem
+
+            return redirect('paciente_detail', pk=paciente.id)  # Redireciona para os detalhes do paciente
     else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('paciente_form', {})
-        form = PacienteForm(initial=form_data)
+        form = PacienteForm()
 
-    return render(request, 'paciente_form.html', {'form': form})
+    return render(request, 'cadastrar_paciente.html', {'form': form})
 
-def historia_social_alcolismo_create(request):
+def cadastrar_historia_social(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    # Se a história social já existir, redireciona
+    if hasattr(paciente, 'historia_social') and paciente.historia_social:
+        return redirect('paciente_detail', pk=paciente.id)
+
     if request.method == 'POST':
-        form = HistoriaSocialAlcolismoForm(request.POST)
+        form = HistoriaSocialForm(request.POST)
         if form.is_valid():
-            # Salvar os dados na sessão
-            save_to_session(request, 'historia_social_alcolismo_data', form.cleaned_data)
-            return redirect('historia_social_tabagismo')  # Redireciona para a próxima etapa
+            historia_social = form.save(commit=False)
+            historia_social.paciente = paciente
+            historia_social.save()
+            return redirect('paciente_detail', pk=paciente.id)
     else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('historia_social_alcolismo_data', {})
-        form = HistoriaSocialAlcolismoForm(initial=form_data)
+        form = HistoriaSocialForm()
 
-    return render(request, 'historia_social_alcolismo.html', {'form': form})
+    return render(request, 'historia_social.html', {'form': form, 'paciente': paciente})
 
-def historia_social_tabagismo_create(request):
-    if request.method == 'POST':
-        form = HistoriaSocialTabagismoForm(request.POST)
-        if form.is_valid():
-            save_to_session(request, 'historia_social_tabagismo_form', form.cleaned_data)
-            return redirect('habitos_alimentares')  # Redireciona para a próxima etapa
-    else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('historia_social_tabagismo_form', {})
-        form = HistoriaSocialTabagismoForm(initial=form_data)
+def cadastrar_habitos_alimentares(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
 
-    return render(request, 'historia_social_tabagismo.html', {'form': form})
+    # Se os hábitos alimentares já existirem, redireciona
+    if hasattr(paciente, 'habitos_alimentares') and paciente.habitos_alimentares:
+        return redirect('paciente_detail', pk=paciente.id)
 
-def habitos_alimentares_create(request):
     if request.method == 'POST':
         form = HabitosAlimentaresForm(request.POST)
         if form.is_valid():
-            # Salvar os dados na sessão
-            save_to_session(request, 'habitos_alimentares_data', form.cleaned_data)
-            return redirect('perfil_clinico')  # Redireciona para a próxima etapa
+            habitos_alimentares = form.save(commit=False)
+            habitos_alimentares.paciente = paciente
+            habitos_alimentares.save()
+            return redirect('paciente_detail', pk=paciente.id)
     else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('habitos_alimentares_data', {})
-        form = HabitosAlimentaresForm(initial=form_data)
+        form = HabitosAlimentaresForm()
 
-    return render(request, 'habitos_alimentares.html', {'form': form})
+    return render(request, 'habitos_alimentares.html', {'form': form, 'paciente': paciente})
 
-def perfil_clinico_create(request):
+def cadastrar_perfil_clinico(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+
+    # Se o perfil clínico já existir, redireciona
+    if hasattr(paciente, 'perfil_clinico') and paciente.perfil_clinico:
+        return redirect('paciente_detail', pk=paciente.id)
+
     if request.method == 'POST':
         form = PerfilClinicoForm(request.POST)
         if form.is_valid():
-            save_to_session(request, 'perfil_clinico_form', form.cleaned_data)
-            return redirect('saude_create')  # Redireciona para a próxima etapa
+            perfil_clinico = form.save(commit=False)
+            perfil_clinico.paciente = paciente
+            perfil_clinico.save()
+            return redirect('paciente_detail', pk=paciente.id)
     else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('perfil_clinico_form', {})
-        form = PerfilClinicoForm(initial=form_data)
+        form = PerfilClinicoForm()
 
-    return render(request, 'perfil_clinico.html', {'form': form})
+    return render(request, 'perfil_clinico.html', {'form': form, 'paciente': paciente})
 
-def saude_create(request):
-    if request.method == 'POST':
-        form = SaudeForm(request.POST)
-        if form.is_valid():
-            save_to_session(request, 'saude_form', form.cleaned_data)
-            return redirect('medicamentos_e_doencas_create')  # Redireciona para a próxima etapa
-    else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('saude_form', {})
-        form = SaudeForm(initial=form_data)
+def cadastrar_autonomia_medicamentos(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
 
-    return render(request, 'saude_create.html', {'form': form})
+    # Se a autonomia de medicamentos já existir, redireciona
+    if hasattr(paciente, 'autonomia_medicamentos') and paciente.autonomia_medicamentos:
+        return redirect('paciente_detail', pk=paciente.id)
 
-
-def medicamentos_e_doencas_create(request):
-    if request.method == 'POST':
-        medicamento_formset = MedicamentoPacienteFormSet(request.POST)
-        doenca_formset = DoencaPacienteFormSet(request.POST)
-
-        if medicamento_formset.is_valid() and doenca_formset.is_valid():
-            # Salvar os dados na sessão
-            request.session['medicamentos_data'] = [form.cleaned_data for form in medicamento_formset]
-            request.session['doencas_data'] = [form.cleaned_data for form in doenca_formset]
-
-            request.session.modified = True  # Garantir que a sessão seja salva
-
-            return redirect('autonomia_medicamentos_create')  # Passa para a próxima etapa
-
-    else:
-        # Preencher formulários com dados da sessão, se existirem
-        medicamentos_data = request.session.get('medicamentos_data', [])
-        doencas_data = request.session.get('doencas_data', [])
-
-        medicamento_formset = MedicamentoPacienteFormSet(initial=medicamentos_data)
-        doenca_formset = DoencaPacienteFormSet(initial=doencas_data)
-
-    return render(request, 'medicamentos_e_doencas_create.html', {
-        'medicamento_formset': medicamento_formset,
-        'doenca_formset': doenca_formset
-    })
-
-
-
-
-
-def autonomia_medicamentos_create(request):
     if request.method == 'POST':
         form = AutonomiaMedicamentosForm(request.POST)
         if form.is_valid():
-            save_to_session(request, 'autonomia_medicamentos_form', form.cleaned_data)
-
-            # Recupera todos os dados da sessão
-            paciente_data = {
-                **request.session.get('paciente_form', {}),
-                **request.session.get('historia_social_alcolismo_data', {}),
-                **request.session.get('historia_social_tabagismo_form', {}),
-                **request.session.get('habitos_alimentares_data', {}),
-                **request.session.get('perfil_clinico_form', {}),
-                **request.session.get('saude_form', {}),
-                **request.session.get('autonomia_medicamentos_form', {})
-            }
-
-            # Criar e salvar o objeto Paciente no banco de dados
-            paciente = Paciente.objects.create(**paciente_data)
-
-            # Limpar a sessão
-            request.session.flush()
-
-            return redirect('/listagem_pacientes/paciente_list')  # Redireciona para o início
+            autonomia_medicamentos = form.save(commit=False)
+            autonomia_medicamentos.paciente = paciente
+            autonomia_medicamentos.save()
+            return redirect('paciente_detail', pk=paciente.id)
     else:
-        # Preencher o formulário com dados salvos na sessão, se existirem
-        form_data = request.session.get('autonomia_medicamentos_form', {})
-        form = AutonomiaMedicamentosForm(initial=form_data)
+        form = AutonomiaMedicamentosForm()
 
-    return render(request, 'autonomia_medicamentos.html', {'form': form})
+    return render(request, 'autonomia_medicamentos.html', {'form': form, 'paciente': paciente})
 
-# Função para salvar os dados do formulário na sessão
-def save_to_session(request, form_name, form_data):
-    # Converte objetos date e time para strings antes de salvar na sessão
-    for key, value in form_data.items():
-        if isinstance(value, date):
-            form_data[key] = value.isoformat()  # Converte date para string no formato ISO
-        elif isinstance(value, time):
-            form_data[key] = value.isoformat()  # Converte time para string no formato ISO
+def saude(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
 
-    # Salva os dados convertidos na sessão
-    if form_name in request.session:
-        request.session[form_name].update(form_data)
+    # Se a saúde já existir, redireciona
+    if hasattr(paciente, 'saude') and paciente.saude:
+        return redirect('paciente_detail', pk=paciente.id)
+
+    if request.method == 'POST':
+        form = SaudeForm(request.POST)
+        if form.is_valid():
+            saude = form.save(commit=False)
+            saude.paciente = paciente
+            saude.save()
+            return redirect('paciente_detail', pk=paciente.id)
     else:
-        request.session[form_name] = form_data
+        form = SaudeForm()
 
-    request.session.modified = True  # Marca a sessão como modificada
-
-
-
-
+    return render(request, 'adicionar_saude.html', {'form': form, 'paciente': paciente})

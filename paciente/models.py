@@ -1,25 +1,17 @@
-from datetime import timezone
 from django.db import models
-
+from django.utils import timezone
 
 class Paciente(models.Model):
     nome = models.CharField(max_length=150)
     telefone = models.CharField(max_length=15)
     numero_formulario = models.CharField(max_length=10)
     responsavel = models.CharField(max_length=100)
-    data_nascimento = models.DateField()  # Campo de data
+    data_nascimento = models.DateField()
     genero = models.CharField(
-        max_length=15, 
-        choices=[
-            ('M', 'Masculino'),
-            ('F', 'Feminino'),
-            ('O', 'Outro'),
-            ('ND', 'Prefere não dizer')
-        ]
+        max_length=15, choices=[('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro'), ('ND', 'Prefere não dizer')]
     )
     estado_civil = models.CharField(
-        max_length=20, 
-        choices=[
+        max_length=20, choices=[
             ('Casado(a)', 'Casado(a)'),
             ('Solteiro(a)', 'Solteiro(a)'),
             ('Separado(a)', 'Separado(a)'),
@@ -32,8 +24,7 @@ class Paciente(models.Model):
     distrito = models.CharField(max_length=20, choices=[('Rural', 'Zona Rural'), ('Urbano', 'Zona Urbana')])
     municipio = models.CharField(max_length=100)
     escolaridade = models.CharField(
-        max_length=30, 
-        choices=[
+        max_length=30, choices=[
             ('Analfabeto', 'Analfabeto'),
             ('Fundamental incompleto', 'Fundamental incompleto'),
             ('Fundamental completo', 'Fundamental completo'),
@@ -47,8 +38,7 @@ class Paciente(models.Model):
     )
     ocupacao = models.CharField(max_length=100)
     raca = models.CharField(
-        max_length=20, 
-        choices=[
+        max_length=20, choices=[
             ('Pardo', 'Pardo'),
             ('Preto', 'Preto'),
             ('Branco', 'Branco'),
@@ -61,111 +51,232 @@ class Paciente(models.Model):
     reside_com = models.CharField(max_length=100)
     observacoes = models.TextField(blank=True)
 
-    # Campos de História Social - Consumo Bebida
-    consome_bebida = models.CharField(
-        max_length=3, 
-        choices=[
-            ('nao', 'Não'),
-            ('sim', 'Sim'),
-        ]
-    )
+    def __str__(self):
+        return self.nome
+
+
+class HistoriaSocial(models.Model):
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='historia_social')
+    consome_bebida = models.CharField(max_length=3, choices=[('nao', 'Não'), ('sim', 'Sim')])
     tipos_bebidas = models.CharField(
-        max_length=20, 
-        choices=[
-            ('fermentadas', 'Bebidas Fermentadas'),
-            ('mistas', 'Bebidas Mistas'),
-            ('destiladas', 'Bebidas Destiladas'),
-        ], 
-        blank=True
+        max_length=20, choices=[('fermentadas', 'Bebidas Fermentadas'), ('mistas', 'Bebidas Mistas'), ('destiladas', 'Bebidas Destiladas')], blank=True
     )
     quantidade_ingerida = models.CharField(
-        max_length=20, 
-        choices=[
+        max_length=20, choices=[
             ('1_a_3', '1 a 3 copos'),
             ('4_a_6', '4 a 6 copos'),
             ('7_a_9', '7 a 9 copos'),
             ('acima_de_10', 'Acima de 10 copos'),
             ('nao_informou', 'Não informou'),
-        ], 
-        blank=True
+        ], blank=True
     )
     frequencia_uso = models.CharField(
-        max_length=20, 
-        choices=[
+        max_length=20, choices=[
             ('todos_os_dias', 'Todos os dias'),
             ('todo_final_de_semana', 'Todo final de semana'),
             ('1_vez_ao_mes', '1 vez ao mês'),
             ('a_cada_3_meses', 'A cada 3 meses'),
             ('raramente', 'Raramente'),
-        ], 
-        blank=True
+        ], blank=True
     )
-
-    # Campos de História Social - Tabagismo
     fumante = models.CharField(
-        max_length=20, 
-        choices=[
-            ('sim', 'Sim'),
-            ('nao', 'Não'),
-            ('parou', 'Fumava, mas parou'),
-            ('fumante_passivo', 'Fumante passivo'),
-            ('outro', 'Outro'),
+        max_length=20, choices=[
+            ('sim', 'Sim'), ('nao', 'Não'), ('parou', 'Fumava, mas parou'), ('fumante_passivo', 'Fumante passivo'), ('outro', 'Outro')
         ]
     )
-    tempo_parou = models.IntegerField(null=True, blank=True)  # Tempo que parou de fumar
-    tempo_fumou = models.IntegerField(null=True, blank=True)  # Tempo que permaneceu fumando
+    tempo_parou = models.IntegerField(null=True, blank=True)
+    tempo_fumou = models.IntegerField(null=True, blank=True)
     pratica_atividade_fisica = models.BooleanField(default=False)
-    atividades_fisicas = models.CharField(
-        max_length=20, 
-        choices=[
-            ('caminhar', 'Caminhar'),
-            ('pedalar', 'Pedalar'),
-            ('danca', 'Dança'),
-            ('praticar_esportes', 'Praticar esportes'),
-            ('fisioterapia', 'Fisioterapia'),
-            ('outro', 'Outro'),
-        ], 
-        blank=True
-    )
-    frequencia_atividade = models.CharField(
-        max_length=20, 
-        choices=[
-            ('todos_os_dias', 'Todos os dias'),
-            ('1_vez_na_semana', '1 vez na semana'),
-            ('2_3_vezes_na_semana', '2 - 3 vezes na semana'),
-            ('4_6_vezes_na_semana', '4 - 6 vezes na semana'),
-            ('outro', 'Outro'),
-        ], 
-        blank=True
-    )
-    duracao_exercicio = models.CharField(max_length=100, blank=True)  # Descrição da duração do exercício
-    observacoes_historia_social = models.TextField(blank=True)  # Observações importantes sobre a história social
+    atividades_fisicas = models.CharField(max_length=20, blank=True)
+    frequencia_atividade = models.CharField(max_length=20, blank=True)
+    observacoes = models.TextField(blank=True)
 
-    # Campos de Hábitos Alimentares
+    def __str__(self):
+        return f"História Social de {self.paciente.nome}"
+
+
+class HabitosAlimentares(models.Model):
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='habitos_alimentares')
     horario_acorda = models.TimeField(null=True, blank=True)
     cafe_da_manha = models.TextField(blank=True)
     lanche_manha = models.TextField(blank=True)
     almoco = models.TextField(blank=True)
     lanche_tarde = models.TextField(blank=True)
     jantar = models.TextField(blank=True)
-    horario_dorme = models.TimeField(null=True, blank=False)  # Permite vazio
+    horario_dorme = models.TimeField(null=True, blank=True)
     ultima_refeicao = models.TextField(blank=True)
-    observacoes_habitos_alimentares = models.TextField(blank=True)
+    observacoes = models.TextField(blank=True)
 
-    # Campos de Perfil Clínico
+    def __str__(self):
+        return f"Hábitos Alimentares de {self.paciente.nome}"
+
+
+class PerfilClinico(models.Model):
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='perfil_clinico')
     doencas_hereditarias = models.CharField(max_length=255, blank=True)
-    CAPACIDADE_CHOICES = [
-        ('excelente', 'Excelente capacidade'),
-        ('boa', 'Boa capacidade'),
-        ('moderada', 'Capacidade moderada'),
-        ('comprometimento_grave', 'Comprometimento grave da capacidade'),
-        ('total_comprometimento', 'Total comprometimento de capacidade'),
-    ]
-    desde_quando_conhecimento = models.DateField(null=True, blank=True)  # Data em que o paciente tomou conhecimento da doença
-    quantidade_medicamentos = models.PositiveIntegerField(null=True, blank=True)  # A quantidade de medicamentos de rotina
-    capacidade_atividade = models.CharField(max_length=50, choices=CAPACIDADE_CHOICES, blank=True)
-    observacoes_importantes = models.TextField(blank=True)
+    capacidade_atividade = models.CharField(max_length=50, blank=True)
+    quantidade_medicamentos = models.PositiveIntegerField(null=True, blank=True)
+    incomodo = models.CharField(max_length=100, blank=True, null=True)
+    ultima_visita_dentista = models.DateField(blank=True, null=True)
+    percepcao_saude = models.IntegerField(choices=[(i, str(i)) for i in range(11)], blank=True, null=True)
+    observacoes = models.TextField(blank=True)
 
+    def __str__(self):
+        return f"Perfil Clínico de {self.paciente.nome}"
+
+class AutonomiaMedicamentos(models.Model):
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='autonomia_medicamentos', null=True, blank=True)
+    OPCOES_AUTONOMIA = [
+        ('sem_assistencia', 'Toma medicamento sem assistência'),
+        ('assistencia_lembrete', 'Necessita de lembretes ou de assistência'),
+        ('incapaz', 'Incapaz de tomar sozinho'),
+        ('outro', 'Outro'),
+    ]
+
+    autonomia_gestao = models.CharField(
+        max_length=30,
+        choices=OPCOES_AUTONOMIA,
+        verbose_name="Autonomia na gestão dos medicamentos",
+        null=True,
+        blank=True
+    )
+    autonomia_outro = models.CharField(
+        max_length=255,
+        verbose_name="Outro (quem auxilia com a medicação)",
+        blank=True,
+        null=True
+    )
+
+    dificuldade_tomar = models.CharField(
+        max_length=10,
+        choices=[('sim', 'Sim'), ('nao', 'Não'), ('outro', 'Outro')],
+        verbose_name="Tem dificuldade para tomar os medicamentos?"
+    )
+    dificuldade_outro = models.CharField(
+        max_length=255,
+        verbose_name="Outro (qual dificuldade)",
+        blank=True,
+        null=True
+    )
+
+    esquecimentos = models.CharField(
+        max_length=3,
+        choices=[('sim', 'Sim'), ('nao', 'Não')],
+        verbose_name="Já esqueceu de tomar os medicamentos?",
+        default='nao'
+    )
+
+    toma_no_horario = models.CharField(
+        max_length=3,
+        choices=[('sim', 'Sim'), ('nao', 'Não')],
+        verbose_name="Toma os medicamentos no horário indicado?",
+        blank=True,
+        null=True
+    )
+
+    interrompe_quando_bem = models.CharField(
+        max_length=3,
+        choices=[('sim', 'Sim'), ('nao', 'Não')],
+        verbose_name="Quando se sente bem, deixa de tomar?"
+    )
+
+    interrompe_quando_mal = models.CharField(
+        max_length=3,
+        choices=[('sim', 'Sim'), ('nao', 'Não')],
+        verbose_name="Quando se sente mal, deixa de tomar?"
+    )
+
+    desconforto_medicamento = models.CharField(
+        max_length=10,
+        choices=[('sim', 'Sim'), ('nao', 'Não'), ('outro', 'Outro')],
+        verbose_name="Sente algum desconforto com os medicamentos?"
+    )
+    desconforto_outro = models.TextField(
+        verbose_name="Descreva o desconforto e o medicamento",
+        blank=True,
+        null=True
+    )
+
+    uso_alternativos = models.CharField(
+        max_length=10,
+        choices=[('sim', 'Sim'), ('nao', 'Não'), ('outro', 'Outro')],
+        verbose_name="Faz uso de chás ou terapias alternativas?"
+    )
+    uso_alternativos_outro = models.TextField(
+        verbose_name="Descreva quais",
+        blank=True,
+        null=True
+    )
+
+    LOCAL_GUARDA = [
+        ('cozinha_banheiro', 'Cozinha/Banheiro'),
+        ('quarto_sala', 'Quarto/Sala'),
+        ('copa', 'Copa'),
+        ('gavetas', 'Em Gavetas'),
+        ('caixas', 'Em Caixas'),
+        ('cartelas', 'Cartelas soltas'),
+        ('geladeira', 'Geladeira'),
+        ('armarios', 'Armários'),
+    ]
+    local_guarda = models.CharField(
+        max_length=30,
+        choices=LOCAL_GUARDA,
+        verbose_name="Onde guarda os medicamentos em casa?"
+    )
+
+    forma_descarte = models.CharField(
+        max_length=30,
+        choices=[
+            ('lixo_comum', 'Lixo Comum'),
+            ('vaso_sanitario', 'Joga no Vaso Sanitário'),
+            ('queima', 'Queima'),
+            ('enterra', 'Enterra no solo'),
+            ('outro', 'Outro'),
+        ],
+        verbose_name="Como descarta os medicamentos vencidos?"
+    )
+    forma_descarte_outro = models.CharField(
+        max_length=255,
+        verbose_name="Outro (forma de descarte)",
+        blank=True,
+        null=True
+    )
+
+    # Rastreamento em Saúde
+    pressao_arterial = models.CharField(
+        max_length=15,
+        verbose_name="Pressão Arterial",
+        blank=True,
+        null=True
+    )
+    frequencia_cardiaca = models.CharField(
+        max_length=10,
+        verbose_name="Frequência Cardíaca",
+        blank=True,
+        null=True
+    )
+    glicemia = models.CharField(
+        blank=True,
+        null=True,
+        max_length=10,
+        verbose_name="Glicemia",
+    )
+    observacoes_importantes = models.TextField(
+        verbose_name="Observações Importantes",
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        if self.paciente:
+            return f"Autonomia Medicamentos - {self.paciente.nome}"
+        return "Autonomia Medicamentos - Paciente não atribuído"
+
+
+
+class Saude(models.Model):
+    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='saude')
+    
     # Problemas de saúde e queixas
     INCOMODOS_CHOICES = [
         ('dor', 'Dor'),
@@ -204,7 +315,9 @@ class Paciente(models.Model):
     )
     pressao_controlada = models.BooleanField(
         verbose_name='Pressão arterial está controlada?',
-        default=False
+        default=False,
+        blank=True,
+        null=True
     )
     observacoes = models.TextField(
         verbose_name='Observações Importantes:',
@@ -212,38 +325,5 @@ class Paciente(models.Model):
         null=True
     )
 
-    # Campos de Autonomia em Medicamentos
-    assistencia_medicamento = models.CharField(max_length=50, default='', blank=True)
-    dificuldade_tomar = models.CharField(max_length=50, default='', blank=True)
-    esquecimento_medicamentos = models.BooleanField(default=False)
-    horario_medicamentos = models.BooleanField(default=False)
-    interrompe_quando_bem = models.BooleanField(default=False)
-    interrompe_quando_mal = models.BooleanField(default=False)
-    desconforto_medicamento = models.TextField(blank=True)
-    uso_terapias_alternativas = models.CharField(max_length=50, default='', blank=True)
-    local_armazenamento = models.CharField(max_length=50, default='', blank=True)
-    forma_descarte = models.CharField(max_length=50, default='', blank=True)
-    rastreamento_saude = models.TextField(blank=True)
-
-    
-
     def __str__(self):
-        return self.nome
-
-
-class DoencaPaciente(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='doencas_paciente')
-    nome = models.CharField(max_length=255)
-    controlada = models.BooleanField(default=False)  # Se a doença está controlada ou não
-
-    def __str__(self):
-        return f"{self.nome} - {self.paciente.nome}"
-
-
-class MedicamentoPaciente(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='medicamentos_paciente')
-    nome = models.CharField(max_length=255)
-    uso_continuo = models.BooleanField(default=True)  # Se o paciente usa continuamente ou não
-
-    def __str__(self):
-        return f"{self.nome} - {self.paciente.nome}"
+        return f"Saúde de {self.paciente.nome}"

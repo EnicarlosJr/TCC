@@ -1,6 +1,5 @@
 {% extends 'menu.html' %}
 
-
 {% block content %}
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -9,251 +8,509 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Paciente</title>
-    <style>
-        /* Estilos Globais */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            margin: 0;
-            padding: 0;
+    <!-- Adicionando Bootstrap 5 -->
+    <!-- MANTER APENAS ESTA -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-mQ...suaChave..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+
+    <style>
+        /* Estilos personalizados */
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Arial', sans-serif;
+            color: #333;
         }
 
         .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            max-width: 1200px;
+            margin-top: 90px;
         }
 
-        h1 {
-            text-align: center;
-            color: #2b6cb0;
-            /* Verde */
-            margin-bottom: 20px;
+        .section-title {
             font-size: 2em;
-            /* Aumentar tamanho do título */
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 40px;
+            text-align: center;
+            margin-bottom: 30px;
         }
 
-        /* Estilo dos Cards e Dropdown */
-        .card {
-            background-color: #fff;
-            border-left: 5px solid #2b6cb0;
-            /* Bordas azuis para cada card */
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            cursor: pointer;
-            background-color: #2b6cb0;
-            color: #fff;
+        .card-header {
+            background-color: #3498db;
+            color: white;
+            font-size: 1.2em;
             padding: 15px;
-            margin: 0;
-            border-radius: 8px 8px 0 0;
-            font-size: 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        .card h2:hover {
-            background-color: #265a9f;
-        }
-
-        .card h2 .toggle-icon {
-            font-size: 24px;
-            transition: transform 0.3s;
-        }
-
-        .card h2.active .toggle-icon {
-            transform: rotate(180deg);
-        }
-
-        .card-content {
-            display: none;
+        .card-body {
             padding: 20px;
-            border-top: 1px solid #e2e8f0;
+            background-color: #ffffff;
         }
 
-        .card-content p {
-            font-size: 16px;
-            margin: 8px 0;
-            color: #4a5568;
-        }
-
-        .card-content p strong {
-            color: #2f855a;
-            /* Verde para destaques */
-        }
-
-        /* Estilos de Botão */
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
+        .create-button {
+            margin-top: 15px;
             padding: 10px 20px;
-            background-color: #2b6cb0;
-            color: #fff;
+            background-color: #3498db;
+            color: white;
             text-decoration: none;
             border-radius: 5px;
-            transition: background-color 0.3s ease;
+        }
+
+        .create-button:hover {
+            background-color: #2980b9;
+        }
+
+        .back-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
         }
 
         .back-button:hover {
-            background-color: #265a9f;
+            background-color: #c0392b;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .info-value {
+            color: #7f8c8d;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            color: #3498db;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        /* Estilo para animação de expansão */
+        .expand-card {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .expand-card.collapsed .card-body {
+            display: none;
+        }
+
+        .expand-card.collapsed .card-header {
+            border-radius: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+            /* Cinza para o rodapé */
         }
     </style>
-</head>
-
-<body>
-    <div class="container">
-        <h1>Detalhes de {{ paciente.nome }}</h1>
-
-        <!-- Informações Pessoais -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Informações Pessoais <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p><strong>Telefone:</strong> {{ paciente.telefone }}</p>
-                <p><strong>Número do Formulário:</strong> {{ paciente.numero_formulario }}</p>
-                <p><strong>Responsável:</strong> {{ paciente.responsavel }}</p>
-                <p><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento }}</p>
-                <p><strong>Gênero:</strong> {{ paciente.get_genero_display }}</p>
-                <p><strong>Estado Civil:</strong> {{ paciente.get_estado_civil_display }}</p>
-                <p><strong>Bairro:</strong> {{ paciente.bairro }}</p>
-                <p><strong>Distrito:</strong> {{ paciente.get_distrito_display }}</p>
-                <p><strong>Município:</strong> {{ paciente.municipio }}</p>
-                <p><strong>Escolaridade:</strong> {{ paciente.get_escolaridade_display }}</p>
-                <p><strong>Ocupação:</strong> {{ paciente.ocupacao }}</p>
-                <p><strong>Raça:</strong> {{ paciente.get_raca_display }}</p>
-            </div>
-        </div>
-
-        <!-- História Social - Consumo de Bebida -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">História Social - Consumo de Bebida <span class="toggle-icon">&#9662;</span>
-            </h2>
-            <div class="card-content">
-                <p><strong>Consome bebida:</strong> {{ paciente.get_consome_bebida_display }}</p>
-                <p><strong>Tipos de bebidas:</strong> {{ paciente.get_tipos_bebidas_display }}</p>
-                <p><strong>Quantidade ingerida:</strong> {{ paciente.get_quantidade_ingerida_display }}</p>
-                <p><strong>Frequência de uso:</strong> {{ paciente.get_frequencia_uso_display }}</p>
-            </div>
-        </div>
-
-        <!-- História Social - Tabagismo -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">História Social - Tabagismo <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p><strong>Fumante:</strong> {{ paciente.get_fumante_display }}</p>
-                <p><strong>Tempo que parou de fumar:</strong> {{ paciente.tempo_parou }}</p>
-                <p><strong>Tempo que permaneceu fumando:</strong> {{ paciente.tempo_fumou }}</p>
-            </div>
-        </div>
-
-        <!-- Atividade Física -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Atividade Física <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p><strong>Pratica atividade física:</strong> {{ paciente.pratica_atividade_fisica }}</p>
-                <p><strong>Tipos de atividades:</strong> {{ paciente.get_atividades_fisicas_display }}</p>
-                <p><strong>Frequência de atividade física:</strong> {{ paciente.get_frequencia_atividade_display }}</p>
-            </div>
-        </div>
-
-        <!-- Hábitos Alimentares -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Hábitos Alimentares <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p><strong>Horário que acorda:</strong> {{ paciente.horario_acorda }}</p>
-                <p><strong>Café da manhã:</strong> {{ paciente.cafe_da_manha }}</p>
-                <p><strong>Almoço:</strong> {{ paciente.almoco }}</p>
-                <p><strong>Jantar:</strong> {{ paciente.jantar }}</p>
-                <p><strong>Horário que dorme:</strong> {{ paciente.horario_dorme }}</p>
-            </div>
-        </div>
-
-        <!-- Perfil Clínico -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Perfil Clínico <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p><strong>Doenças hereditárias:</strong> {{ paciente.doencas_hereditarias }}</p>
-                <p><strong>Capacidade de realizar atividades:</strong> {{ paciente.get_capacidade_atividade_display }}
-                </p>
-                <p><strong>Quantidade de medicamentos:</strong> {{ paciente.quantidade_medicamentos }}</p>
-            </div>
-        </div>
-        <!-- Doenças do Paciente -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Doenças <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                {% if doencas %}
-                <ul>
-                    {% for doenca in doencas %}
-                    <li><strong>{{ doenca.nome }}</strong> - {% if doenca.controlada %}Controlada{% else %}Não
-                        Controlada{% endif %}</li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p>Sem doenças registradas.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Medicamentos do Paciente -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Medicamentos <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                {% if medicamentos %}
-                <ul>
-                    {% for medicamento in medicamentos %}
-                    <li><strong>{{ medicamento.nome }}</strong> - {% if medicamento.uso_continuo %}Uso Contínuo{% else
-                        %}Uso Ocasional{% endif %}</li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p>Sem medicamentos registrados.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Autonomia em Medicamentos -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Autonomia em Medicamentos <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p><strong>Assistência com medicamentos:</strong> {{ paciente.assistencia_medicamento }}</p>
-                <p><strong>Dificuldade em tomar medicamentos:</strong> {{ paciente.dificuldade_tomar }}</p>
-                <p><strong>Esquece de tomar medicamentos:</strong> {{ paciente.esquecimento_medicamentos }}</p>
-            </div>
-        </div>
-
-        <!-- Observações -->
-        <div class="card">
-            <h2 onclick="toggleCard(this)">Observações <span class="toggle-icon">&#9662;</span></h2>
-            <div class="card-content">
-                <p>{{ paciente.observacoes }}</p>
-            </div>
-        </div>
-
-        <!-- Botão de Voltar -->
-        <a href="{% url 'paciente_list' %}" class="back-button">Voltar à Lista de Pacientes</a>
-    </div>
 
     <script>
-        function toggleCard(element) {
-            var content = element.nextElementSibling;
-            var icon = element.querySelector('.toggle-icon');
-            if (content.style.display === "block") {
-                content.style.display = "none";
-                icon.classList.remove("active");
-            } else {
-                content.style.display = "block";
-                icon.classList.add("active");
-            }
+        // Função para alternar a visibilidade dos cartões
+        function toggleCard(card) {
+            card.classList.toggle('collapsed');
         }
     </script>
+
+
+</head>
+<div class="container">
+    <h2 class="section-title">Detalhes do Paciente: <strong>{{ paciente.nome }}</strong></h2>
+
+    {% if paciente %}
+    <div class="patient-info">
+        <!-- Informações do Paciente -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-item">
+                    <i class="fa fa-user icon"></i>
+                    <span class="info-label">Nome:</span>
+                    <span class="info-value">{{ paciente.nome }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa fa-phone icon"></i>
+                    <span class="info-label">Telefone:</span>
+                    <span class="info-value">{{ paciente.telefone }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa fa-calendar icon"></i>
+                    <span class="info-label">Data de Nascimento:</span>
+                    <span class="info-value">{{ paciente.data_nascimento }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa fa-map-marker icon"></i>
+                    <span class="info-label">Município:</span>
+                    <span class="info-value">{{ paciente.municipio }}</span>
+                    <span class="info-value">{{ paciente.bairro }}</span>
+                    <span class="info-value">{{ paciente.distrito }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-item">
+                    <i class="fa fa-envelope icon"></i>
+                    <span class="info-label">Responsável:</span>
+                    <span class="info-value">{{ paciente.responsavel }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa fa-male icon"></i>
+                    <span class="info-label">Gênero:</span>
+                    <span class="info-value">{{ paciente.get_genero_display }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa fa-heart icon"></i>
+                    <span class="info-label">Estado Civil:</span>
+                    <span class="info-value">{{ paciente.get_estado_civil_display }}</span>
+                </div>
+                <div class="info-item">
+                    <i class="fa fa-graduation-cap icon"></i>
+                    <span class="info-label">Escolaridade:</span>
+                    <span class="info-value">{{ paciente.get_escolaridade_display }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card para História Social -->
+        <div class="card expand-card collapsed">
+            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+                <i class="fa fa-users"></i> História Social <i class="fa fa-arrow-down float-end"></i>
+            </div>
+            <div class="card-body">
+                {% if paciente.historia_social %}
+                <div class="info-item">
+                    <span class="info-label">Consome Bebida:</span>
+                    <span class="info-value">{{ paciente.historia_social.consome_bebida }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tipo de Bebida:</span>
+                    <span class="info-value">{{ paciente.historia_social.tipos_bebidas }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Quantidade Ingerida:</span>
+                    <span class="info-value">{{ paciente.historia_social.quantidade_ingerida }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Frequência de Uso:</span>
+                    <span class="info-value">{{ paciente.historia_social.frequencia_uso }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Fumante:</span>
+                    <span class="info-value">{{ paciente.historia_social.fumante }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tempo Fumou:</span>
+                    <span class="info-value">{{ paciente.historia_social.tempo_fumou }} anos</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tempo Parou:</span>
+                    <span class="info-value">{{ paciente.historia_social.tempo_parou }} anos</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Pratica Atividade Física:</span>
+                    <span class="info-value">{{ paciente.historia_social.pratica_atividade_fisica }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Atividades Físicas:</span>
+                    <span class="info-value">{{ paciente.historia_social.atividades_fisicas }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Frequência de Atividade Física:</span>
+                    <span class="info-value">{{ paciente.historia_social.frequencia_atividade }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observações:</span>
+                    <span class="info-value">{{ paciente.historia_social.observacoes }}</span>
+                </div>
+                {% else %}
+                <p>Este paciente não tem informações sobre História Social. <a
+                        href="{% url 'cadastrar_historia_social' paciente.id %}" class="create-button">cadastrar
+                        História Social</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <!-- Card para Hábitos Alimentares -->
+        <div class="card expand-card collapsed">
+            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+                <i class="fa-solid fa-bowl-food"></i> Hábitos Alimentares <i class="fa fa-arrow-down float-end"></i>
+            </div>
+            <div class="card-body">
+                {% if paciente.habitos_alimentares %}
+                <div class="info-item">
+                    <span class="info-label">Horário que Acorda:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.horario_acorda|time:"H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Café da Manhã:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.cafe_da_manha }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Lanche da Manhã:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.lanche_manha }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Almoço:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.almoco }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Lanche da Tarde:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.lanche_tarde }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Jantar:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.jantar }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Horário que Dorme:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.horario_dorme|time:"H:i" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Refeição:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.ultima_refeicao }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observações:</span>
+                    <span class="info-value">{{ paciente.habitos_alimentares.observacoes }}</span>
+                </div>
+                {% else %}
+                <p>Este paciente não tem informações sobre Hábitos Alimentares. <a
+                        href="{% url 'cadastrar_habitos_alimentares' paciente.id %}" class="create-button">cadastrar
+                        Hábitos Alimentares</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Card para Autonomia de Medicamentos -->
+        <div class="card expand-card collapsed">
+            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+                <i class="fa fa-medkit"></i> Autonomia Medicamentos <i class="fa fa-arrow-down float-end"></i>
+            </div>
+            <div class="card-body">
+                {% if paciente.autonomia_medicamentos %}
+                <div class="info-item">
+                    <span class="info-label">Autonomia na gestão:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_autonomia_gestao_display }}</span>
+                </div>
+                {% if paciente.autonomia_medicamentos.autonomia_outro %}
+                <div class="info-item">
+                    <span class="info-label">Outro (quem auxilia):</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.autonomia_outro }}</span>
+                </div>
+                {% endif %}
+
+                <div class="info-item">
+                    <span class="info-label">Dificuldade para tomar medicamentos:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_dificuldade_tomar_display }}</span>
+                </div>
+                {% if paciente.autonomia_medicamentos.dificuldade_outro %}
+                <div class="info-item">
+                    <span class="info-label">Outro (dificuldade):</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.dificuldade_outro }}</span>
+                </div>
+                {% endif %}
+
+                <div class="info-item">
+                    <span class="info-label">Já esqueceu de tomar os medicamentos?</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_esquecimentos_display }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Toma os medicamentos no horário indicado?</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_toma_no_horario_display }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Deixa de tomar quando se sente bem?</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_bem_display
+                        }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Deixa de tomar quando se sente mal?</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_mal_display
+                        }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Desconforto com medicamentos:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_desconforto_medicamento_display
+                        }}</span>
+                </div>
+                {% if paciente.autonomia_medicamentos.desconforto_outro %}
+                <div class="info-item">
+                    <span class="info-label">Descreva o desconforto:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.desconforto_outro }}</span>
+                </div>
+                {% endif %}
+
+                <div class="info-item">
+                    <span class="info-label">Uso de chás ou terapias alternativas:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_uso_alternativos_display }}</span>
+                </div>
+                {% if paciente.autonomia_medicamentos.uso_alternativos_outro %}
+                <div class="info-item">
+                    <span class="info-label">Descreva quais:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.uso_alternativos_outro }}</span>
+                </div>
+                {% endif %}
+
+                <div class="info-item">
+                    <span class="info-label">Local onde guarda os medicamentos:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_local_guarda_display }}</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Forma de descarte:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_forma_descarte_display }}</span>
+                </div>
+                {% if paciente.autonomia_medicamentos.forma_descarte_outro %}
+                <div class="info-item">
+                    <span class="info-label">Outro (forma de descarte):</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.forma_descarte_outro }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Rastreamento em Saúde -->
+                <div class="info-item">
+                    <span class="info-label">Pressão Arterial:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.pressao_arterial }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Frequência Cardíaca:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.frequencia_cardiaca }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Glicemia:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.glicemia }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observações Importantes:</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.observacoes_importantes }}</span>
+                </div>
+                {% else %}
+                <p>Este paciente não tem informações sobre Autonomia na gestão dos medicamentos. <a
+                        href="{% url 'cadastrar_autonomia_medicamentos' paciente.id %}" class="create-button">Cadastrar
+                        informações</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+
+
+        <div class="card expand-card collapsed">
+            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+                <i class="fa fa-heartbeat"></i> Saúde <i class="fa fa-arrow-down float-end"></i>
+            </div>
+            <div class="card-body">
+                {% if paciente.saude %}
+                <div class="info-item">
+                    <span class="info-label">Incomodo:</span>
+                    <span class="info-value">{{ paciente.saude.incomodo }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Informações Importantes:</span>
+                    <span class="info-value">{{ paciente.saude.informacoes_importantes }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Visita ao Dentista:</span>
+                    <span class="info-value">{{ paciente.saude.ultima_visita_dentista }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Percepção Geral da Saúde (0-10):</span>
+                    <span class="info-value">{{ paciente.saude.percepcao_saude }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Justificativa:</span>
+                    <span class="info-value">{{ paciente.saude.justificativa }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Pressão Arterial Controlada:</span>
+                    <span class="info-value">{{ paciente.saude.pressao_controlada|yesno:"Sim,Não" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observações Importantes:</span>
+                    <span class="info-value">{{ paciente.saude.observacoes }}</span>
+                </div>
+                {% else %}
+                <p>Este paciente não tem informações sobre Saúde. <a href="{% url 'cadastrar_saude' paciente.id %}"
+                        class="create-button">cadastrar Saúde</a></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Card para Perfil Clínico -->
+        <div class="card expand-card collapsed">
+            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+                <i class="fa fa-user-md"></i> Perfil Clínico <i class="fa fa-arrow-down float-end"></i>
+            </div>
+            <div class="card-body">
+                {% if paciente.perfil_clinico %}
+                <div class="info-item">
+                    <span class="info-label">Doenças Hereditárias:</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.doencas_hereditarias }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Capacidade de realizar atividades do dia a dia:</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.capacidade_atividade }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Quantidade de medicamentos utilizados:</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.quantidade_medicamentos }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Medicamentos causam incômodo?</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.incomodo }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Última Visita ao Dentista:</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.ultima_visita_dentista }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Percepção Geral da Saúde (0-10):</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.percepcao_saude }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Observações:</span>
+                    <span class="info-value">{{ paciente.perfil_clinico.observacoes }}</span>
+                </div>
+                {% else %}
+                <p>Este paciente não tem informações sobre Perfil Clínico.
+                    <a href="{% url 'cadastrar_perfil_clinico' paciente.id %}" class="create-button">cadastrar Perfil
+                        Clínico</a>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <!-- Botão de voltar -->
+    <a href="{% url 'paciente_list' %}" class="back-button">Voltar à Lista de Pacientes</a>
+    {% else %}
+    <p>Paciente não encontrado.</p>
+    {% endif %}
+</div>
+
 </body>
-{% endblock %}
+
+</html>
+{%endblock%}

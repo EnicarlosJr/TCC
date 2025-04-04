@@ -5,18 +5,21 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Formulário de Alcolismo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Clínico</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/paciente.css' %}">
 </head>
 
 <body>
+
     <div class="container">
-        <h1>Formulário de Alcolismo</h1>
+        <h1>Perfil Clínico</h1>
+
         <form method="post">
-            {% csrf_token %} {{ form.as_p }}
+            {% csrf_token %}
+            {{ form.as_p }}
 
             <div class="button-container">
                 {% if request.META.HTTP_REFERER %}
@@ -24,13 +27,15 @@
                     <button type="button" class="btn-secondary">Voltar</button>
                 </a>
                 {% endif %}
-                <button type="submit">Próximo</button>
+                <button type="submit">Salvar</button>
             </div>
         </form>
     </div>
+
     <footer>
         <p>&copy; 2024 Farmácia Escola. Todos os direitos reservados.</p>
     </footer>
+
 </body>
 
 </html>

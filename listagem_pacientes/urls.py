@@ -4,6 +4,5 @@ from .views import PacienteDetailView, PacienteListView
 
 urlpatterns = [
     path('paciente_list/', PacienteListView.as_view(), name='paciente_list'),
-    path('paciente/<int:pk>/', PacienteDetailView.as_view(), name='detalhe_paciente'),
-    ]
-
+    path('paciente/<int:pk>/', PacienteDetailView.as_view(), name='paciente_detail'),  # URL para detalhes
+]

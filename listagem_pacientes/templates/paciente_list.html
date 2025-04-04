@@ -13,6 +13,16 @@
     <style>
         body {
             background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-top: 50px;
+            /* Adicione uma margem superior para compensar o menu fixo */
         }
 
         h1 {
@@ -52,6 +62,14 @@
             background-color: #007bff;
             border-color: #007bff;
         }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+            /* Cinza para o rodapé */
+        }
     </style>
 </head>
 
@@ -69,7 +87,7 @@
         </form>
 
         <!-- Botão para adicionar novo paciente -->
-        <a href="{% url 'paciente_create' %}" class="btn btn-success mb-4">Adicionar Paciente</a>
+        <a href="{% url 'cadastrar_paciente' %}" class="btn btn-success mb-4">Adicionar Paciente</a>
 
         <!-- Lista de pacientes em cards -->
         <div class="row">
@@ -83,17 +101,17 @@
                         <p class="card-text"><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento }}</p>
                         <p class="card-text"><strong>Gênero:</strong> {{ paciente.get_genero_display }}</p>
                         <p class="card-text"><strong>Estado Civil:</strong> {{ paciente.get_estado_civil_display }}</p>
-                        <a href="{% url 'detalhe_paciente' paciente.id %}">Ver detalhes</a>
+                        <a href="{% url 'paciente_detail' paciente.id %}">Ver detalhes</a>
                     </div>
                     <div class="card-footer text-muted">
-                        Última consulta em: 
+                        Última consulta em:
                         {% if paciente.ultima_consulta %}
-                            {{ paciente.ultima_consulta|date:"d/m/Y" }}
+                        {{ paciente.ultima_consulta|date:"d/m/Y" }}
                         {% else %}
-                            Nenhuma consulta registrada
+                        Nenhuma consulta registrada
                         {% endif %}
                     </div>
-                    
+
                     <div class="card mb-3">
                         <div class="card-body">
                             <a href="{% url 'adicionar_consulta' paciente.id %}" class="btn btn-primary">Adicionar
@@ -111,7 +129,6 @@
             {% endfor %}
         </div>
 
-        <!-- Paginação -->
         <!-- Paginação -->
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
