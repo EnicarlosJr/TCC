@@ -463,16 +463,8 @@
             <div class="card-body">
                 {% if paciente.perfil_clinico %}
                 <div class="info-item">
-                    <span class="info-label">Doenças Hereditárias:</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.doencas_hereditarias }}</span>
-                </div>
-                <div class="info-item">
                     <span class="info-label">Capacidade de realizar atividades do dia a dia:</span>
                     <span class="info-value">{{ paciente.perfil_clinico.capacidade_atividade }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Quantidade de medicamentos utilizados:</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.quantidade_medicamentos }}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Medicamentos causam incômodo?</span>
@@ -498,6 +490,49 @@
                 {% endif %}
             </div>
         </div>
+
+        <!-- Card para Doenças e Medicamentos -->
+        <div class="card expand-card collapsed">
+            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+                <i class="fa fa-stethoscope"></i> Doenças e Medicamentos <i class="fa fa-arrow-down float-end"></i>
+            </div>
+            <div class="card-body">
+                {% if paciente.doencas.exists %}
+                <div class="info-item">
+                    <span class="info-label">Doenças:</span>
+                    <ul class="info-value">
+                        {% for doenca in paciente.doencas.all %}
+                        <li>
+                            {{ doenca.nome }}
+                            {% if doenca.medicamentos.exists %}
+                            <ul>
+                                <span class="info-label">Medicamentos:</span>
+                                {% for medicamento in doenca.medicamentos.all %}
+                                <li>{{ medicamento.nome }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p>Sem medicamentos associados a esta doença.</p>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li>Sem doenças registradas</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <p>Este paciente não tem doenças associadas.
+                    <a href="{% url 'associar_doencas_medicamentos' paciente.id %}" class="create-button">Associar
+                        Doenças e Medicamentos</a>
+                </p>
+                {% endif %}
+
+                {% if not paciente.doencas.exists %}
+                <p>Este paciente ainda não possui doenças associadas. Por favor, associe doenças e medicamentos.</p>
+                {% endif %}
+            </div>
+        </div>
+
 
 
 

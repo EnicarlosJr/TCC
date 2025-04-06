@@ -1,5 +1,22 @@
 from django.db import models
-from django.utils import timezone
+
+
+
+
+class Doenca(models.Model):
+    nome = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nome
+
+class Medicamento(models.Model):
+    nome = models.CharField(max_length=100, unique=True)
+    doenca = models.ForeignKey(Doenca, related_name='medicamentos', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.nome
+    
+
 
 class Paciente(models.Model):
     nome = models.CharField(max_length=150)
@@ -7,6 +24,11 @@ class Paciente(models.Model):
     numero_formulario = models.CharField(max_length=10)
     responsavel = models.CharField(max_length=100)
     data_nascimento = models.DateField()
+    # Relacionamento ManyToMany entre Paciente e Doenca
+    doencas = models.ManyToManyField(Doenca, related_name='pacientes', blank=True)
+    
+    # Relacionamento ManyToMany entre Paciente e Medicamento (mediado por Doenca)
+    medicamentos = models.ManyToManyField(Medicamento, related_name='pacientes', blank=True)
     genero = models.CharField(
         max_length=15, choices=[('M', 'Masculino'), ('F', 'Feminino'), ('O', 'Outro'), ('ND', 'Prefere não dizer')]
     )
@@ -54,7 +76,14 @@ class Paciente(models.Model):
     def __str__(self):
         return self.nome
 
+class MedicamentoDoencaPaciente(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="medicamentos_doenca_paciente")
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE)
+    doenca = models.ForeignKey(Doenca, on_delete=models.CASCADE)
+    observacao = models.TextField(blank=True, null=True)  # Novo campo para observações
 
+    def __str__(self):
+        return f"{self.paciente.nome} - {self.medicamento.nome} - {self.doenca.nome}"
 class HistoriaSocial(models.Model):
     paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='historia_social')
     consome_bebida = models.CharField(max_length=3, choices=[('nao', 'Não'), ('sim', 'Sim')])
@@ -113,9 +142,7 @@ class HabitosAlimentares(models.Model):
 
 class PerfilClinico(models.Model):
     paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='perfil_clinico')
-    doencas_hereditarias = models.CharField(max_length=255, blank=True)
     capacidade_atividade = models.CharField(max_length=50, blank=True)
-    quantidade_medicamentos = models.PositiveIntegerField(null=True, blank=True)
     incomodo = models.CharField(max_length=100, blank=True, null=True)
     ultima_visita_dentista = models.DateField(blank=True, null=True)
     percepcao_saude = models.IntegerField(choices=[(i, str(i)) for i in range(11)], blank=True, null=True)
@@ -327,3 +354,5 @@ class Saude(models.Model):
 
     def __str__(self):
         return f"Saúde de {self.paciente.nome}"
+    
+

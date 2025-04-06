@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'consulta',
     'tela_inicial',
     'relatorios',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

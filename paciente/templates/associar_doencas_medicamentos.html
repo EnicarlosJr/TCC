@@ -1,0 +1,271 @@
+<!-- template (associar_doencas_medicamentos.html) -->
+{% extends "menu.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/paciente.css' %}" />
+
+<div class="container mt-5">
+    <h2 class="mb-4">💊 Associar Medicamentos às Doenças</h2>
+
+    <!-- Formulário para enviar via POST -->
+    <form method="POST" action="{% url 'associar_doencas_medicamentos' paciente.id %}">
+        {% csrf_token %}
+
+        <!-- Adição de Doença -->
+        <div id="doencas-container" class="mb-4">
+            <div class="mb-3">
+                <label for="doenca" class="form-label"><strong>Adicionar Doença (Condicional)</strong></label>
+                <div class="input-group">
+                    <input type="text" id="doenca-input" class="form-control"
+                        placeholder="Digite o nome da condição de saúde" />
+                    <button type="button" id="adicionar-doenca" class="btn btn-outline-primary">Adicionar
+                        Doença</button>
+                </div>
+                <ul id="doenca-suggestions" class="list-group mt-2" style="display: none"></ul>
+            </div>
+        </div>
+
+        <!-- Lista de Doenças com seus medicamentos -->
+        <div id="lista-doencas" class="mb-5"></div>
+
+        <!-- Botões -->
+        <div class="mt-4 d-flex justify-content-between">
+            <a href="{{ request.META.HTTP_REFERER }}">
+                <button type="button" class="btn btn-secondary">Voltar</button>
+            </a>
+            <button type="submit" class="btn btn-primary">Salvar e Continuar</button>
+        </div>
+    </form>
+</div>
+
+<!-- Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="toastSucesso" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+        aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">✅ Medicamento adicionado com sucesso!</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+    // Buscar Doenças
+    document.getElementById("doenca-input").addEventListener("input", function () {
+        const query = this.value.trim();
+        const suggestionsContainer = document.getElementById("doenca-suggestions");
+
+        if (query.length < 3) {
+            suggestionsContainer.style.display = "none";
+            return;
+        }
+
+        fetch("{% url 'buscar_doencas' %}?q=" + query)
+            .then((response) => response.json())
+            .then((data) => {
+                suggestionsContainer.innerHTML = "";
+                if (data.length > 0) {
+                    data.forEach((doenca) => {
+                        const li = document.createElement("li");
+                        li.classList.add("list-group-item", "list-group-item-action");
+                        li.textContent = doenca.nome;
+                        li.addEventListener("click", function () {
+                            document.getElementById("doenca-input").value = doenca.nome;
+                            suggestionsContainer.style.display = "none";
+                            adicionarDoenca(doenca.id, doenca.nome);
+                        });
+                        suggestionsContainer.appendChild(li);
+                    });
+                    suggestionsContainer.style.display = "block";
+                } else {
+                    suggestionsContainer.style.display = "none";
+                }
+            });
+    });
+
+    // Add Doença
+    document.getElementById("adicionar-doenca").addEventListener("click", function () {
+        const nomeDoenca = document.getElementById("doenca-input").value.trim();
+        const pacienteId = "{{ paciente.id }}";  // Obtém o ID do paciente a partir do template
+
+        if (!nomeDoenca) return alert("Por favor, insira o nome da doença.");
+
+        fetch(`/paciente/adicionar_doenca/${pacienteId}/`, {  // Passa o paciente_id na URL
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrftoken,
+            },
+            body: `nome=${nomeDoenca}`,
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.id) {
+                    adicionarDoenca(data.id, data.nome);
+                    document.getElementById("doenca-input").value = "";
+                }
+            })
+            .catch((error) => alert("Erro ao adicionar doença!"));
+    });
+
+    // Função para adicionar a doença e medicamento
+    function adicionarDoenca(doencaId, nomeDoenca) {
+        const html = `
+        <div class="doenca-item mb-4" data-doenca-id="${doencaId}">
+            <div class="d-flex justify-content-between">
+                <h5>${nomeDoenca}</h5>
+                <button type="button" class="btn btn-sm btn-danger remover-doenca" data-doenca-id="${doencaId}">Remover</button>
+            </div>
+            <div class="mb-3">
+                <label for="medicamento-input" class="form-label"><strong>Adicionar Medicamento</strong></label>
+                <div class="input-group">
+                    <input type="text" id="medicamento-input-${doencaId}" class="form-control" placeholder="Digite o nome do medicamento" />
+                    <button type="button" class="btn btn-outline-primary adicionar-medicamento" data-doenca-id="${doencaId}" data-paciente-id="{{ paciente.id }}" data-url="{% url 'adicionar_medicamento' paciente.id %}">
+                        Adicionar Medicamento
+                    </button>
+                </div>
+                <ul id="medicamento-suggestions-${doencaId}" class="list-group mt-2" style="display: none"></ul>
+            </div>
+            <div id="medicamentos-${doencaId}" class="mt-2"></div>
+        </div>
+        `;
+        document.getElementById("lista-doencas").insertAdjacentHTML("beforeend", html);
+
+        // Buscar Medicamentos
+        document.getElementById(`medicamento-input-${doencaId}`).addEventListener("input", function () {
+            const query = this.value.trim();
+            const suggestionsContainer = document.getElementById(`medicamento-suggestions-${doencaId}`);
+
+            if (query.length < 3) {
+                suggestionsContainer.style.display = "none";
+                return;
+            }
+
+            fetch("{% url 'buscar_medicamento' %}?q=" + query)
+                .then((response) => response.json())
+                .then((data) => {
+                    suggestionsContainer.innerHTML = "";
+                    if (data.length > 0) {
+                        data.forEach((medicamento) => {
+                            const li = document.createElement("li");
+                            li.classList.add("list-group-item", "list-group-item-action");
+                            li.textContent = medicamento.nome;
+                            li.addEventListener("click", function () {
+                                document.getElementById(`medicamento-input-${doencaId}`).value = medicamento.nome;
+                                suggestionsContainer.style.display = "none";
+                                adicionarMedicamento(medicamento.id, medicamento.nome, doencaId);
+                            });
+                            suggestionsContainer.appendChild(li);
+                        });
+                        suggestionsContainer.style.display = "block";
+                    } else {
+                        suggestionsContainer.style.display = "none";
+                    }
+                });
+        });
+
+        // Adicionar Medicamento
+        document.querySelector(`.adicionar-medicamento[data-doenca-id="${doencaId}"]`).addEventListener("click", function () {
+            const medicamentoInput = document.getElementById(`medicamento-input-${doencaId}`);
+            const medicamentoNome = medicamentoInput.value.trim();
+
+            if (!medicamentoNome) return alert("Por favor, insira o nome do medicamento.");
+
+            fetch(this.dataset.url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": csrftoken,
+                },
+                body: `nome=${medicamentoNome}&doenca_id=${doencaId}`,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.id) {
+                        const badge = `<span class="badge bg-primary me-1 mb-1">${data.nome}</span>`;
+                        document.getElementById(`medicamentos-${doencaId}`).insertAdjacentHTML("beforeend", badge);
+                        medicamentoInput.value = "";
+
+                        // Exibe o toast de sucesso
+                        const toast = new bootstrap.Toast(document.getElementById("toastSucesso"));
+                        toast.show();
+                    }
+                })
+                .catch((error) => alert("Erro ao adicionar medicamento."));
+        });
+    }
+
+    // Remover Doença
+    document.addEventListener("click", function (e) {
+        if (e.target && e.target.classList.contains("remover-doenca")) {
+            const doencaId = e.target.dataset.doencaId;
+            document.querySelector(`.doenca-item[data-doenca-id="${doencaId}"]`).remove();
+        }
+    });
+
+    // Enviar o formulário  as associações
+    // Quando o formulário for enviado
+    document.getElementById('associar-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const doencas = document.querySelectorAll('.doenca-item');
+        if (doencas.length === 0) return alert("Adicione pelo menos uma condição de saúde.");
+
+        const pacienteId = "{{ paciente.id }}";
+        const urlSalvar = `/paciente/paciente/${pacienteId}/associar-doencas-medicamentos/`;  // Verifique a URL
+
+        let todasAssociacoes = [];
+
+        doencas.forEach((el) => {
+            const doencaNome = el.querySelector('h5').textContent;
+            const medicamentos = el.querySelectorAll('span');
+            const nomesMedicamentos = Array.from(medicamentos).map(el => el.textContent.trim());
+
+            todasAssociacoes.push({
+                doenca: doencaNome,
+                medicamentos: nomesMedicamentos
+            });
+        });
+
+        // Envia o JSON com o cabeçalho correto
+        fetch(urlSalvar, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({ associacoes: todasAssociacoes })  // Passa os dados como JSON
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    window.location.href = data.redirect || "/";
+                } else {
+                    alert("Erro ao salvar as associações.");
+                }
+            })
+            .catch(error => console.error("Erro ao salvar:", error));
+    });
+
+
+</script>
+{% endblock %}

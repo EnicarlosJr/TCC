@@ -1,5 +1,7 @@
 from django import forms
-from paciente.models import Paciente, HistoriaSocial, HabitosAlimentares, PerfilClinico, AutonomiaMedicamentos, Saude
+from consulta import models
+from django.forms import modelformset_factory
+from paciente.models import Doenca, Medicamento, MedicamentoDoencaPaciente, Paciente, HistoriaSocial, HabitosAlimentares, PerfilClinico, AutonomiaMedicamentos, Saude
 
 class PacienteForm(forms.ModelForm):
     class Meta:
@@ -57,7 +59,7 @@ class PerfilClinicoForm(forms.ModelForm):
     class Meta:
         model = PerfilClinico
         fields = [
-            'doencas_hereditarias', 'capacidade_atividade', 'quantidade_medicamentos', 'incomodo',
+            'capacidade_atividade', 'incomodo',
             'ultima_visita_dentista', 'percepcao_saude', 'observacoes'
         ]
         widgets = {
@@ -212,3 +214,51 @@ class SaudeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control', 'placeholder': field.label})
+
+
+class DoencaForm(forms.ModelForm):
+    class Meta:
+        model = Doenca
+        fields = ['nome']
+
+    def clean_nome(self):
+        nome = self.cleaned_data['nome']
+        # Verificando se a doença já existe
+        if Doenca.objects.filter(nome=nome).exists():
+            raise forms.ValidationError("Essa doença já existe no banco de dados.")
+        return nome
+
+
+class MedicamentoForm(forms.ModelForm):
+    class Meta:
+        model = Medicamento
+        fields = ['nome']
+
+    def clean_nome(self):
+        nome = self.cleaned_data['nome']
+        # Verificando se o medicamento já existe
+        if Medicamento.objects.filter(nome=nome).exists():
+            raise forms.ValidationError("Esse medicamento já existe no banco de dados.")
+        return nome
+
+
+class MedicamentoDoencaPacienteForm(forms.ModelForm):
+    class Meta:
+        model = MedicamentoDoencaPaciente
+        fields = ['doenca', 'medicamento', 'observacao']
+
+    # Configura para o campo de doença não ser editável, pois vai ser selecionado automaticamente
+    doenca = forms.ModelChoiceField(queryset=Doenca.objects.all(), disabled=True)
+    medicamento = forms.ModelChoiceField(queryset=Medicamento.objects.all())
+    observacao = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Motivo ou explicação'}), required=False)
+
+
+class MedicamentoDoencaPacienteForm(forms.ModelForm):
+    class Meta:
+        model = MedicamentoDoencaPaciente
+        fields = ['doenca', 'medicamento', 'observacao']
+
+    # Configura para o campo de doença não ser editável, pois vai ser selecionado automaticamente
+    doenca = forms.ModelChoiceField(queryset=Doenca.objects.all(), disabled=True)
+    medicamento = forms.ModelChoiceField(queryset=Medicamento.objects.all())
+    observacao = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Motivo ou explicação'}), required=False)
