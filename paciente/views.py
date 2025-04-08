@@ -1,10 +1,11 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 
-import paciente
-from .models import AutonomiaMedicamentos, Doenca, HabitosAlimentares, HistoriaSocial, Medicamento, MedicamentoDoencaPaciente, Paciente, PerfilClinico, Saude
+
+from .models import  Doenca, Medicamento, MedicamentoDoencaPaciente, Paciente, PerfilClinico, Saude
 from .forms import (
     DoencaForm, MedicamentoDoencaPacienteForm, MedicamentoForm, PacienteForm, HistoriaSocialForm, HabitosAlimentaresForm,
     PerfilClinicoForm, AutonomiaMedicamentosForm, SaudeForm,
@@ -119,13 +120,11 @@ def saude(request, paciente_id):
 
     return render(request, 'adicionar_saude.html', {'form': form, 'paciente': paciente})
 
-
 def associar_doencas_medicamentos(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
     if request.method == 'POST':
         try:
-            # Tente carregar os dados JSON
             data = json.loads(request.body)
         except json.JSONDecodeError:
             return redirect('paciente_detail', pk=paciente.id)
@@ -135,7 +134,6 @@ def associar_doencas_medicamentos(request, paciente_id):
         if not associacoes:
             return JsonResponse({'error': 'Nenhuma associação fornecida.'}, status=400)
 
-        # Processa as associações (doenças e medicamentos)
         for associacao in associacoes:
             doenca_nome = associacao.get('doenca')
             medicamentos_nomes = associacao.get('medicamentos', [])
@@ -144,45 +142,58 @@ def associar_doencas_medicamentos(request, paciente_id):
             if not doenca_nome or not medicamentos_nomes:
                 return JsonResponse({'error': 'Nome da doença e medicamentos são obrigatórios.'}, status=400)
 
-            # Validar e criar doença
-            doenca, created = Doenca.objects.get_or_create(nome=doenca_nome)
-            
-            # Processa os medicamentos
+            # Cria ou recupera a doença
+            doenca, _ = Doenca.objects.get_or_create(nome=doenca_nome)
+
             for medicamento_nome in medicamentos_nomes:
-                medicamento, created = Medicamento.objects.get_or_create(nome=medicamento_nome, doenca=doenca)
-                
-                # Cria a associação entre paciente, medicamento e doença
-                MedicamentoDoencaPaciente.objects.create(
+                medicamento, _ = Medicamento.objects.get_or_create(nome=medicamento_nome)
+
+                # Cria associação evitando duplicações
+                MedicamentoDoencaPaciente.objects.get_or_create(
                     paciente=paciente,
                     medicamento=medicamento,
                     doenca=doenca,
-                    observacao=observacao
+                    defaults={'observacao': observacao}
                 )
 
-        # Retorna uma resposta JSON de sucesso
         return JsonResponse({
             'sucesso': True,
-            'message': 'Associações de doenças e medicamentos foram salvas com sucesso.',
+            'message': 'Associações salvas com sucesso.',
             'redirect': f'/paciente/{paciente_id}/'
         })
 
     elif request.method == 'GET':
-        # Se for GET, renderiza a página para o formulário
         return render(request, 'associar_doencas_medicamentos.html', {'paciente': paciente})
 
+@require_POST
+def adicionar_medicamento(request, paciente_id):
+    nome_medicamento = request.POST.get('nome')
+    doenca_id = request.POST.get('doenca_id')
 
+    if nome_medicamento and doenca_id:
+        try:
+            doenca = Doenca.objects.get(id=doenca_id)
+        except Doenca.DoesNotExist:
+            return JsonResponse({'error': 'Doença não encontrada!'}, status=404)
 
+        medicamento, _ = Medicamento.objects.get_or_create(nome=nome_medicamento)
+        paciente = get_object_or_404(Paciente, id=paciente_id)
 
+        # Associa o medicamento à doença e ao paciente
+        MedicamentoDoencaPaciente.objects.get_or_create(
+            paciente=paciente,
+            medicamento=medicamento,
+            doenca=doenca
+        )
 
-def buscar_medicamento(request):
-    query = request.GET.get('q', '')  # Pega o termo de busca enviado pelo frontend
-    medicamentos = []
+        return JsonResponse({
+            'sucesso': True,
+            'id': medicamento.id,
+            'nome': medicamento.nome
+        })
 
-    if query:
-        # Busca os medicamentos que contenham o termo de busca no nome
-        medicamentos = Medicamento.objects.filter(nome__icontains=query).values('id', 'nome')
+    return JsonResponse({'error': 'Nome do medicamento e doença são obrigatórios.'}, status=400)
 
-    return JsonResponse(list(medicamentos), safe=False)
 
 def buscar_doencas(request):
     query = request.GET.get('q', '')  # Pega o termo de busca enviado pelo frontend
@@ -194,68 +205,30 @@ def buscar_doencas(request):
 
     return JsonResponse(list(doencas), safe=False)
 
-def adicionar_medicamento(request, paciente_id):
-    if request.method == 'POST':
-        nome_medicamento = request.POST.get('nome')
-        doenca_id = request.POST.get('doenca_id')  # Recebe o ID da doença associada ao medicamento
-        
-        # Verifica se o nome do medicamento e o id da doença foram fornecidos
-        if nome_medicamento and doenca_id:
-            try:
-                # Busca a doença pelo id
-                doenca = Doenca.objects.get(id=doenca_id)
-            except Doenca.DoesNotExist:
-                return JsonResponse({'error': 'Doença não encontrada!'}, status=404)
+def buscar_medicamento(request):
+    query = request.GET.get('q', '')  # Pega o termo de busca enviado pelo frontend
+    medicamentos = []
 
-            # Cria ou recupera o medicamento existente
-            medicamento, created = Medicamento.objects.get_or_create(
-                nome=nome_medicamento,  # Garantir que o nome seja único
-                doenca=doenca  # Aqui associamos a doença diretamente ao medicamento
-            )
+    if query:
+        # Busca os medicamentos que contenham o termo de busca no nome
+        medicamentos = Medicamento.objects.filter(nome__icontains=query).values('id', 'nome')
 
-            # Cria a associação entre medicamento, doença e paciente
-            paciente = Paciente.objects.get(id=paciente_id)
-            MedicamentoDoencaPaciente.objects.create(
-                paciente=paciente,
-                medicamento=medicamento,
-                doenca=doenca
-            )
+    return JsonResponse(list(medicamentos), safe=False)
 
-            return JsonResponse({
-                'sucesso': True,
-                'id': medicamento.id,
-                'nome': medicamento.nome
-            })
-
-        return JsonResponse({'error': 'Nome do medicamento e doença são obrigatórios.'}, status=400)
-
-    return JsonResponse({'error': 'Método HTTP inválido!'}, status=405)
-
-
-
+@require_POST
 def adicionar_doenca(request, paciente_id):
-    if request.method == 'POST':
-        nome_doenca = request.POST.get('nome')
+    nome = request.POST.get("nome", "").strip()
+    if not nome:
+        return JsonResponse({"erro": "Nome da doença é obrigatório."}, status=400)
 
-        if nome_doenca:
-            # Verifica se a doença já existe ou cria uma nova
-            doenca, created = Doenca.objects.get_or_create(nome=nome_doenca)
+    doenca, _ = Doenca.objects.get_or_create(nome=nome)
+    paciente = get_object_or_404(Paciente, id=paciente_id)
 
-            # Tenta recuperar o paciente pelo ID
-            paciente = get_object_or_404(Paciente, id=paciente_id)
+    # Como não tem medicamento ainda, pode registrar com medicamento nulo ou criar uma lógica de placeholder
+    MedicamentoDoencaPaciente.objects.get_or_create(
+        paciente=paciente,
+        doenca=doenca,
+        medicamento=Medicamento.objects.get_or_create(nome="(não especificado)")[0]  # ou outra lógica
+    )
 
-            # Se a doença for nova, associamos ela ao paciente aqui, se necessário
-            # Se precisar associar a doença ao paciente diretamente
-            paciente.doencas.add(doenca)  # Associa a doença ao paciente
-
-            return JsonResponse({
-                'sucesso': True,
-                'id': doenca.id,
-                'nome': doenca.nome,
-            })
-
-        return JsonResponse({'error': 'O nome da doença é obrigatório!'}, status=400)
-
-    return JsonResponse({'error': 'Método HTTP inválido!'}, status=405)
-
-
+    return JsonResponse({"id": doenca.id, "nome": doenca.nome})

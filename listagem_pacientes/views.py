@@ -1,9 +1,10 @@
+from collections import defaultdict
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Max
 from consulta.models import Consulta
-from paciente.models import Paciente
+from paciente.models import MedicamentoDoencaPaciente, Paciente
 
 class PacienteListView(ListView):
     model = Paciente
@@ -57,3 +58,6 @@ class PacienteDetailView(DetailView):
 
     def get_object(self):
         return get_object_or_404(Paciente, id=self.kwargs['pk'])
+
+
+

@@ -4,18 +4,17 @@ from django.db import models
 
 
 class Doenca(models.Model):
-    nome = models.CharField(max_length=100, unique=True)
+    nome = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nome
 
 class Medicamento(models.Model):
-    nome = models.CharField(max_length=100, unique=True)
-    doenca = models.ForeignKey(Doenca, related_name='medicamentos', on_delete=models.CASCADE)
-
+    nome = models.CharField(max_length=100)
     def __str__(self):
         return self.nome
     
+
 
 
 class Paciente(models.Model):
@@ -25,8 +24,12 @@ class Paciente(models.Model):
     responsavel = models.CharField(max_length=100)
     data_nascimento = models.DateField()
     # Relacionamento ManyToMany entre Paciente e Doenca
-    doencas = models.ManyToManyField(Doenca, related_name='pacientes', blank=True)
-    
+    doencas = models.ManyToManyField(
+        Doenca,
+        through='MedicamentoDoencaPaciente',
+        related_name='pacientes',
+        blank=True
+    )    
     # Relacionamento ManyToMany entre Paciente e Medicamento (mediado por Doenca)
     medicamentos = models.ManyToManyField(Medicamento, related_name='pacientes', blank=True)
     genero = models.CharField(
@@ -73,6 +76,8 @@ class Paciente(models.Model):
     reside_com = models.CharField(max_length=100)
     observacoes = models.TextField(blank=True)
 
+    def medicamentos_por_doenca(self, doenca):
+        return self.medicamentos_doenca_paciente.filter(doenca=doenca)
     def __str__(self):
         return self.nome
 
