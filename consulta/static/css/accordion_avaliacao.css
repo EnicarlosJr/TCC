@@ -1,0 +1,14 @@
+
+    .form-select-sm, .form-control-sm {
+        min-width: 120px;
+    }
+
+    textarea.form-control-sm {
+        min-width: 250px;
+    }
+
+    table td, table th {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+    

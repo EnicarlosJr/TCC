@@ -150,7 +150,7 @@
 
     <!-- Botões para adicionar nova consulta e voltar -->
     <div class="button-group">
-        <a href="{% url 'adicionar_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
+        <a href="{% url 'create_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
         <a href=" /listagem_pacientes/paciente_list/ " class="btn btn-secondary">Voltar</a> <!-- Botão "Voltar" para a página anterior -->
     </div>
 
@@ -171,7 +171,7 @@
                 <td>{{ consulta.data_consulta }}</td>
                 <td>{{ consulta.motivo_consulta }}</td>
                 <td class="text-center">
-                    <a href="{% url 'detalhe_consulta' consulta.id %}" class="btn btn-info btn-sm">Ver Detalhes</a>
+                    <a href="{% url 'detalhe_consulta' consulta.id %}" class="btn btn-primary btn-sm">Ver Detalhes</a>
                 </td>
             </tr>
             {% empty %}

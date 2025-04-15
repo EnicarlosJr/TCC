@@ -1,202 +1,34 @@
 {% extends 'menu.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static '/css/accordion_avaliacao.css' %}">
+{% endblock %}
+
 {% block content %}
-<style>
-    /* Estilo geral */
-    body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f0f8ff; /* Azul claro suave */
-        color: #333;
-        margin: 0;
-        padding: 0;
-    }
+<div class="container mt-4">
+    <h2 class="mb-4">🩺 Detalhes da Consulta</h2>
 
-    /* Container */
-    .container {
-        max-width: 900px;
-        margin: 20px auto;
-        padding: 20px;
-        background-color: #fff; /* Fundo branco para clareza */
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-    }
-
-    /* Títulos */
-    h2 {
-        color: #2c7a7b; /* Verde escuro profissional */
-        border-bottom: 2px solid #2c7a7b;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-    }
-
-    h4 {
-        color: #2c5282; /* Azul forte para destaque */
-        font-size: 1.5em;
-        margin-top: 20px;
-    }
-
-    /* Parágrafos */
-    p {
-        font-size: 1.1em;
-        line-height: 1.6;
-        color: #555;
-    }
-
-    /* Destaque em negrito */
-    strong {
-        color: #1d4044; /* Verde mais escuro */
-    }
-
-    /* Botão de voltar */
-    .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #3182ce; /* Azul elegante */
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        font-size: 1.1em;
-        margin-top: 20px;
-    }
-
-    .btn:hover {
-        background-color: #2b6cb0; /* Tom mais escuro no hover */
-    }
-
-    /* Seções */
-    h4 + p {
-        margin-bottom: 10px;
-    }
-
-    h4:not(:first-of-type) {
-        margin-top: 40px;
-        border-top: 1px solid #e2e8f0; /* Linha discreta entre seções */
-        padding-top: 20px;
-    }
-
-    /* Tabelas para dados organizados */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-
-    table th, table td {
-        border: 1px solid #e2e8f0;
-        padding: 12px 15px;
-        text-align: left;
-    }
-
-    table th {
-        background-color: #ebf8ff; /* Azul claro nas cabeçalhos */
-        color: #2c5282;
-    }
-
-    table td {
-        background-color: #f7fafc;
-    }
-
-    table tr:nth-child(even) td {
-        background-color: #edf2f7; /* Zebra suave */
-    }
-
-    /* Cards de Problemas de Saúde e Medicamentos */
-    .problem-card, .medication-card, .evaluation-card, .plan-card {
-        background-color: #f7fafc;
-        padding: 15px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .problem-card h4, .medication-card h4, .evaluation-card h4, .plan-card h4 {
-        margin-bottom: 10px;
-        color: #2c7a7b;
-    }
-
-    /* Ajuste de elementos de texto */
-    .text-muted {
-        color: #718096;
-        font-size: 0.9em;
-    }
-</style>
-
-<div class="container">
-    <h2>Detalhes da Consulta</h2>
-    <h4>Paciente: {{ consulta.paciente.nome }}</h4>
-    <p><strong>Data da Consulta:</strong> {{ consulta.data_consulta }}</p>
-    <p><strong>Evolução:</strong> {{ consulta.evolucao }}</p>
-    <p><strong>Motivo da Consulta:</strong> {{ consulta.motivo_consulta }}</p>
-    <p><strong>Prescrições e Exames:</strong> {{ consulta.prescricoes_exames }}</p>
-    <p><strong>Data da Próxima Revisão:</strong> {{ consulta.data_proxima_revisao }}</p>
-
-    <!-- Problemas de Saúde -->
-    <h4>Problemas de Saúde</h4>
-    {% for problema in consulta.problemas_de_saude.all %}
-    <div class="problem-card">
-        <h4>{{ problema.problema }}</h4>
-        <p><strong>Início:</strong> {{ problema.inicio }}</p>
-        <p><strong>Controlado:</strong> {{ problema.controlado|yesno:"Sim,Não" }}</p>
-        <p><strong>Preocupa:</strong> {{ problema.preocupa|yesno:"Sim,Não" }}</p>
+    <!-- Dados da Consulta -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <strong>Informações da Consulta</strong>
+        </div>
+        <div class="card-body">
+            <p><strong>📅 Data:</strong> {{ consulta.data_consulta }}</p>
+            <p><strong>❓ Motivo:</strong> {{ consulta.motivo_consulta }}</p>
+            <p><strong>📈 Evolução:</strong> {{ consulta.evolucao }}</p>
+            <p><strong>📋 Prescrições e Exames:</strong> {{ consulta.prescricoes_e_exames }}</p>
+            <p><strong>🔜 Próxima revisão:</strong> {{ consulta.data_proxima_revisao }}</p>
+        </div>
     </div>
-    {% empty %}
-        <p class="text-muted">Não há problemas de saúde registrados.</p>
-    {% endfor %}
 
-    <!-- Medicamentos -->
-    <h4>Medicamentos</h4>
-    {% for medicamento in consulta.medicamentos.all %}
-    <div class="medication-card">
-        <h4>{{ medicamento.nome }}</h4>
-        <p><strong>Classe:</strong> {{ medicamento.classe }}</p>
-        <p><strong>Desde:</strong> {{ medicamento.desde }}</p>
-        <p><strong>Prescrita:</strong> {{ medicamento.prescrita|yesno:"Sim,Não" }}</p>
-        <p><strong>Utilizada:</strong> {{ medicamento.utilizada|yesno:"Sim,Não" }}</p>
-        <p><strong>Para que serve:</strong> {{ medicamento.para_que_servir }}</p>
+    <!-- Acordeão com formulários -->
+    <div class="accordion" id="formAccordion">
+        {% include 'partials/accordion_problema_saude.html' %}
+        {% include 'partials/accordion_medicamento.html' %}
+        {% include 'partials/accordion_avaliacao.html' %}
+        {% include 'partials/accordion_plano_atuacao.html' %}
     </div>
-    {% empty %}
-        <p class="text-muted">Não há medicamentos registrados.</p>
-    {% endfor %}
-
-    <!-- Avaliações -->
-    <h4>Avaliações</h4>
-    {% for avaliacao in consulta.avaliacoes.all %}
-    <div class="evaluation-card">
-        <p><strong>N:</strong> {{ avaliacao.n|yesno:"Sim,Não" }}</p>
-        <p><strong>E:</strong> {{ avaliacao.e|yesno:"Sim,Não" }}</p>
-        <p><strong>S:</strong> {{ avaliacao.s|yesno:"Sim,Não" }}</p>
-        <p><strong>Classificação RNM 1:</strong> {{ avaliacao.classificacao_rnm_1 }}</p>
-        <p><strong>Classificação RNM 2:</strong> {{ avaliacao.classificacao_rnm_2 }}</p>
-        <p><strong>Situação do Problema de Saúde:</strong> {{ avaliacao.situacao_problema_saude }}</p>
-        <p><strong>Causa RNM:</strong> {{ avaliacao.causa_rnm }}</p>
-    </div>
-    {% empty %}
-        <p class="text-muted">Não há avaliações registradas.</p>
-    {% endfor %}
-
-    <!-- Planos de Atuação -->
-    <h4>Planos de Atuação</h4>
-    {% for plano in consulta.planos_de_atuacao.all %}
-    <div class="plan-card">
-        <p><strong>Objetivos:</strong> {{ plano.objetivos }}</p>
-        <p><strong>Prioridade:</strong> {{ plano.prioridade }}</p>
-        <p><strong>Registro da Intervenção:</strong> {{ plano.registro_intervencao }}</p>
-        <p><strong>Classificação da Intervenção:</strong> {{ plano.classificacao_intervencao }}</p>
-        <p><strong>Descrição e Planejamento:</strong> {{ plano.descricao_planejamento }}</p>
-        <p><strong>Data da Intervenção:</strong> {{ plano.data_intervencao }}</p>
-        <p><strong>Alcançado:</strong> {{ plano.alcançado|yesno:"Sim,Não" }}</p>
-        <p><strong>Data que foi alcançado:</strong> {{ plano.data_alcancado }}</p>
-        <p><strong>Resultado:</strong> {{ plano.resultado }}</p>
-        <p><strong>RNM Resolvido:</strong> {{ plano.rnm_resolvido|yesno:"Sim,Não" }}</p>
-        <p><strong>O que aconteceu com o problema de saúde:</strong> {{ plano.o_que_aconteceu }}</p>
-    </div>
-    {% empty %}
-        <p class="text-muted">Não há planos de atuação registrados.</p>
-    {% endfor %}
-
-    <a href="{% url 'listar_consultas' consulta.paciente.id %}" class="btn btn-secondary">Voltar para Consultas</a>
 </div>
 {% endblock %}

@@ -1,0 +1,49 @@
+        <!-- Medicamento -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingMedicamento">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseMedicamento">
+                    💊 Adicionar Medicamento
+                </button>
+            </h2>
+            <div id="collapseMedicamento" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+                <div class="accordion-body">
+                    <form method="POST" action="{% url 'adicionar_medicamento' consulta.id %}">
+                        {% csrf_token %} {% for field in medicamento_form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success">
+                            💾 Salvar Medicamento
+                        </button>
+                    </form>
+                    <hr />
+                    <h5 class="mt-4">📦 Medicamentos Cadastrados</h5>
+                    {% for medicamento in medicamentos %}
+                    <div class="card mt-2 shadow-sm">
+                        <div class="card-body">
+                            <p><strong>💊 Medicamento:</strong> {{ medicamento.nome }}</p>
+                            <p><strong>📚 Classe:</strong> {{ medicamento.classe }}</p>
+                            <p><strong>📅 Desde:</strong> {{ medicamento.desde }}</p>
+                            <p>
+                                <strong>📝 Prescrita:</strong> {{
+                                medicamento.prescrita|yesno:"Sim,Não" }}
+                            </p>
+                            <p>
+                                <strong>💡 Utilizada:</strong> {{
+                                medicamento.utilizada|yesno:"Sim,Não" }}
+                            </p>
+                            <p>
+                                <strong>🤔 Pra que serve:</strong> {{ medicamento.pra_que_serve
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Nenhum medicamento adicionado ainda.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>

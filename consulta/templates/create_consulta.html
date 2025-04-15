@@ -1,0 +1,23 @@
+<!-- templates/consulta_form.html -->
+{% extends "menu.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Nova Consulta para {{ paciente.nome }}</h2>
+  <form method="post" class="card p-4 shadow-sm">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+        <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Salvar Consulta</button>
+  </form>
+</div>
+{% endblock %}

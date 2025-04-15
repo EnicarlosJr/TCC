@@ -1,0 +1,50 @@
+      <!-- Plano de Atuação -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingPlano">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapsePlano">
+                📋 Adicionar Plano de Atuação
+            </button>
+        </h2>
+        <div id="collapsePlano" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+            <div class="accordion-body">
+                <form method="POST" action="{% url 'adicionar_plano_atuacao' consulta.id %}">
+                    {% csrf_token %} {% for field in plano_form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-success">
+                        💾 Salvar Plano
+                    </button>
+                </form>
+                <hr />
+                <h5 class="mt-4">📘 Planos de Atuação Cadastrados</h5>
+                {% for plano in planos %}
+                <div class="card mt-2 shadow-sm">
+                    <div class="card-body">
+                        <p><strong>🎯 Objetivos:</strong> {{ plano.objetivos }}</p>
+                        <p><strong>🏷️ Prioridade:</strong> {{ plano.prioridade }}</p>
+                        <p>
+                            <strong>🛠️ Intervenção:</strong> {{ plano.registro_intervencao
+                            }}
+                        </p>
+                        <p>
+                            <strong>📚 Classificação:</strong> {{
+                            plano.classificacao_intervencao }}
+                        </p>
+                        <p><strong>📆 Data:</strong> {{ plano.data }}</p>
+                        <p>
+                            <strong>✅ Alcançado:</strong> {{
+                            plano.alcancado|yesno:"Sim,Não" }}
+                        </p>
+                        <p><strong>📌 Resultado:</strong> {{ plano.resultado }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">Nenhum plano adicionado ainda.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,116 @@
+<!-- Avaliação -->
+<h3 class="mt-4">🧠 Avaliações por Problema de Saúde</h3>
+
+{% if problemas_com_medicamentos %}
+<div class="row">
+    {% for item in problemas_com_medicamentos %}
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <strong>🩺 Problema:</strong> {{ item.problema.problema }} |
+                <strong>📅 Início:</strong> {{ item.problema.inicio }} |
+                <strong>✅ Controlado:</strong> {{ item.problema.controlado|yesno:"Sim,Não" }} |
+                <strong>❗ Preocupa:</strong> {{ item.problema.preocupa|yesno:"Sim,Não" }} |
+                <strong>🌡️ Motivo da consulta:</strong> {{ item.probelma.motivo_consulta }}
+            </div>
+            <div class="card-body">
+                {% if item.medicamentos %}
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th rowspan="2">💊 Medicamento</th>
+                                <th rowspan="2">Classe</th>
+                                <th rowspan="2">Desde</th>
+                                <th rowspan="2">Prescrita</th>
+                                <th rowspan="2">Utilizada</th>
+                                <th colspan="3">Avaliação</th>
+                                <th rowspan="2">Classificação RNM 1</th>
+                                <th rowspan="2">Classificação RNM 2</th>
+                                <th rowspan="2">Situação</th>
+                                <th rowspan="2">Causa RNM</th>
+                                <th rowspan="2">Ação</th>
+                            </tr>
+                            <tr>
+                                <th>Necessidade</th>
+                                <th>Efetividade</th>
+                                <th>Segurança</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medicamento in item.medicamentos %}
+                            <tr>
+                                <form method="POST" action="{% url 'adicionar_avaliacao' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
+                                    <td>{{ medicamento.nome }}</td>
+                                    <td>{{ medicamento.classe }}</td>
+                                    <td>{{ medicamento.desde }}</td>
+                                    <td>{{ medicamento.prescrita|yesno:"Sim,Não" }}</td>
+                                    <td>{{ medicamento.utilizada|yesno:"Sim,Não" }}</td>
+
+                                    {% with avaliacao=medicamento.avaliacao %}
+                                    <td>
+                                        <select name="necessidade" class="form-select form-select-sm" required>
+                                            <option value="True" {% if avaliacao.necessidade %}selected{% endif %}>Sim</option>
+                                            <option value="False" {% if not avaliacao.necessidade %}selected{% endif %}>Não</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="efetividade" class="form-select form-select-sm" required>
+                                            <option value="True" {% if avaliacao.efetividade %}selected{% endif %}>Sim</option>
+                                            <option value="False" {% if not avaliacao.efetividade %}selected{% endif %}>Não</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="seguranca" class="form-select form-select-sm" required>
+                                            <option value="True" {% if avaliacao.seguranca %}selected{% endif %}>Sim</option>
+                                            <option value="False" {% if not avaliacao.seguranca %}selected{% endif %}>Não</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="classificacao_rnm_1" class="form-select form-select-sm" required>
+                                            {% for val, label in avaliacao_form.fields.classificacao_rnm_1.choices %}
+                                                <option value="{{ val }}" {% if avaliacao.classificacao_rnm_1 == val %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="classificacao_rnm_2" class="form-select form-select-sm" required>
+                                            {% for val, label in avaliacao_form.fields.classificacao_rnm_2.choices %}
+                                                <option value="{{ val }}" {% if avaliacao.classificacao_rnm_2 == val %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="situacao_problema_saude" class="form-select form-select-sm" required>
+                                            {% for val, label in avaliacao_form.fields.situacao_problema_saude.choices %}
+                                                <option value="{{ val }}" {% if avaliacao.situacao_problema_saude == val %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <textarea name="causa_rnm" class="form-control form-control-sm" rows="2" required>{{ avaliacao.causa_rnm }}</textarea>
+                                    </td>
+                                    {% endwith %}
+
+                                    <td class="text-center">
+                                        <button type="submit" class="btn btn-sm btn-success">💾</button>
+                                    </td>
+                                </form>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Nenhum medicamento relacionado a esse problema de saúde.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Nenhuma avaliação cadastrada ainda.</p>
+{% endif %}

@@ -1,76 +1,65 @@
-# consulta/forms.py
 from django import forms
-from consulta.models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
+from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
 
 class ConsultaForm(forms.ModelForm):
     class Meta:
         model = Consulta
-        fields = ['data_consulta', 'evolucao', 'motivo_consulta', 'prescricoes_exames', 'data_proxima_revisao']
+        exclude = ['paciente']
+        fields = '__all__'
         widgets = {
-            'data_consulta': forms.DateInput(attrs={'type': 'date'}),
-            'evolucao': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descreva a evolução...'}),
-            'motivo_consulta': forms.TextInput(attrs={'maxlength': 255, 'placeholder': 'Motivo da consulta'}),
-            'prescricoes_exames': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Prescrições e exames...'}),
-            'data_proxima_revisao': forms.DateInput(attrs={'type': 'date'}),
+            'data_consulta': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_proxima_revisao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'evolucao': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
+            'motivo_consulta': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'prescricoes_exames': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
-
 
 class ProblemaSaudeForm(forms.ModelForm):
     class Meta:
         model = ProblemaSaude
-        fields = ['problema', 'inicio', 'controlado', 'preocupa']
+        exclude = ['consulta']
+        fields = '__all__'
         widgets = {
-            'problema': forms.TextInput(attrs={'placeholder': 'Descreva o problema de saúde'}),
-            'inicio': forms.DateInput(attrs={'type': 'date'}),
-            'controlado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'preocupa': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'problema': forms.TextInput(attrs={'class': 'form-control'}),
         }
-
 
 class MedicamentoForm(forms.ModelForm):
     class Meta:
+        exclude = ['consulta']
         model = Medicamento
-        fields = ['nome', 'classe', 'desde', 'prescrita', 'utilizada', 'para_que_servir']
+        fields = '__all__'
         widgets = {
-            'nome': forms.TextInput(attrs={'placeholder': 'Nome do medicamento'}),
-            'classe': forms.TextInput(attrs={'placeholder': 'Classe do medicamento'}),
-            'desde': forms.DateInput(attrs={'type': 'date'}),
-            'prescrita': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'utilizada': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'para_que_servir': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Para que serve o medicamento...'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'classe': forms.TextInput(attrs={'class': 'form-control'}),
+            'desde': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'para_que_servir': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
-
-
 
 class AvaliacaoForm(forms.ModelForm):
     class Meta:
         model = Avaliacao
-        fields = ['n', 'e', 's', 'classificacao_rnm_1', 'classificacao_rnm_2', 'situacao_problema_saude', 'causa_rnm']
+        exclude = ['medicamento']
+        fields = '__all__'
         widgets = {
-            'n': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'e': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            's': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'classificacao_rnm_1': forms.TextInput(attrs={'placeholder': 'Classificação RNM 1'}),
-            'classificacao_rnm_2': forms.TextInput(attrs={'placeholder': 'Classificação RNM 2'}),
-            'situacao_problema_saude': forms.TextInput(attrs={'placeholder': 'Situação do problema de saúde'}),
-            'causa_rnm': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Causa RNM'}),
+            'causa_rnm': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'classificacao_rnm_1': forms.Select(attrs={'class': 'form-select'}),
+            'classificacao_rnm_2': forms.Select(attrs={'class': 'form-select'}),
+            'situacao_problema_saude': forms.Select(attrs={'class': 'form-select'}),
         }
-
 
 class PlanoAtuacaoForm(forms.ModelForm):
     class Meta:
         model = PlanoAtuacao
-        fields = ['objetivos', 'prioridade', 'registro_intervencao', 'classificacao_intervencao', 'descricao_planejamento', 'data_intervencao', 'alcançado', 'data_alcancado', 'resultado', 'rnm_resolvido', 'o_que_aconteceu']
+        exclude = ['consulta']
+        fields = '__all__'
         widgets = {
-            'objetivos': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Objetivos do plano de atuação...'}),
-            'prioridade': forms.TextInput(attrs={'placeholder': 'Prioridade'}),
-            'registro_intervencao': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Registro da intervenção...'}),
-            'classificacao_intervencao': forms.TextInput(attrs={'placeholder': 'Classificação da intervenção'}),
-            'descricao_planejamento': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrição do planejamento...'}),
-            'data_intervencao': forms.DateInput(attrs={'type': 'date'}),
-            'alcançado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'data_alcancado': forms.DateInput(attrs={'type': 'date'}),
-            'resultado': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Resultado...'}),
-            'rnm_resolvido': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'o_que_aconteceu': forms.Textarea(attrs={'rows': 3, 'placeholder': 'O que aconteceu com o problema de saúde...'}),
+            'objetivos': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'descricao_planejamento': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'resultado': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'data_intervencao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'data_alcancado': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'registro_intervencao': forms.Select(attrs={'class': 'form-select'}),
+            'classificacao_intervencao': forms.Select(attrs={'class': 'form-select'}),
+            'prioridade': forms.Select(attrs={'class': 'form-select'}),
         }
