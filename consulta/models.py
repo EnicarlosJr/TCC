@@ -30,8 +30,8 @@ class Medicamento(models.Model):
     nome = models.CharField(max_length=255)
     classe = models.CharField(max_length=255)
     desde = models.DateField()
-    prescrita = models.BooleanField(default=False)
-    utilizada = models.BooleanField(default=False)
+    prescrita = models.CharField(max_length=255)
+    utilizada = models.CharField(max_length=255)
     para_que_servir = models.TextField()
 
     def __str__(self):

@@ -7,7 +7,7 @@
 <div class="container mt-5">
     <h2 class="mb-4">💊 Associar Medicamentos às Doenças</h2>
 
-    <form method="POST" action="{% url 'associar_doencas_medicamentos' paciente.id %}" id="associar-form">
+    <form method="POST" action="{% url 'paciente_associar_doencas_medicamentos' paciente.id %}" id="associar-form">
         {% csrf_token %}
 
         <!-- Campo para adicionar nova doença -->
@@ -70,7 +70,7 @@
             return;
         }
 
-        fetch("{% url 'buscar_doencas' %}?q=" + query)
+        fetch("{% url 'paciente_buscar_doencas' %}?q=" + query)
             .then(res => res.json())
             .then(data => {
                 suggestionsContainer.innerHTML = "";
@@ -97,7 +97,7 @@
         const nomeDoenca = document.getElementById("doenca-input").value.trim();
         if (!nomeDoenca) return alert("Por favor, insira o nome da doença.");
 
-        fetch(`/paciente/adicionar_doenca/{{ paciente.id }}/`, {
+        fetch("{% url 'paciente_adicionar_doenca' paciente.id %}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -126,7 +126,7 @@
                 <label class="form-label"><strong>Adicionar Medicamento</strong></label>
                 <div class="input-group">
                     <input type="text" id="medicamento-input-${doencaId}" class="form-control" placeholder="Digite o nome do medicamento" />
-                    <button type="button" class="btn btn-outline-primary adicionar-medicamento" data-doenca-id="${doencaId}" data-paciente-id="{{ paciente.id }}" data-url="{% url 'adicionar_medicamento' paciente.id %}">
+                    <button type="button" class="btn btn-outline-primary adicionar-medicamento" data-doenca-id="${doencaId}" data-paciente-id="{{ paciente.id }}" data-url="{% url 'paciente_adicionar_medicamento' paciente.id %}">
                         Adicionar Medicamento
                     </button>
                 </div>
@@ -135,6 +135,7 @@
             </div>
             <div id="medicamentos-${doencaId}" class="mt-2"></div>
         </div>`;
+        // Adiciona a nova doença à lista
         document.getElementById("lista-doencas").insertAdjacentHTML("beforeend", html);
 
         document.querySelector(`.remover-doenca[data-doenca-id="${doencaId}"]`).addEventListener("click", function () {
@@ -151,7 +152,7 @@
                 return;
             }
 
-            fetch("{% url 'buscar_medicamento' %}?q=" + query)
+            fetch("{% url 'paciente_buscar_medicamento' %}?q=" + query)
                 .then(res => res.json())
                 .then(data => {
                     suggestionsContainer.innerHTML = "";
@@ -218,7 +219,7 @@
             associacoes.push({ doenca: nomeDoenca, medicamentos, observacao });
         });
 
-        fetch("{% url 'associar_doencas_medicamentos' paciente.id %}", {
+        fetch("{% url 'paciente_associar_doencas_medicamentos' paciente.id %}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

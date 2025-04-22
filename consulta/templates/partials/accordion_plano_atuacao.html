@@ -8,7 +8,7 @@
         </h2>
         <div id="collapsePlano" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
             <div class="accordion-body">
-                <form method="POST" action="{% url 'adicionar_plano_atuacao' consulta.id %}">
+                <form method="POST" action="{% url 'consulta_adicionar_plano_atuacao' consulta.id %}">
                     {% csrf_token %} {% for field in plano_form %}
                     <div class="mb-3">
                         <label class="form-label">{{ field.label }}</label>

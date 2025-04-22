@@ -87,7 +87,7 @@
         </form>
 
         <!-- Botão para adicionar novo paciente -->
-        <a href="{% url 'cadastrar_paciente' %}" class="btn btn-success mb-4">Adicionar Paciente</a>
+        <a href="{% url 'paciente_cadastrar_paciente' %}" class="btn btn-success mb-4">Adicionar Paciente</a>
 
         <!-- Lista de pacientes em cards -->
         <div class="row">
@@ -114,9 +114,9 @@
 
                     <div class="card mb-3">
                         <div class="card-body">
-                            <a href="{% url 'create_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
+                            <a href="{% url 'consulta_create_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
 
-                            <a href="{% url 'listar_consultas' paciente.id %}" class="btn btn-secondary">Ver
+                            <a href="{% url 'consulta_listar_consultas' paciente.id %}" class="btn btn-secondary">Ver
                                 Consultas</a>
                         </div>
                     </div>

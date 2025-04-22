@@ -239,7 +239,7 @@
                 </div>
                 {% else %}
                 <p>Este paciente não tem informações sobre História Social. <a
-                        href="{% url 'cadastrar_historia_social' paciente.id %}" class="create-button">cadastrar
+                        href="{% url 'paciente_cadastrar_historia_social' paciente.id %}" class="create-button">cadastrar
                         História Social</a></p>
                 {% endif %}
             </div>
@@ -291,7 +291,7 @@
                 </div>
                 {% else %}
                 <p>Este paciente não tem informações sobre Hábitos Alimentares. <a
-                        href="{% url 'cadastrar_habitos_alimentares' paciente.id %}" class="create-button">cadastrar
+                        href="{% url 'paciente_cadastrar_habitos_alimentares' paciente.id %}" class="create-button">cadastrar
                         Hábitos Alimentares</a></p>
                 {% endif %}
             </div>
@@ -406,7 +406,7 @@
                 </div>
                 {% else %}
                 <p>Este paciente não tem informações sobre Autonomia na gestão dos medicamentos. <a
-                        href="{% url 'cadastrar_autonomia_medicamentos' paciente.id %}" class="create-button">Cadastrar
+                        href="{% url 'paciente_cadastrar_autonomia_medicamentos' paciente.id %}" class="create-button">Cadastrar
                         informações</a></p>
                 {% endif %}
             </div>
@@ -449,7 +449,7 @@
                     <span class="info-value">{{ paciente.saude.observacoes }}</span>
                 </div>
                 {% else %}
-                <p>Este paciente não tem informações sobre Saúde. <a href="{% url 'cadastrar_saude' paciente.id %}"
+                <p>Este paciente não tem informações sobre Saúde. <a href="{% url 'paciente_cadastrar_saude' paciente.id %}"
                         class="create-button">cadastrar Saúde</a></p>
                 {% endif %}
             </div>
@@ -484,7 +484,7 @@
                 </div>
                 {% else %}
                 <p>Este paciente não tem informações sobre Perfil Clínico.
-                    <a href="{% url 'cadastrar_perfil_clinico' paciente.id %}" class="create-button">cadastrar Perfil
+                    <a href="{% url 'paciente_cadastrar_perfil_clinico' paciente.id %}" class="create-button">cadastrar Perfil
                         Clínico</a>
                 </p>
                 {% endif %}
@@ -522,7 +522,7 @@
             </div>
         {% else %}
             <p>Este paciente ainda não possui doenças e medicamentos associados.
-                <a href="{% url 'associar_doencas_medicamentos' paciente.id %}" class="create-button">
+                <a href="{% url 'paciente_associar_doencas_medicamentos' paciente.id %}" class="create-button">
                     Associar Doenças e Medicamentos
                 </a>
             </p>

@@ -1,49 +1,52 @@
-        <!-- Medicamento -->
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingMedicamento">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapseMedicamento">
-                    💊 Adicionar Medicamento
-                </button>
-            </h2>
-            <div id="collapseMedicamento" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
-                <div class="accordion-body">
-                    <form method="POST" action="{% url 'adicionar_medicamento' consulta.id %}">
-                        {% csrf_token %} {% for field in medicamento_form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-success">
-                            💾 Salvar Medicamento
-                        </button>
-                    </form>
-                    <hr />
-                    <h5 class="mt-4">📦 Medicamentos Cadastrados</h5>
-                    {% for medicamento in medicamentos %}
-                    <div class="card mt-2 shadow-sm">
-                        <div class="card-body">
-                            <p><strong>💊 Medicamento:</strong> {{ medicamento.nome }}</p>
-                            <p><strong>📚 Classe:</strong> {{ medicamento.classe }}</p>
-                            <p><strong>📅 Desde:</strong> {{ medicamento.desde }}</p>
-                            <p>
-                                <strong>📝 Prescrita:</strong> {{
-                                medicamento.prescrita|yesno:"Sim,Não" }}
-                            </p>
-                            <p>
-                                <strong>💡 Utilizada:</strong> {{
-                                medicamento.utilizada|yesno:"Sim,Não" }}
-                            </p>
-                            <p>
-                                <strong>🤔 Pra que serve:</strong> {{ medicamento.pra_que_serve
-                                }}
-                            </p>
-                        </div>
+<!-- Medicamento -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingMedicamento">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseMedicamento">
+            💊 Adicionar Medicamento
+        </button>
+    </h2>
+    <div id="collapseMedicamento" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+        <div class="accordion-body">
+            <!-- Formulário de Adição de Medicamento -->
+            <form method="POST" action="{% url 'consulta_adicionar_medicamento' consulta.id %}">
+                {% csrf_token %}
+                <div class="row">
+                    {% for field in medicamento_form %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
                     </div>
-                    {% empty %}
-                    <p class="text-muted">Nenhum medicamento adicionado ainda.</p>
                     {% endfor %}
                 </div>
-            </div>
+                <button type="submit" class="btn btn-success mt-3">
+                    💾 Salvar Medicamento
+                </button>
+            </form>
+
+            <hr />
+            <h5 class="mt-4">📦 Medicamentos Cadastrados</h5>
+            {% if medicamentos %}
+                <div class="list-group">
+                    {% for medicamento in medicamentos %}
+                    <div class="list-group-item list-group-item-action shadow-sm mb-2">
+                        <h6 class="d-flex justify-content-between">
+                            <span>💊 <strong>{{ medicamento.nome }}</strong></span>
+                            <span class="badge text-bg-primary">{{ medicamento.classe }}</span>
+                        </h6>
+                        <p><strong>📅 Desde:</strong> {{ medicamento.desde }}</p>
+                        <p><strong>📝 Prescrita:</strong> {{ medicamento.prescrita|yesno:"Sim,Não" }}</p>
+                        <p><strong>💡 Utilizada:</strong> {{ medicamento.utilizada|yesno:"Sim,Não" }}</p>
+                        <p><strong>🤔 Pra que serve:</strong> {{ medicamento.para_que_servir }}</p>
+                        {% if medicamento.problema_saude %}
+                            <p><strong>🧠 Relacionado a Problema de Saúde:</strong> {{ medicamento.problema_saude.nome }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Nenhum medicamento adicionado ainda.</p>
+            {% endif %}
         </div>
+    </div>
+</div>

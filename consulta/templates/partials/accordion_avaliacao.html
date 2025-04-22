@@ -11,12 +11,12 @@
                 <strong>📅 Início:</strong> {{ item.problema.inicio }} |
                 <strong>✅ Controlado:</strong> {{ item.problema.controlado|yesno:"Sim,Não" }} |
                 <strong>❗ Preocupa:</strong> {{ item.problema.preocupa|yesno:"Sim,Não" }} |
-                <strong>🌡️ Motivo da consulta:</strong> {{ item.probelma.motivo_consulta }}
+                <strong>🌡️ Motivo da consulta:</strong> {{ item.problema.motivo_consulta }}
             </div>
             <div class="card-body">
                 {% if item.medicamentos %}
                 <div class="table-responsive">
-                    <table class="table table-bordered align-middle">
+                    <table class="table table-striped table-hover align-middle">
                         <thead class="table-light text-center">
                             <tr>
                                 <th rowspan="2">💊 Medicamento</th>
@@ -40,14 +40,15 @@
                         <tbody>
                             {% for medicamento in item.medicamentos %}
                             <tr>
-                                <form method="POST" action="{% url 'adicionar_avaliacao' %}">
+                                <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
+
                                     <td>{{ medicamento.nome }}</td>
                                     <td>{{ medicamento.classe }}</td>
                                     <td>{{ medicamento.desde }}</td>
-                                    <td>{{ medicamento.prescrita|yesno:"Sim,Não" }}</td>
-                                    <td>{{ medicamento.utilizada|yesno:"Sim,Não" }}</td>
+                                    <td>{{ medicamento.prescrita }}</td>
+                                    <td>{{ medicamento.utilizada }}</td>
 
                                     {% with avaliacao=medicamento.avaliacao %}
                                     <td>

@@ -1,44 +1,47 @@
-        <!-- Problema de Saúde -->
-        <div class="accordion-item">
-            <h2 class="accordion-header" id="headingProblema">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#collapseProblema">
-                    ➕ Adicionar Problema de Saúde
+<!-- Problema de Saúde -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingProblema">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapseProblema">
+            ➕ Adicionar Problema de Saúde
+        </button>
+    </h2>
+    <div id="collapseProblema" class="accordion-collapse collapse show" data-bs-parent="#formAccordion">
+        <div class="accordion-body">
+            <form method="POST" action="{% url 'consulta_adicionar_problema_saude' consulta.id %}">
+                {% csrf_token %}
+                {% for field in problema_form %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-success">
+                    💾 Salvar Problema
                 </button>
-            </h2>
-            <div id="collapseProblema" class="accordion-collapse collapse show" data-bs-parent="#formAccordion">
-                <div class="accordion-body">
-                    <form method="POST" action="{% url 'adicionar_problema_saude' consulta.id %}">
-                        {% csrf_token %} {% for field in problema_form %}
-                        <div class="mb-3">
-                            <label class="form-label">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-success">
-                            💾 Salvar Problema
-                        </button>
-                    </form>
-                    <hr />
-                    <h5 class="mt-4">📝 Problemas Cadastrados</h5>
+            </form>
+
+            <hr />
+            
+            <h5 class="mt-4">📝 Problemas Cadastrados</h5>
+            {% if problemas %}
+                <div class="list-group">
                     {% for problema in problemas %}
                     <div class="card mt-2 shadow-sm">
                         <div class="card-body">
-                            <p><strong>🧬 Problema:</strong> {{ problema.problema}}</p>
+                            <p><strong>🧬 Problema:</strong> {{ problema.problema }}</p>
                             <p><strong>🕐 Início:</strong> {{ problema.inicio }}</p>
-                            <p>
-                                <strong>✅ Controlado:</strong> {{
-                                problema.controlado|yesno:"Sim,Não" }}
-                            </p>
-                            <p>
-                                <strong>⚠️ Preocupa:</strong> {{
-                                problema.preocupa|yesno:"Sim,Não" }}
-                            </p>
+                            <p><strong>✅ Controlado:</strong> 
+                                {{ problema.controlado|yesno:"Sim,Não,Não informado" }}</p>
+                            <p><strong>⚠️ Preocupa:</strong> 
+                                {{ problema.preocupa|yesno:"Sim,Não,Não informado" }}</p>
                         </div>
                     </div>
-                    {% empty %}
-                    <p class="text-muted">Nenhum problema de saúde adicionado ainda.</p>
                     {% endfor %}
                 </div>
-            </div>
+            {% else %}
+                <p class="text-muted">Nenhum problema de saúde cadastrado.</p>
+            {% endif %}
         </div>
+    </div>
+</div>

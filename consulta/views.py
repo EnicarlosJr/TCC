@@ -1,11 +1,13 @@
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
+
+import paciente
 from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
 from .forms import (
     ConsultaForm, ProblemaSaudeForm, MedicamentoForm,
     AvaliacaoForm, PlanoAtuacaoForm
 )
-from paciente.models import Paciente
+from paciente.models import Doenca, Paciente
 from django.contrib import messages
 
 # Criar nova consulta
@@ -17,7 +19,7 @@ def create_consulta(request, paciente_id):
             consulta = form.save(commit=False)
             consulta.paciente = paciente
             consulta.save()
-            return redirect('detalhe_consulta', consulta_id=consulta.id)
+            return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
     else:
         form = ConsultaForm()
     return render(request, 'create_consulta.html', {'form': form, 'paciente': paciente})
@@ -64,10 +66,8 @@ def detalhe_consulta(request, consulta_id):
     return render(request, 'detalhe_consulta.html', context)
 
 
-
-
 # Adicionar problema de saúde
-def adicionar_problema_saude(request, consulta_id):
+def adicionar_problema_saude(request, consulta_id): 
     consulta = get_object_or_404(Consulta, id=consulta_id)
     if request.method == 'POST':
         form = ProblemaSaudeForm(request.POST)
@@ -75,26 +75,54 @@ def adicionar_problema_saude(request, consulta_id):
             problema = form.save(commit=False)
             problema.consulta = consulta
             problema.save()
-            return redirect('detalhe_consulta', consulta_id=consulta.id)
+            return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
     else:
         form = ProblemaSaudeForm()
     return render(request, 'adicionar_problema_saude.html', {'form': form, 'consulta': consulta})
 
+
 # Adicionar medicamento
 def adicionar_medicamento(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
+    
+    # Buscando problemas de saúde associados à consulta
+    problemas_saude = ProblemaSaude.objects.filter(consulta=consulta)
+    print(f'Problemas de saúde da consulta {consulta_id}: {problemas_saude}')
+    
     if request.method == 'POST':
-        form = MedicamentoForm(request.POST, consulta=consulta)
+        form = MedicamentoForm(request.POST, consulta=consulta)  # Passando a consulta para o formulário
+        problema_saude_id = request.POST.get('problema_saude')  # Pegando o ID do problema de saúde selecionado
+        print(f'Problema selecionado: {problema_saude_id}')
+        
         if form.is_valid():
             medicamento = form.save(commit=False)
-            medicamento.consulta = consulta
+            medicamento.consulta = consulta  # Associando o medicamento à consulta
+            print(f'Medicamento associado à consulta: {medicamento.consulta}')
+            
+            if problema_saude_id:
+                try:
+                    problema_saude = ProblemaSaude.objects.get(id=problema_saude_id, consulta=consulta)  # Associando o problema de saúde ao medicamento
+                    medicamento.problema_saude = problema_saude
+                    print(f'Medicamento associado ao problema de saúde: {medicamento.problema_saude}')
+                except ProblemaSaude.DoesNotExist:
+                    # Adicionando uma mensagem de erro para o usuário
+                    messages.error(request, 'Problema de saúde não encontrado para esta consulta.')
+                    return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
+            
             medicamento.save()
-            return redirect('detalhe_consulta', consulta_id=consulta.id)
+            messages.success(request, 'Medicamento adicionado com sucesso!')
+            return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
+        else:
+            messages.error(request, 'Por favor, corrija os erros no formulário.')
     else:
-        form = MedicamentoForm(consulta=consulta)
-    return render(request, 'adicionar_medicamento.html', {'form': form, 'consulta': consulta})
+        form = MedicamentoForm(consulta=consulta)  # Passando a consulta ao formulário
 
-
+    # Passando os problemas de saúde para o template
+    return render(request, 'adicionar_medicamento.html', {
+        'form': form,
+        'consulta': consulta,
+        'problemas_saude': problemas_saude,  # Passando os problemas de saúde para o template
+    })
 # Adicionar avaliação
 def adicionar_avaliacao(request):
     if request.method == 'POST':
@@ -107,13 +135,13 @@ def adicionar_avaliacao(request):
             # Verifica se já existe uma avaliação para esse medicamento
             if hasattr(medicamento, 'avaliacao'):
                 messages.error(request, "Este medicamento já possui uma avaliação.")
-                return redirect('detalhe_consulta', consulta_id=medicamento.problema_saude.consulta.id)
+                return redirect('consulta_detalhe_consulta', consulta_id=medicamento.problema_saude.consulta.id)
 
             avaliacao = form.save(commit=False)
             avaliacao.medicamento = medicamento
             avaliacao.save()
             messages.success(request, "Avaliação adicionada com sucesso.")
-            return redirect('detalhe_consulta', consulta_id=medicamento.problema_saude.consulta.id)
+            return redirect('consulta_detalhe_consulta', consulta_id=medicamento.problema_saude.consulta.id)
 
 
 
@@ -127,7 +155,7 @@ def adicionar_plano_atuacao(request, consulta_id):
             plano = form.save(commit=False)
             plano.consulta = consulta
             plano.save()
-            return redirect('detalhe_consulta', consulta_id=consulta.id)
+            return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
     else:
         form = PlanoAtuacaoForm()
     return render(request, 'adicionar_plano_atuacao.html', {'form': form, 'consulta': consulta})

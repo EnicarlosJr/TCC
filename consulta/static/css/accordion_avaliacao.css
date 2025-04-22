@@ -1,14 +1,159 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;  /* Text color to enhance readability */
+    line-height: 1.6;
+}
 
-    .form-select-sm, .form-control-sm {
-        min-width: 120px;
-    }
+.content-offset {
+    padding-top: 80px;
+}
 
-    textarea.form-control-sm {
-        min-width: 250px;
-    }
+.sidebar {
+    position: sticky;
+    top: 90px;
+    background-color: #ffffff;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+}
 
-    table td, table th {
-        vertical-align: middle !important;
-        text-align: center;
+.sidebar .nav-link {
+    padding: 0.8rem 1rem;
+    color: #333;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #e9f2ff;
+    color: #0d6efd;
+    border-left: 4px solid #0d6efd;
+    font-weight: 600;  /* Emphasize active links */
+}
+
+.section-card {
+    border: none;
+    border-radius: 1rem;
+    background-color: #ffffff;
+    margin-bottom: 2rem;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);  /* Add some shadow for better separation */
+    transition: transform 0.2s ease-in-out;
+}
+
+.section-card:hover {
+    transform: translateY(-5px);  /* Elevate the card on hover for interactivity */
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: #0d6efd;
+    text-transform: uppercase;  /* Added text transform for more impact */
+}
+
+.card-body p {
+    margin-bottom: 1rem;
+    font-size: 1rem;  /* Increased font size for better readability */
+}
+
+.tabela-avaliacao-wrapper {
+    overflow-x: auto;
+    position: relative;
+    margin-top: 1.5rem;
+}
+
+.tabela-avaliacao-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 0.5rem;  /* Soft corner radius for table */
+}
+
+.tabela-avaliacao-wrapper th,
+.tabela-avaliacao-wrapper td {
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.tabela-avaliacao-wrapper thead {
+    background-color: #0d6efd;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;  /* Ensure the header stays on top */
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
     }
-    
+}
+
+body {
+    position: relative;
+}
+
+.nav-link.active {
+    background-color: #e3f2fd;
+    border-left: 4px solid #0d6efd;
+    font-weight: bold;
+}
+
+.sidebar {
+    max-height: 90vh;
+    overflow-y: auto;
+    padding-top: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabela-avaliacao-wrapper {
+    overflow-x: auto;
+    position: relative;
+}
+
+#avaliacao .card-body {
+    min-height: 70vh;
+}
+
+.fullscreen-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.fullscreen-toggle:hover {
+    background: #0a58ca;  /* Darker shade on hover */
+}
+
+.fullscreen-table {
+    position: fixed !important;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95% !important;
+    height: 85vh;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    overflow: auto;
+    z-index: 1050;
+    border-radius: 1rem;  /* Rounded corners for modern look */
+}
