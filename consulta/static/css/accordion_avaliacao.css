@@ -1,21 +1,27 @@
+/* Estilo geral */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f8f9fa;
-    color: #333;  /* Text color to enhance readability */
+    color: #333;
     line-height: 1.6;
+    position: relative;
 }
 
+/* Espaçamento entre navbar e conteúdo */
 .content-offset {
     padding-top: 80px;
 }
 
+/* Sidebar */
 .sidebar {
     position: sticky;
     top: 90px;
-    background-color: #ffffff;
-    border-radius: 1.25rem;
-    padding: 1.5rem;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow for depth */
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem 1rem 1.5rem 1rem;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar .nav-link {
@@ -29,24 +35,26 @@ body {
 }
 
 .sidebar .nav-link:hover,
-.sidebar .nav-link.active {
+.sidebar .nav-link.active,
+.nav-link.active {
     background-color: #e9f2ff;
     color: #0d6efd;
     border-left: 4px solid #0d6efd;
-    font-weight: 600;  /* Emphasize active links */
+    font-weight: 600;
 }
 
+/* Cards de seção */
 .section-card {
     border: none;
     border-radius: 1rem;
     background-color: #ffffff;
     margin-bottom: 2rem;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);  /* Add some shadow for better separation */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease-in-out;
 }
 
 .section-card:hover {
-    transform: translateY(-5px);  /* Elevate the card on hover for interactivity */
+    transform: translateY(-5px);
 }
 
 .section-title {
@@ -54,14 +62,15 @@ body {
     font-weight: 600;
     margin-bottom: 1.25rem;
     color: #0d6efd;
-    text-transform: uppercase;  /* Added text transform for more impact */
+    text-transform: uppercase;
 }
 
 .card-body p {
     margin-bottom: 1rem;
-    font-size: 1rem;  /* Increased font size for better readability */
+    font-size: 1rem;
 }
 
+/* Tabela de avaliação */
 .tabela-avaliacao-wrapper {
     overflow-x: auto;
     position: relative;
@@ -71,7 +80,9 @@ body {
 .tabela-avaliacao-wrapper table {
     width: 100%;
     border-collapse: collapse;
-    border-radius: 0.5rem;  /* Soft corner radius for table */
+    border-radius: 0.5rem;
+    table-layout: auto;
+    /* Permite a tabela se ajustar ao conteúdo */
 }
 
 .tabela-avaliacao-wrapper th,
@@ -80,6 +91,7 @@ body {
     border: 1px solid #dee2e6;
     text-align: center;
     font-size: 1rem;
+    color: #495057;
 }
 
 .tabela-avaliacao-wrapper thead {
@@ -87,73 +99,133 @@ body {
     color: white;
     position: sticky;
     top: 0;
-    z-index: 1;  /* Ensure the header stays on top */
+    z-index: 1;
 }
 
+/* Estilo para a tabela de avaliação em tela cheia */
+.fullscreen-table {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw; /* Ocupa 100% da largura da janela */
+    height: 100vh; /* Ocupa 100% da altura da janela */
+    background-color: white;
+    z-index: 9999;
+    overflow: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+    flex-direction: column;
+}
+
+/* Quando estiver ativo, a tabela ocupa toda a tela */
+.fullscreen-table.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Botão de fechar */
+.fullscreen-table .fullscreen-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #f00;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Responsividade */
 @media (max-width: 768px) {
     .sidebar {
         display: none;
     }
+
+    /* Ajustar a tabela para dispositivos pequenos */
+    .tabela-avaliacao-wrapper table {
+        font-size: 0.9rem;
+    }
+
+    .tabela-avaliacao-wrapper th,
+    .tabela-avaliacao-wrapper td {
+        padding: 0.8rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    /* Ajustar os cards */
+    .section-card {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Ajuste de largura para a tabela */
+    .tabela-avaliacao-wrapper {
+        overflow-x: scroll;
+    }
 }
 
-body {
-    position: relative;
-}
-
-.nav-link.active {
-    background-color: #e3f2fd;
-    border-left: 4px solid #0d6efd;
+.sidebar .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
     font-weight: bold;
 }
 
-.sidebar {
-    max-height: 90vh;
-    overflow-y: auto;
-    padding-top: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.tabela-avaliacao-wrapper {
-    overflow-x: auto;
-    position: relative;
-}
-
-#avaliacao .card-body {
-    min-height: 70vh;
-}
-
-.fullscreen-toggle {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #0d6efd;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.fullscreen-toggle:hover {
-    background: #0a58ca;  /* Darker shade on hover */
-}
-
-.fullscreen-table {
-    position: fixed !important;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 95% !important;
-    height: 85vh;
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: white;
-    border: 1px solid #ddd;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    padding: 1.5rem;
-    overflow: auto;
-    z-index: 1050;
-    border-radius: 1rem;  /* Rounded corners for modern look */
+    z-index: 1050; /* maior que os outros elementos da página */
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* ou center, dependendo do design */
+}
+
+.fullscreen-content {
+    max-width: 1200px;
+    max-width: 1200px;
+}
+
+.d-none {
+    display: none !important;
+}
+.table-responsive {
+    overflow-x: auto;
+}
+.table th,
+.table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #0d6efd #e9ecef;
+}
+.card-header {
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: linear-gradient(90deg, #0d6efd, #66b2ff);
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-select-sm {
+        font-size: 1rem;
+        padding: 0.6rem;
+    }
 }

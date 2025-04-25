@@ -4,87 +4,90 @@
 
 {% block content %}
 {% load static %}
+<!-- Carregando o CSS -->
 <link rel="stylesheet" href="{% static 'css/accordion_avaliacao.css' %}" />
+<!-- Carregando o JS de ScrollSpy -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Carregando o JS personalizado -->
 <script defer src="{% static 'js/scrollspy_consulta.js' %}"></script>
+<script defer src="{% static 'js/fullscreen.js' %}"></script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const toggleBtn = document.createElement('button');
-    toggleBtn.classList.add('fullscreen-toggle');
-    toggleBtn.textContent = 'Tela cheia';
 
-    const wrapper = document.querySelector('.tabela-avaliacao-wrapper');
-    wrapper.insertBefore(toggleBtn, wrapper.firstChild);
+<div class="container-fluid content-offset" data-bs-spy="scroll" data-bs-target=".sidebar" data-bs-offset="100"
+    tabindex="0">
+    <div class="row">
+        <!-- Sidebar -->
+        <aside class="col-md-3 mb-4">
+            <div class="sidebar shadow-sm position-sticky sticky-top">
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a href="#info" class="nav-link">📄 Informações</a></li>
+                    <li class="nav-item"><a href="#problemas" class="nav-link">🧠 Problemas de Saúde</a></li>
+                    <li class="nav-item"><a href="#medicamentos" class="nav-link">💊 Medicamentos</a></li>
+                    <li class="nav-item"><a href="#avaliacao" class="nav-link">📝 Avaliação</a></li>
+                    <li class="nav-item"><a href="#plano" class="nav-link">📌 Plano de Atuação</a></li>
+                </ul>
+            </div>
+        </aside>
 
-    toggleBtn.addEventListener('click', function () {
-      wrapper.classList.toggle('fullscreen-table');
-      toggleBtn.textContent = wrapper.classList.contains('fullscreen-table') ? 'Fechar' : 'Tela cheia';
-    });
-  });
-</script>
+        <!-- Main content -->
+        <main class="col-md-9">
+            <h2 class="mb-4 text-primary">🩺 Detalhes da Consulta</h2>
 
-<div class="container-fluid content-offset" data-bs-spy="scroll" data-bs-target=".sidebar" data-bs-offset="100" tabindex="0">
-  <div class="row">
-    <!-- Menu Lateral Moderno -->
-    <aside class="col-md-3 mb-4">
-      <div class="sidebar shadow-sm position-sticky sticky-top">
-        <ul class="nav flex-column">
-          <li class="nav-item"><a href="#info" class="nav-link">📄 Informações</a></li>
-          <li class="nav-item"><a href="#problemas" class="nav-link">🧠 Problemas de Saúde</a></li>
-          <li class="nav-item"><a href="#medicamentos" class="nav-link">💊 Medicamentos</a></li>
-          <li class="nav-item"><a href="#avaliacao" class="nav-link">📝 Avaliação</a></li>
-          <li class="nav-item"><a href="#plano" class="nav-link">📌 Plano de Atuação</a></li>
-        </ul>
-      </div>
-    </aside>
+            <!-- Informações -->
+            <section id="info" class="card section-card section shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="section-title">👤 Paciente: {{ consulta.paciente.nome }}</h5>
+                    <p><strong>📅 Data da Consulta:</strong> {{ consulta.data_consulta }}</p>
+                    <p><strong>❓ Motivo:</strong> {{ consulta.motivo_consulta }}</p>
+                    <p><strong>📈 Evolução:</strong> {{ consulta.evolucao }}</p>
+                    <p><strong>📋 Prescrições e Exames:</strong> {{ consulta.prescricoes_e_exames }}</p>
+                    <p><strong>🔜 Próxima revisão:</strong> {{ consulta.data_proxima_revisao }}</p>
+                </div>
+            </section>
 
-    <!-- Conteúdo -->
-    <main class="col-md-9">
-      <h2 class="mb-4 text-primary">🩺 Detalhes da Consulta</h2>
+            <!-- Problemas de Saúde -->
+            <section id="problemas" class="card section-card section shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="section-title">🧠 Problemas de Saúde</h5>
+                    {% include 'partials/accordion_problema_saude.html' %}
+                </div>
+            </section>
 
-      <!-- Informações do Paciente -->
-      <section id="info" class="card section-card section shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="section-title">👤 Paciente: {{ consulta.paciente.nome }}</h5>
-          <p><strong>📅 Data da Consulta:</strong> {{ consulta.data_consulta }}</p>
-          <p><strong>❓ Motivo:</strong> {{ consulta.motivo_consulta }}</p>
-          <p><strong>📈 Evolução:</strong> {{ consulta.evolucao }}</p>
-          <p><strong>📋 Prescrições e Exames:</strong> {{ consulta.prescricoes_e_exames }}</p>
-          <p><strong>🔜 Próxima revisão:</strong> {{ consulta.data_proxima_revisao }}</p>
-        </div>
-      </section>
+            <!-- Medicamentos -->
+            <section id="medicamentos" class="card section-card section shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="section-title">💊 Medicamentos</h5>
+                    {% include 'partials/accordion_medicamento.html' %}
+                </div>
+            </section>
 
-      <section id="problemas" class="card section-card section shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="section-title">🧠 Problemas de Saúde</h5>
-          {% include 'partials/accordion_problema_saude.html' %}
-        </div>
-      </section>
+            <!-- Avaliação -->
+            <section id="avaliacao" class="card section-card section shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="section-title">📝 Avaliação</h5>
 
-      <section id="medicamentos" class="card section-card section shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="section-title">💊 Medicamentos</h5>
-          {% include 'partials/accordion_medicamento.html' %}
-        </div>
-      </section>
+                    <div class="tabela-avaliacao-wrapper">
+                        <button id="open-fullscreen" class="btn btn-sm btn-outline-primary mb-3">🔎 Tela cheia</button>
+                        {% include 'partials/accordion_avaliacao.html' %}
+                    </div>
 
-      <section id="avaliacao" class="card section-card section shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="section-title">📝 Avaliação</h5>
-          <div class="tabela-avaliacao-wrapper">
-            {% include 'partials/accordion_avaliacao.html' %}
-          </div>
-        </div>
-      </section>
+                    <!-- Modal Fullscreen -->
+                    <div id="avaliacao-fullscreen" class="fullscreen-overlay d-none">
+                        <div class="fullscreen-content">
+                            <button id="close-fullscreen" class="btn btn-danger btn-sm mb-3">❌ Fechar</button>
+                            {% include 'partials/accordion_avaliacao.html' %}
+                        </div>
+                    </div>
+            </section>
 
-      <section id="plano" class="card section-card section shadow-sm mb-4">
-        <div class="card-body">
-          <h5 class="section-title">📌 Plano de Atuação</h5>
-          {% include 'partials/accordion_plano_atuacao.html' %}
-        </div>
-      </section>
-    </main>
-  </div>
+            <!-- Plano de Atuação -->
+            <section id="plano" class="card section-card section shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="section-title">📌 Plano de Atuação</h5>
+                    {% include 'partials/accordion_plano_atuacao.html' %}
+                </div>
+            </section>
+        </main>
+    </div>
 </div>
 {% endblock %}

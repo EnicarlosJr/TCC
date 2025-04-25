@@ -39,11 +39,10 @@
                         </thead>
                         <tbody>
                             {% for medicamento in item.medicamentos %}
-                            <tr>
-                                <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
-
+                            <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
+                                <tr>
                                     <td>{{ medicamento.nome }}</td>
                                     <td>{{ medicamento.classe }}</td>
                                     <td>{{ medicamento.desde }}</td>
@@ -52,54 +51,53 @@
 
                                     {% with avaliacao=medicamento.avaliacao %}
                                     <td>
-                                        <select name="necessidade" class="form-select form-select-sm" required>
+                                        <select name="necessidade" class="form-select form-select-sm" required autocomplete="off">
                                             <option value="True" {% if avaliacao.necessidade %}selected{% endif %}>Sim</option>
                                             <option value="False" {% if not avaliacao.necessidade %}selected{% endif %}>Não</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="efetividade" class="form-select form-select-sm" required>
+                                        <select name="efetividade" class="form-select form-select-sm" required autocomplete="off">
                                             <option value="True" {% if avaliacao.efetividade %}selected{% endif %}>Sim</option>
                                             <option value="False" {% if not avaliacao.efetividade %}selected{% endif %}>Não</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="seguranca" class="form-select form-select-sm" required>
+                                        <select name="seguranca" class="form-select form-select-sm" required autocomplete="off">
                                             <option value="True" {% if avaliacao.seguranca %}selected{% endif %}>Sim</option>
                                             <option value="False" {% if not avaliacao.seguranca %}selected{% endif %}>Não</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="classificacao_rnm_1" class="form-select form-select-sm" required>
+                                        <select name="classificacao_rnm_1" class="form-select form-select-sm" required autocomplete="off">
                                             {% for val, label in avaliacao_form.fields.classificacao_rnm_1.choices %}
-                                                <option value="{{ val }}" {% if avaliacao.classificacao_rnm_1 == val %}selected{% endif %}>{{ label }}</option>
+                                            <option value="{{ val }}" {% if avaliacao.classificacao_rnm_1 == val %}selected{% endif %}>{{ label }}</option>
                                             {% endfor %}
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="classificacao_rnm_2" class="form-select form-select-sm" required>
+                                        <select name="classificacao_rnm_2" class="form-select form-select-sm" required autocomplete="off">
                                             {% for val, label in avaliacao_form.fields.classificacao_rnm_2.choices %}
-                                                <option value="{{ val }}" {% if avaliacao.classificacao_rnm_2 == val %}selected{% endif %}>{{ label }}</option>
+                                            <option value="{{ val }}" {% if avaliacao.classificacao_rnm_2 == val %}selected{% endif %}>{{ label }}</option>
                                             {% endfor %}
                                         </select>
                                     </td>
                                     <td>
-                                        <select name="situacao_problema_saude" class="form-select form-select-sm" required>
+                                        <select name="situacao_problema_saude" class="form-select form-select-sm" required autocomplete="off">
                                             {% for val, label in avaliacao_form.fields.situacao_problema_saude.choices %}
-                                                <option value="{{ val }}" {% if avaliacao.situacao_problema_saude == val %}selected{% endif %}>{{ label }}</option>
+                                            <option value="{{ val }}" {% if avaliacao.situacao_problema_saude == val %}selected{% endif %}>{{ label }}</option>
                                             {% endfor %}
                                         </select>
                                     </td>
                                     <td>
-                                        <textarea name="causa_rnm" class="form-control form-control-sm" rows="2" required>{{ avaliacao.causa_rnm }}</textarea>
+                                        <textarea name="causa_rnm" class="form-control form-control-sm" rows="2" required autocomplete="off">{{ avaliacao.causa_rnm }}</textarea>
                                     </td>
-                                    {% endwith %}
-
                                     <td class="text-center">
                                         <button type="submit" class="btn btn-sm btn-success">💾</button>
                                     </td>
-                                </form>
-                            </tr>
+                                    {% endwith %}
+                                </tr>
+                            </form>
                             {% endfor %}
                         </tbody>
                     </table>
