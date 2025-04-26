@@ -1,178 +1,52 @@
 {% extends 'menu.html' %}
+{% load static %}
 
 {% block content %}
-<style>
-    .card-header {
-    background-color: #f8f9fa;
-    font-weight: bold;
-}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
-.form-label {
-    font-size: 14px;
-}
 
-</style>
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Dashboard de Consultas</h1>
-    <form method="get" class="row g-3">
-        <div class="col-md-3">
-            <label for="inicio" class="form-label">Início</label>
-            <input type="date" id="inicio" name="inicio" class="form-control" value="{{ filtro_inicio }}">
-        </div>
-        <div class="col-md-3">
-            <label for="fim" class="form-label">Fim</label>
-            <input type="date" id="fim" name="fim" class="form-control" value="{{ filtro_fim }}">
-        </div>
-        <div class="col-md-3">
-            <label for="problema" class="form-label">Problema de Saúde</label>
-            <select name="problema" id="problema" class="form-select">
-                <option value="">Selecione...</option>
-                {% for problema in problemas_list %}
-                    <option value="{{ problema.problema }}" {% if problema.problema == filtro_problema %}selected{% endif %}>{{ problema.problema }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label for="medicamento" class="form-label">Medicamento</label>
-            <select name="medicamento" id="medicamento" class="form-select">
-                <option value="">Selecione...</option>
-                {% for medicamento in medicamentos_list %}
-                    <option value="{{ medicamento.nome }}" {% if medicamento.nome == filtro_medicamento %}selected{% endif %}>{{ medicamento.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-12 mt-3 text-center">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-        </div>
-    </form>
-    <div class="row">
-        <!-- Card Total de Consultas -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Total de Consultas</h5>
-                    <p class="card-text text-center">{{ total_consultas }}</p>
-                    <hr>
-                    <p class="card-text text-center">
-                        <strong>Média de Consultas por Paciente:</strong> {{ media_consultas_por_paciente }}
-                    </p>
-                </div>
-            </div>
-        </div>
+<div class="container mx-auto px-6 py-8">
+  <h1 class="text-4xl font-bold text-blue-900 text-center mb-12">
+    Dashboard Clínico • Farmácia Escola
+  </h1>
 
-        <!-- Card Medicamentos Prescritos -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Medicamentos Prescritos</h5>
-                    <p class="card-text text-center">{{ medicamentos_prescritos }}</p>
-                </div>
-            </div>
-        </div>
+  {# 🔍 Botão para Mostrar/Esconder Filtros #}
+  <div class="flex justify-end mb-6">
+    <button id="toggleFiltros" onclick="toggleFiltros()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+      🔍 Mostrar Filtros
+    </button>
+  </div>
 
-        <!-- Card Problemas de Saúde -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Número de problemas de sáude (consulta)</h5>
-                    <p class="card-text text-center">{{ problemas_saude_count }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+  {# 🎯 Seção de Filtros Avançados #}
+  <section id="filtros" class="hidden bg-white p-6 rounded-2xl shadow-lg mb-12 transition-all duration-500">
+    {% include 'relatorios/partials/filtros_dashboard.html' %}
+  </section>
 
-    <div class="row">
-        <!-- Card Problemas Comuns -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Problemas Comuns (Hipertensão e Diabetes)</h5>
-                    <p class="card-text text-center">{{ problemas_comuns }}</p>
-                </div>
-            </div>
-        </div>
+  {# 📄 Botão para abrir Modal de Exportação #}
+  <div class="flex justify-end mb-10">
+    <button onclick="openModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+      📄 Exportar Relatório
+    </button>
+  </div>
 
-        <!-- Card RNM Resolvido -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">RNM Resolvido</h5>
-                    <p class="card-text text-center">{{ rnm_resolvido }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
+  {# 📄 Modal de Exportação #}
+  {% include 'relatorios/partials/modal_exportar.html' %}
 
-    <!-- Gráficos -->
-    <div class="row">
-        <!-- Card Consultas por Paciente -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Consultas por Paciente</h5>
-                    <canvas id="consultasPorPacienteChart"></canvas>
-                </div>
-            </div>
-        </div>
+  {# 🧮 Indicadores em Cards #}
+  {% include 'relatorios/partials/cards_dashboard.html' %}
 
-        <!-- Card Medicamentos Prescritos -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Medicamentos Prescritos</h5>
-                    <canvas id="medicamentosPrescritosChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
+  {# 📊 Gráficos Dinâmicos #}
+  {% include 'relatorios/partials/graficos_dashboard.html' %}
+
+  {# 📅 Tabela Intervalos #}
+  {% include 'relatorios/partials/tabela_intervalo_consultas.html' %}
+
+  {# 🧠 Percepção de Saúde #}
+  {% include 'relatorios/partials/percepcao_saude.html' %}
 </div>
 
-
-<!-- Scripts para gráficos -->
+{# ✅ Aqui embaixo SÓ UMA VEZ o dashboard.js #}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Gráfico Consultas por Paciente
-    var ctx = document.getElementById('consultasPorPacienteChart').getContext('2d');
-    var consultasPorPacienteChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ pacientes_nome|safe }},
-            datasets: [{
-                label: 'Consultas',
-                data: {{ consultas_por_paciente_data|safe }},
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-
-    // Gráfico Medicamentos Prescritos
-    var ctx2 = document.getElementById('medicamentosPrescritosChart').getContext('2d');
-    var medicamentosPrescritosChart = new Chart(ctx2, {
-        type: 'pie',
-        data: {
-            labels: {{ medicamentos_nome|safe }},
-            datasets: [{
-                label: 'Medicamentos Prescritos',
-                data: {{ medicamentos_count|safe }},
-                backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(255, 159, 64, 0.5)', 'rgba(255, 205, 86, 0.5)', 'rgba(75, 192, 192, 0.5)'],
-                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(255, 159, 64, 1)', 'rgba(255, 205, 86, 1)', 'rgba(75, 192, 192, 1)'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

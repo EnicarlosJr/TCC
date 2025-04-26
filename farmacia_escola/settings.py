@@ -130,6 +130,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / "paciente/static",
+     os.path.join(BASE_DIR, 'relatorios/static'),
     # outros diretórios estáticos, se houver
 ]
 

@@ -40,10 +40,14 @@ class MedicamentoForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+
+
         consulta = kwargs.pop('consulta', None)  # Captura a consulta passada
         super().__init__(*args, **kwargs)
         
         if consulta:
+            print("Consulta recebida:", consulta)
+            print("Problemas filtrados:", ProblemaSaude.objects.filter(consulta=consulta))
             # Filtrando os problemas de saúde pela consulta
             self.fields['problema_saude'].queryset = ProblemaSaude.objects.filter(consulta=consulta)
             print(f'Problemas de saúde da consulta {consulta.id if consulta else "não disponível"}: {self.fields["problema_saude"].queryset.all()}')

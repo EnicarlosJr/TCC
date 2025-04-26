@@ -1,0 +1,48 @@
+<!-- 🎯 Gráficos Dashboard -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+
+  <!-- Faixa Etária -->
+  <div class="bg-white p-6 rounded-2xl shadow-xl">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">👶 Faixa Etária</h3>
+    <canvas
+      id="graficoFaixaEtaria"
+      class="rounded-lg w-full"
+      data-labels='{{ labels_faixa|safe }}'
+      data-values='{{ valores_faixa|safe }}'>
+    </canvas>
+  </div>
+
+  <!-- Gênero -->
+  <div class="bg-white p-6 rounded-2xl shadow-xl">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">🧍 Gênero</h3>
+    <canvas
+      id="graficoGenero"
+      class="rounded-lg w-full"
+      data-labels='{{ labels_genero|safe }}'
+      data-values='{{ valores_genero|safe }}'>
+    </canvas>
+  </div>
+
+  <!-- Doenças -->
+  <div class="bg-white p-6 rounded-2xl shadow-xl">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">🦠 Top 10 Doenças</h3>
+    <canvas
+      id="graficoDoencas"
+      class="rounded-lg w-full"
+      data-labels='{{ labels_doenca|safe }}'
+      data-values='{{ valores_doenca|safe }}'>
+    </canvas>
+  </div>
+
+  <!-- Intervenções -->
+  <div class="bg-white p-6 rounded-2xl shadow-xl">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Intervenções</h3>
+    <canvas
+      id="graficoIntervencao"
+      class="rounded-lg w-full"
+      data-labels='{{ labels_inter|safe }}'
+      data-values='{{ valores_inter|safe }}'>
+    </canvas>
+  </div>
+
+</section>

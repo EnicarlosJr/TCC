@@ -19,7 +19,7 @@ def cadastrar_paciente(request):
             paciente = form.save()
             # Criação automática das relações se não existirem
 
-            return redirect('paciente:paciente_detail', pk=paciente.id)  # Redireciona para os detalhes do paciente
+            return redirect('paciente_detail', pk=paciente.id)  # Redireciona para os detalhes do paciente
     else:
         form = PacienteForm()
 
@@ -30,7 +30,7 @@ def cadastrar_historia_social(request, paciente_id):
 
     # Se a história social já existir, redireciona
     if hasattr(paciente, 'historia_social') and paciente.historia_social:
-        return redirect('paciente:paciente_detail', pk=paciente.id)
+        return redirect('paciente_detail', pk=paciente.id)
 
     if request.method == 'POST':
         form = HistoriaSocialForm(request.POST)
@@ -38,7 +38,7 @@ def cadastrar_historia_social(request, paciente_id):
             historia_social = form.save(commit=False)
             historia_social.paciente = paciente
             historia_social.save()
-            return redirect('paciente:paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=paciente.id)
     else:
         form = HistoriaSocialForm()
 
@@ -49,7 +49,7 @@ def cadastrar_habitos_alimentares(request, paciente_id):
 
     # Se os hábitos alimentares já existirem, redireciona
     if hasattr(paciente, 'habitos_alimentares') and paciente.habitos_alimentares:
-        return redirect('paciente:paciente_detail', pk=paciente.id)
+        return redirect('paciente_detail', pk=paciente.id)
 
     if request.method == 'POST':
         form = HabitosAlimentaresForm(request.POST)
@@ -57,7 +57,7 @@ def cadastrar_habitos_alimentares(request, paciente_id):
             habitos_alimentares = form.save(commit=False)
             habitos_alimentares.paciente = paciente
             habitos_alimentares.save()
-            return redirect('paciente:paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=paciente.id)
     else:
         form = HabitosAlimentaresForm()
 
@@ -68,7 +68,7 @@ def cadastrar_perfil_clinico(request, paciente_id):
 
     # Se o perfil clínico já existir, redireciona
     if hasattr(paciente, 'perfil_clinico') and paciente.perfil_clinico:
-        return redirect('paciente:paciente_detail', pk=paciente.id)
+        return redirect('paciente_detail', pk=paciente.id)
 
     if request.method == 'POST':
         form = PerfilClinicoForm(request.POST)
@@ -76,7 +76,7 @@ def cadastrar_perfil_clinico(request, paciente_id):
             perfil_clinico = form.save(commit=False)
             perfil_clinico.paciente = paciente
             perfil_clinico.save()
-            return redirect('paciente:paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=paciente.id)
     else:
         form = PerfilClinicoForm()
 
@@ -87,7 +87,7 @@ def cadastrar_autonomia_medicamentos(request, paciente_id):
 
     # Se a autonomia de medicamentos já existir, redireciona
     if hasattr(paciente, 'autonomia_medicamentos') and paciente.autonomia_medicamentos:
-        return redirect('paciente:paciente_detail', pk=paciente.id)
+        return redirect('paciente_detail', pk=paciente.id)
 
     if request.method == 'POST':
         form = AutonomiaMedicamentosForm(request.POST)
@@ -95,7 +95,7 @@ def cadastrar_autonomia_medicamentos(request, paciente_id):
             autonomia_medicamentos = form.save(commit=False)
             autonomia_medicamentos.paciente = paciente
             autonomia_medicamentos.save()
-            return redirect('paciente:paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=paciente.id)
     else:
         form = AutonomiaMedicamentosForm()
 
@@ -106,7 +106,7 @@ def saude(request, paciente_id):
 
     # Se a saúde já existir, redireciona
     if hasattr(paciente, 'saude') and paciente.saude:
-        return redirect('paciente:paciente_detail', pk=paciente.id)
+        return redirect('paciente_detail', pk=paciente.id)
 
     if request.method == 'POST':
         form = SaudeForm(request.POST)
@@ -114,7 +114,7 @@ def saude(request, paciente_id):
             saude = form.save(commit=False)
             saude.paciente = paciente
             saude.save()
-            return redirect('paciente:paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=paciente.id)
     else:
         form = SaudeForm()
 
@@ -127,7 +127,7 @@ def associar_doencas_medicamentos(request, paciente_id):
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
-            return redirect('paciente:paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=paciente.id)
 
         associacoes = data.get('associacoes', [])
 

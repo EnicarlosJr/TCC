@@ -40,7 +40,7 @@
                     <p><strong>📅 Data da Consulta:</strong> {{ consulta.data_consulta }}</p>
                     <p><strong>❓ Motivo:</strong> {{ consulta.motivo_consulta }}</p>
                     <p><strong>📈 Evolução:</strong> {{ consulta.evolucao }}</p>
-                    <p><strong>📋 Prescrições e Exames:</strong> {{ consulta.prescricoes_e_exames }}</p>
+                    <p><strong>📋 Prescrições e Exames:</strong> {{ consulta.prescricoes_exames }}</p>
                     <p><strong>🔜 Próxima revisão:</strong> {{ consulta.data_proxima_revisao }}</p>
                 </div>
             </section>
@@ -70,14 +70,6 @@
                         <button id="open-fullscreen" class="btn btn-sm btn-outline-primary mb-3">🔎 Tela cheia</button>
                         {% include 'partials/accordion_avaliacao.html' %}
                     </div>
-
-                    <!-- Modal Fullscreen -->
-                    <div id="avaliacao-fullscreen" class="fullscreen-overlay d-none">
-                        <div class="fullscreen-content">
-                            <button id="close-fullscreen" class="btn btn-danger btn-sm mb-3">❌ Fechar</button>
-                            {% include 'partials/accordion_avaliacao.html' %}
-                        </div>
-                    </div>
             </section>
 
             <!-- Plano de Atuação -->
@@ -88,6 +80,13 @@
                 </div>
             </section>
         </main>
+    </div>
+    <!-- Modal Fullscreen -->
+    <div id="avaliacao-fullscreen" class="fullscreen-overlay d-none">
+        <div class="fullscreen-content">
+            <button id="close-fullscreen" class="btn btn-danger btn-sm mb-3">❌ Fechar</button>
+            {% include 'partials/accordion_avaliacao.html' %}
+        </div>
     </div>
 </div>
 {% endblock %}
