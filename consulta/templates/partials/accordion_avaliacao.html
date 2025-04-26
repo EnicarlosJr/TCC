@@ -1,4 +1,7 @@
 <!-- Avaliação -->
+{% load static %}
+<script defer src="{% static 'js/fullscreen.js' %}"></script>
+
 <h3 class="mt-4">🧠 Avaliações por Problema de Saúde</h3>
 
 {% if problemas_com_medicamentos %}
@@ -11,7 +14,7 @@
                 <strong>📅 Início:</strong> {{ item.problema.inicio }} |
                 <strong>✅ Controlado:</strong> {{ item.problema.controlado|yesno:"Sim,Não" }} |
                 <strong>❗ Preocupa:</strong> {{ item.problema.preocupa|yesno:"Sim,Não" }} |
-                <strong>🌡️ Motivo da consulta:</strong> {{ item.problema.motivo_consulta }}
+                <strong>🌡️ Motivo da consulta:</strong> {{ consulta.motivo_consulta }}
             </div>
             <div class="card-body">
                 {% if item.medicamentos %}
@@ -39,10 +42,11 @@
                         </thead>
                         <tbody>
                             {% for medicamento in item.medicamentos %}
-                            <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
-                                <tr>
+                            <tr class="expandable">
+                                <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}" style="display: contents;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
+
                                     <td>{{ medicamento.nome }}</td>
                                     <td>{{ medicamento.classe }}</td>
                                     <td>{{ medicamento.desde }}</td>
@@ -96,8 +100,17 @@
                                         <button type="submit" class="btn btn-sm btn-success">💾</button>
                                     </td>
                                     {% endwith %}
-                                </tr>
-                            </form>
+                                </form>
+                            </tr>
+
+                            <tr class="details-row d-none">
+                                <td colspan="13">
+                                    <div class="details-content">
+                                        <p><strong>Detalhes adicionais sobre o medicamento:</strong></p>
+                                        <!-- Conteúdo extra -->
+                                    </div>
+                                </td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>

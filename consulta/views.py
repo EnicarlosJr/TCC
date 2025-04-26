@@ -57,7 +57,7 @@ def detalhe_consulta(request, consulta_id):
         'avaliacoes': avaliacoes,
         'planos': planos,
         'problema_form': ProblemaSaudeForm(),
-        'medicamento_form': MedicamentoForm(),
+        'medicamento_form': MedicamentoForm(consulta=consulta),
         'avaliacao_form': AvaliacaoForm(),
         'plano_form': PlanoAtuacaoForm(),
         'problemas_com_medicamentos': problemas_com_medicamentos,

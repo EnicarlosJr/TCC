@@ -1,0 +1,50 @@
+ <!-- Relatórios adicionais -->
+ <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+    <div class="bg-white p-6 rounded-2xl shadow-xl text-center">
+      <h3 class="text-lg font-semibold text-gray-700 mb-2">
+        💊 Média de Medicamentos por Paciente
+      </h3>
+      <p class="text-3xl font-bold text-blue-800">{{ media_medicamentos }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-xl">
+      <h3 class="text-lg font-semibold text-gray-700 mb-3">
+        📦 Local de Armazenamento
+      </h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        {% for item in armazenamento %}
+        <li>
+          <strong
+            >{{ item.autonomia_medicamentos__local_guarda|title }}:</strong
+          >
+          {{ item.total }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-xl">
+      <h3 class="text-lg font-semibold text-gray-700 mb-3">
+        ♻️ Forma de Descarte
+      </h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        {% for item in descarte %}
+        <li>
+          <strong
+            >{{ item.autonomia_medicamentos__forma_descarte|title }}:</strong
+          >
+          {{ item.total }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="bg-white p-6 rounded-2xl shadow-xl">
+      <h3 class="text-lg font-semibold text-gray-700 mb-3">🩺 Tipos de RNMs</h3>
+      <ul class="text-sm text-gray-700 space-y-1">
+        {% for item in rnm_tipos %}
+        <li>
+          <strong>{{ item.registro_intervencao|title }}:</strong> 
+          {{ item.total }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
