@@ -75,7 +75,7 @@ Os testes serão adicionados utilizando **pytest** e **Django TestCase**.
 **Enicarlos Pereira Gonçalves Júnior**  
 Aluno de Sistemas de Informação - UFVJM  
 
-- [LinkedIn](#)
+- [LinkedIn](#enicarlosjr)
 - [GitHub: @EnicarlosJr](https://github.com/EnicarlosJr)
 
 ---
