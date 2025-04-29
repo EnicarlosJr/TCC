@@ -1,169 +1,121 @@
 {% extends "menu.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
+<style>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacientes</title>
-    <!-- Inclua o CSS do Bootstrap para estilizar os cards -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
+.fixed {
+  position: fixed;
+}
+.bottom-8 {
+  bottom: 2rem;
+}
+.right-8 {
+  right: 2rem;
+}
+.z-50 {
+  z-index: 50;
+}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            margin-top: 50px;
-            /* Adicione uma margem superior para compensar o menu fixo */
-        }
 
-        h1 {
-            color: #007bff;
-        }
+</style>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold text-blue-800 text-center mb-10">Lista de Pacientes</h1>
 
-        .card {
-            border: 1px solid #007bff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-title {
-            font-weight: bold;
-        }
-
-        .card-footer {
-            background-color: #f1f1f1;
-        }
-
-        .btn-primary,
-        .btn-success,
-        .btn-secondary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .pagination .page-item .page-link {
-            color: #007bff;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #777;
-            /* Cinza para o rodapé */
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container my-4">
-        <h1 class="mb-4">Pacientes</h1>
-
-        <!-- Formulário de busca -->
-        <form method="GET" class="mb-4">
-            <div class="input-group">
-                <input type="text" class="form-control" name="q" placeholder="Buscar por nome, telefone ou município"
-                    value="{{ request.GET.q }}">
-                <button type="submit" class="btn btn-primary">Buscar</button>
-            </div>
+    <!-- Formulário de Busca -->
+    <div class="flex justify-center mb-6">
+        <form method="GET" class="flex w-full max-w-2xl">
+            <input type="text" name="q" placeholder="Buscar paciente..." value="{{ request.GET.q }}"
+                class="flex-grow rounded-l-lg border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-r-lg">
+                Buscar
+            </button>
         </form>
-
-        <!-- Botão para adicionar novo paciente -->
-        <a href="{% url 'paciente_cadastrar_paciente' %}" class="btn btn-success mb-4">Adicionar Paciente</a>
-
-        <!-- Lista de pacientes em cards -->
-        <div class="row">
-            {% for paciente in pacientes %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ paciente.nome }}</h5>
-                        <p class="card-text"><strong>Telefone:</strong> {{ paciente.telefone }}</p>
-                        <p class="card-text"><strong>Município:</strong> {{ paciente.municipio }}</p>
-                        <p class="card-text"><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento }}</p>
-                        <p class="card-text"><strong>Gênero:</strong> {{ paciente.get_genero_display }}</p>
-                        <p class="card-text"><strong>Estado Civil:</strong> {{ paciente.get_estado_civil_display }}</p>
-                        <a href="{% url 'paciente_detail' paciente.id %}">Ver detalhes</a>
-                    </div>
-                    <div class="card-footer text-muted">
-                        Última consulta em:
-                        {% if paciente.ultima_consulta %}
-                        {{ paciente.ultima_consulta|date:"d/m/Y" }}
-                        {% else %}
-                        Nenhuma consulta registrada
-                        {% endif %}
-                    </div>
-
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <a href="{% url 'consulta_create_consulta' paciente.id %}" class="btn btn-primary">Adicionar Consulta</a>
-
-                            <a href="{% url 'consulta_listar_consultas' paciente.id %}" class="btn btn-secondary">Ver
-                                Consultas</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <p>Nenhum paciente encontrado.</p>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Paginação -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center">
-                {% if pacientes.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?q={{ request.GET.q|default:'' }}&page=1">Primeira</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link"
-                        href="?q={{ request.GET.q|default:'' }}&page={{ pacientes.previous_page_number }}">Anterior</a>
-                </li>
-                {% endif %}
-
-                {% for num in pacientes.paginator.page_range %}
-                <li class="page-item {% if num == pacientes.number %}active{% endif %}">
-                    <a class="page-link" href="?q={{ request.GET.q|default:'' }}&page={{ num }}">{{ num }}</a>
-                </li>
-                {% endfor %}
-
-                {% if pacientes.has_next %}
-                <li class="page-item">
-                    <a class="page-link"
-                        href="?q={{ request.GET.q|default:'' }}&page={{ pacientes.next_page_number }}">Próxima</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link"
-                        href="?q={{ request.GET.q|default:'' }}&page={{ pacientes.paginator.num_pages }}">Última</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-
-
     </div>
-</body>
 
-</html>
+    {% if request.user.tipo_usuario == 'farmaceutico' %}
+    <!-- Botão Flutuante de Adicionar Paciente (Somente para Farmacêuticos) -->
+    <a href="{% url 'paciente_cadastrar_paciente' %}"
+       class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition transform hover:scale-110 z-50"
+       title="Adicionar Novo Paciente">
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+       </svg>
+    </a>
+    {% endif %}
+    
+
+    <!-- Grid de Cards de Pacientes -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for paciente in pacientes %}
+        <div class="bg-white shadow-md rounded-2xl overflow-hidden transition hover:shadow-lg flex flex-col justify-between">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-xl font-bold text-gray-800">{{ paciente.nome }}</h2>
+
+                    {% if paciente.ultima_consulta %}
+                        <span class="text-xs font-bold text-green-600">✔️ Com Consultas</span>
+                    {% else %}
+                        <span class="text-xs font-bold text-red-600">⚠️ Sem Consultas</span>
+                    {% endif %}
+                </div>
+
+                <p class="text-gray-600 text-sm mb-1"><strong>Telefone:</strong> {{ paciente.telefone|default:"-" }}</p>
+                <p class="text-gray-600 text-sm mb-1"><strong>Município:</strong> {{ paciente.municipio|default:"-" }}</p>
+                <p class="text-gray-600 text-sm mb-1"><strong>Data de Nascimento:</strong> {{ paciente.data_nascimento|date:"d/m/Y" }}</p>
+                <p class="text-gray-600 text-sm mb-1"><strong>Gênero:</strong> {{ paciente.get_genero_display|default:"-" }}</p>
+                
+                {% if paciente.ultima_consulta %}
+                <p class="text-blue-600 text-xs mt-4">Última Consulta: {{ paciente.ultima_consulta|date:"d/m/Y" }}</p>
+                {% else %}
+                <p class="text-red-500 text-xs mt-4">Nunca Consultado</p>
+                {% endif %}
+            </div>
+
+            <div class="bg-gray-50 p-4 flex flex-col space-y-2">
+                <a href="{% url 'paciente_detail' paciente.id %}"
+                    class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-2 rounded-lg text-sm font-semibold">
+                    📋 Detalhar Paciente
+                </a>
+                <a href="{% url 'consulta_create_consulta' paciente.id %}"
+                    class="block w-full bg-green-500 hover:bg-green-600 text-white text-center py-2 rounded-lg text-sm font-semibold">
+                    ➕ Adicionar Consulta
+                </a>
+                <a href="{% url 'consulta_listar_consultas' paciente.id %}"
+                    class="block w-full bg-yellow-500 hover:bg-yellow-600 text-white text-center py-2 rounded-lg text-sm font-semibold">
+                    📑 Consultas Realizadas
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center text-gray-400">
+            Nenhum paciente encontrado.
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginação -->
+    <div class="flex justify-center mt-10">
+        <nav class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">« Primeira</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">‹ Anterior</a>
+            {% endif %}
+    
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <span class="px-3 py-1 rounded-lg bg-blue-600 text-white">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+    
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">Próxima ›</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700">Última »</a>
+            {% endif %}
+        </nav>
+    </div>
+
+</div>
 {% endblock %}

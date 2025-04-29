@@ -1,0 +1,65 @@
+{% extends 'menu.html' %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold text-blue-700 mb-8 text-center">Usuários Cadastrados</h1>
+
+    <div class="flex justify-center mb-8">
+        <a href="{% url 'cadastrar_usuario' %}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition">
+            Novo Usuário
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {% for usuario in usuarios %}
+            {% if usuario.id %}
+            <div class="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center transition transform hover:scale-105">
+                <h2 class="text-xl font-bold text-gray-800 mb-2">{{ usuario.get_full_name|default:usuario.username }}</h2>
+                <p class="text-gray-500 mb-2">{{ usuario.email }}</p>
+                <p class="text-gray-600 text-sm mb-4">Tipo: {{ usuario.get_tipo_usuario_display }}</p>
+
+                <div class="flex flex-wrap justify-center gap-2 mt-4">
+                    <a href="{% url 'ver_logs_usuario' usuario.id %}" class="bg-blue-500 hover:bg-blue-600 text-white text-xs py-2 px-4 rounded-full transition">Ver Logs</a>
+                    <a href="{% url 'editar_usuario' usuario.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs py-2 px-4 rounded-full transition">Editar</a>
+                    <button type="button" class="bg-red-500 hover:bg-red-600 text-white text-xs py-2 px-4 rounded-full transition"
+                        data-bs-toggle="modal" data-bs-target="#modalExcluirUsuario{{ usuario.id }}">
+                        Excluir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal de confirmação para excluir usuário -->
+            <div class="modal fade" id="modalExcluirUsuario{{ usuario.id }}" tabindex="-1" aria-labelledby="labelModal{{ usuario.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-red-600 text-white">
+                            <h5 class="modal-title" id="labelModal{{ usuario.id }}">Confirmar Exclusão</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            Tem certeza que deseja excluir o usuário <strong>{{ usuario.get_full_name|default:usuario.username }}</strong>?
+                        </div>
+                        <div class="modal-footer flex justify-center">
+                            <form method="post" action="{% url 'apagar_usuario' usuario.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full">
+                                    Sim, Excluir
+                                </button>
+                                <button type="button" class="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded-full" data-bs-dismiss="modal">
+                                    Cancelar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% empty %}
+            <div class="col-span-full text-center text-gray-500">
+                Nenhum usuário cadastrado ainda.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
