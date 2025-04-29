@@ -25,7 +25,6 @@ SECRET_KEY = 'django-insecure-nbm49e0zqa9tj!ttli3kjtqj)mv!iomj@*k6=h%lj67nts(2*w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 SECURE_SSL_REDIRECT = False
 
@@ -39,13 +38,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Seus apps
     'paciente',
     'listagem_pacientes',
     'consulta',
     'tela_inicial',
     'relatorios',
     'django_extensions',
+    'login',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'farmacia_escola.urls'
 
@@ -88,6 +92,8 @@ DATABASES = {
     }
 }
 
+# Password validation
+AUTH_USER_MODEL = 'login.CustomUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -139,3 +145,62 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# teste login ufvjm
+INSTALLED_APPS += [
+    'django_cas_ng',
+]
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'django_cas_ng.backends.CASBackend',
+)
+
+# configurações do django-cas-ng
+# CAS_SERVER_URL = 'https://ecampus.ufvjm.edu.br/cas/'
+# CAS_VERSION = 'CAS_2_SAML_1_0'
+
+# LOGIN_URL = '/accounts/login/'
+# LOGOUT_URL = '/accounts/logout/'
+# LOGIN_REDIRECT_URL = '/tela_inicial/'
+
+# CAS_LOGOUT_COMPLETELY = True
+# CAS_FORCE_SSL_SERVICE_URL = True
+
+LOGIN_URL = '/conta/login/'
+LOGOUT_URL = '/conta/logout/'
+
+# segurança de sessão 
+# ---- SEGURANÇA DE SESSÃO (FUNCIONA EM DEV SEM HTTPS) ----
+
+# Expirar sessão ao fechar o navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Expirar sessão após 30 minutos de inatividade
+SESSION_COOKIE_AGE = 1800  # 30 minutos (1800 segundos)
+
+# Permitir cookies HTTP mesmo sem HTTPS enquanto em desenvolvimento
+SESSION_COOKIE_SECURE = False  # ⚠️ Em produção mudar para True
+CSRF_COOKIE_SECURE = False     # ⚠️ Em produção mudar para True
+
+# Protege contra clickjacking
+X_FRAME_OPTIONS = 'DENY'
+
+# ---- SEGURANÇA EXTRA (ATIVAR APENAS COM HTTPS EM PRODUÇÃO) ----
+
+# SESSION_COOKIE_SECURE = True  # 🔒 Ativar apenas com HTTPS (evita roubo de sessão)
+# CSRF_COOKIE_SECURE = True     # 🔒 Ativar apenas com HTTPS (evita roubo de CSRF token)
+# SECURE_BROWSER_XSS_FILTER = True  # 🔒 Protege contra XSS em navegadores
+# SECURE_CONTENT_TYPE_NOSNIFF = True  # 🔒 Evita que o navegador execute arquivos maliciosos
+# SECURE_HSTS_SECONDS = 3600  # 🔒 Força HTTPS por 1 hora (produção apenas)
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # 🔒 Protege subdomínios também
+# SECURE_HSTS_PRELOAD = True  # 🔒 Incluir no preload list do navegador
+
+# 🔥 Em produção, quando HTTPS estiver ativo, descomentar as linhas acima.
+# ---- BLOQUEIO DE FORÇA BRUTA (ATIVAR APÓS INSTALAR django-axes) ----
+
+# INSTALLED_APPS += ['axes',]
+# MIDDLEWARE += ['axes.middleware.AxesMiddleware',]
+
+# AXES_FAILURE_LIMIT = 5  # Número máximo de tentativas
+# AXES_COOLOFF_TIME = 1  # Tempo de bloqueio (em horas)
+# AXES_LOCKOUT_TEMPLATE = 'errors/lockout.html'  # Página customizada quando bloqueado

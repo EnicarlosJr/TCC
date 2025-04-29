@@ -8,15 +8,14 @@ from paciente.models import MedicamentoDoencaPaciente, Paciente
 
 class PacienteListView(ListView):
     model = Paciente
-    template_name = 'paciente_list.html'  # Caminho correto para o template
+    template_name = 'paciente_list.html'  # Caminho correto agora
     context_object_name = 'pacientes'
-    paginate_by = 9  # Número de pacientes por página
+    paginate_by = 9  # Mostra 9 pacientes por página
 
     def get_queryset(self):
         queryset = super().get_queryset()
         query = self.request.GET.get('q')
 
-        # Filtros básicos de busca
         if query:
             queryset = queryset.filter(
                 Q(nome__icontains=query) |
@@ -27,28 +26,20 @@ class PacienteListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pacientes = self.get_queryset()
-        
-        # Dicionário para armazenar a última consulta de cada paciente
-        ultimas_consultas = Consulta.objects.values('paciente_id').annotate(ultima_consulta=Max('data_consulta'))
-        ultima_consulta_dict = {uc['paciente_id']: uc['ultima_consulta'] for uc in ultimas_consultas}
+        pacientes = context['pacientes']
 
-        # Adiciona a informação ao contexto
+        # Consultar últimas datas de consulta
+        ultimas_consultas = Consulta.objects.values('paciente_id').annotate(
+            ultima_consulta=Max('data_consulta')
+        )
+        ultima_consulta_dict = {item['paciente_id']: item['ultima_consulta'] for item in ultimas_consultas}
+
+        # Atribuir última consulta para cada paciente listado
         for paciente in pacientes:
-            paciente.ultima_consulta = ultima_consulta_dict.get(paciente.id, None)
+            paciente.ultima_consulta = ultima_consulta_dict.get(paciente.id)
 
-        paginator = Paginator(pacientes, self.paginate_by)
-        page = self.request.GET.get('page')
-
-        try:
-            pacientes_paginated = paginator.page(page)
-        except PageNotAnInteger:
-            pacientes_paginated = paginator.page(1)
-        except EmptyPage:
-            pacientes_paginated = paginator.page(paginator.num_pages)
-
-        context['pacientes'] = pacientes_paginated
         return context
+
 
 
 class PacienteDetailView(DetailView):

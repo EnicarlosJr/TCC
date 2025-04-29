@@ -39,7 +39,7 @@
                         <p><strong>💡 Utilizada:</strong> {{ medicamento.utilizada|yesno:"Sim,Não" }}</p>
                         <p><strong>🤔 Pra que serve:</strong> {{ medicamento.para_que_servir }}</p>
                         {% if medicamento.problema_saude %}
-                            <p><strong>🧠 Relacionado a Problema de Saúde:</strong> {{ medicamento.problema_saude.nome }}</p>
+                            <p><strong>🧠 Relacionado a Problema de Saúde:</strong> {{ medicamento.problema_saude.problema }}</p>
                         {% endif %}
                     </div>
                     {% endfor %}

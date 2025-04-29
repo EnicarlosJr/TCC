@@ -16,111 +16,131 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 
     <style>
-        /* Estilos personalizados */
+        /* Estilo geral */
         body {
-            background-color: #f5f5f5;
+            background-color: #f0f4f8;
             font-family: 'Arial', sans-serif;
-            color: #333;
+            color: #2c3e50;
         }
-
+    
         .container {
             max-width: 1200px;
             margin-top: 90px;
         }
-
+    
         .section-title {
-            font-size: 2em;
+            font-size: 2.5rem;
             font-weight: bold;
-            color: #2c3e50;
+            color: #1e3a8a; /* Azul escuro bonito */
             margin-top: 40px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
-
-        .card-header {
-            background-color: #3498db;
-            color: white;
-            font-size: 1.2em;
-            padding: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .card-body {
-            padding: 20px;
+    
+        .card {
             background-color: #ffffff;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease-in-out;
         }
-
+    
+        .card:hover {
+            transform: translateY(-3px);
+        }
+    
+        .card-header {
+            background: linear-gradient(to right, #3b82f6, #60a5fa); /* Azul degradê */
+            color: white;
+            font-size: 1.3rem;
+            padding: 18px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    
+        .card-body {
+            padding: 20px 25px;
+            background-color: #f9fafb;
+        }
+    
+        .create-button, .back-button {
+            padding: 12px 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+    
         .create-button {
+            background-color: #3b82f6;
+            color: white;
             margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
         }
-
+    
         .create-button:hover {
-            background-color: #2980b9;
+            background-color: #2563eb;
         }
-
+    
         .back-button {
-            margin-top: 30px;
-            padding: 10px 20px;
-            background-color: #e74c3c;
+            background-color: #ef4444;
             color: white;
-            text-decoration: none;
-            border-radius: 5px;
+            margin-top: 30px;
         }
-
+    
         .back-button:hover {
-            background-color: #c0392b;
+            background-color: #dc2626;
         }
-
+    
         .info-item {
             margin-bottom: 15px;
+            font-size: 0.95rem;
         }
-
+    
         .info-label {
             font-weight: bold;
-            color: #34495e;
+            color: #1e40af; /* Azul bonito */
+            display: block;
+            margin-bottom: 2px;
         }
-
+    
         .info-value {
-            color: #7f8c8d;
+            color: #475569; /* Cinza azulado */
+            font-size: 0.95rem;
         }
-
+    
+        /* Ícones */
         .icon {
-            font-size: 1.5em;
-            color: #3498db;
+            font-size: 1.5rem;
+            color: #3b82f6;
+            margin-right: 6px;
         }
-
-        .card {
-            margin-bottom: 20px;
-            border-radius: 10px;
-        }
-
-        /* Estilo para animação de expansão */
+    
+        /* Animação Accordion */
         .expand-card {
             transition: all 0.3s ease-in-out;
         }
-
+    
         .expand-card.collapsed .card-body {
             display: none;
         }
-
+    
         .expand-card.collapsed .card-header {
-            border-radius: 5px;
+            border-radius: 12px;
         }
-
+    
         footer {
             text-align: center;
             margin-top: 20px;
             font-size: 0.9em;
             color: #777;
-            /* Cinza para o rodapé */
         }
     </style>
+    
 
     <script>
         // Função para alternar a visibilidade dos cartões
@@ -138,53 +158,57 @@
     <div class="patient-info">
         <!-- Informações do Paciente -->
         <div class="row">
-            <div class="col-md-6">
-                <div class="info-item">
-                    <i class="fa fa-user icon"></i>
-                    <span class="info-label">Nome:</span>
-                    <span class="info-value">{{ paciente.nome }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fa fa-phone icon"></i>
-                    <span class="info-label">Telefone:</span>
-                    <span class="info-value">{{ paciente.telefone }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fa fa-calendar icon"></i>
-                    <span class="info-label">Data de Nascimento:</span>
-                    <span class="info-value">{{ paciente.data_nascimento }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fa fa-map-marker icon"></i>
-                    <span class="info-label">Município:</span>
-                    <span class="info-value">{{ paciente.municipio }}</span>
-                    <span class="info-value">{{ paciente.bairro }}</span>
-                    <span class="info-value">{{ paciente.distrito }}</span>
+            <div class="card mb-5">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Lado Esquerdo: Ícone e Nome -->
+                        <div class="col-md-4 text-center">
+                            <i class="fa fa-user-circle" style="font-size: 5rem; color: #3b82f6;"></i>
+                            <h3 class="mt-3">{{ paciente.nome }}</h3>
+                            <span class="badge bg-primary">{{ paciente.get_genero_display }}</span>
+                        </div>
+            
+                        <!-- Lado Direito: Informações detalhadas -->
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Telefone:</span><br>
+                                    <span class="info-value">{{ paciente.telefone }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Data de Nascimento:</span><br>
+                                    <span class="info-value">{{ paciente.data_nascimento|date:"d/m/Y" }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Município:</span><br>
+                                    <span class="info-value">{{ paciente.municipio }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Bairro:</span><br>
+                                    <span class="info-value">{{ paciente.bairro }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Distrito:</span><br>
+                                    <span class="info-value">{{ paciente.distrito }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Responsável:</span><br>
+                                    <span class="info-value">{{ paciente.responsavel }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Estado Civil:</span><br>
+                                    <span class="info-value">{{ paciente.get_estado_civil_display }}</span>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <span class="info-label">Escolaridade:</span><br>
+                                    <span class="info-value">{{ paciente.get_escolaridade_display }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="info-item">
-                    <i class="fa fa-envelope icon"></i>
-                    <span class="info-label">Responsável:</span>
-                    <span class="info-value">{{ paciente.responsavel }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fa fa-male icon"></i>
-                    <span class="info-label">Gênero:</span>
-                    <span class="info-value">{{ paciente.get_genero_display }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fa fa-heart icon"></i>
-                    <span class="info-label">Estado Civil:</span>
-                    <span class="info-value">{{ paciente.get_estado_civil_display }}</span>
-                </div>
-                <div class="info-item">
-                    <i class="fa fa-graduation-cap icon"></i>
-                    <span class="info-label">Escolaridade:</span>
-                    <span class="info-value">{{ paciente.get_escolaridade_display }}</span>
-                </div>
-            </div>
-        </div>
+        </div>            
 
         <!-- Card para História Social -->
         <div class="card expand-card collapsed">

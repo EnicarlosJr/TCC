@@ -2,6 +2,8 @@ import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from login.utils import log_atividade
 
 
 
@@ -10,7 +12,8 @@ from .forms import (
     DoencaForm, MedicamentoDoencaPacienteForm, MedicamentoForm, PacienteForm, HistoriaSocialForm, HabitosAlimentaresForm,
     PerfilClinicoForm, AutonomiaMedicamentosForm, SaudeForm,
 )
-
+@login_required
+@log_atividade("Cadastrou um paciente!")
 def cadastrar_paciente(request):
     if request.method == "POST":
         
@@ -25,6 +28,8 @@ def cadastrar_paciente(request):
 
     return render(request, 'cadastrar_paciente.html', {'form': form})
 
+@login_required
+@log_atividade("Cadastrou historia social!")
 def cadastrar_historia_social(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
@@ -44,6 +49,8 @@ def cadastrar_historia_social(request, paciente_id):
 
     return render(request, 'historia_social.html', {'form': form, 'paciente': paciente})
 
+@login_required
+@log_atividade("Cadastrou Habitos Alimentares!")
 def cadastrar_habitos_alimentares(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
@@ -63,6 +70,8 @@ def cadastrar_habitos_alimentares(request, paciente_id):
 
     return render(request, 'habitos_alimentares.html', {'form': form, 'paciente': paciente})
 
+@login_required
+@log_atividade("Cadastrou Perfil Clinico!")
 def cadastrar_perfil_clinico(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
@@ -82,6 +91,8 @@ def cadastrar_perfil_clinico(request, paciente_id):
 
     return render(request, 'perfil_clinico.html', {'form': form, 'paciente': paciente})
 
+@login_required
+@log_atividade("Cadastrou Autonomia Medicamentosa!")
 def cadastrar_autonomia_medicamentos(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
@@ -101,6 +112,9 @@ def cadastrar_autonomia_medicamentos(request, paciente_id):
 
     return render(request, 'autonomia_medicamentos.html', {'form': form, 'paciente': paciente})
 
+
+@login_required
+@log_atividade("Cadastrou Percp Saúde")
 def saude(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
@@ -120,6 +134,8 @@ def saude(request, paciente_id):
 
     return render(request, 'adicionar_saude.html', {'form': form, 'paciente': paciente})
 
+@login_required
+@log_atividade("Cadastrou doença e medicamentos")
 def associar_doencas_medicamentos(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
@@ -165,6 +181,8 @@ def associar_doencas_medicamentos(request, paciente_id):
     elif request.method == 'GET':
         return render(request, 'associar_doencas_medicamentos.html', {'paciente': paciente})
 
+@login_required
+@log_atividade("Cadastrou medicamento!")
 @require_POST
 def adicionar_medicamento(request, paciente_id):
     nome_medicamento = request.POST.get('nome')
@@ -179,7 +197,6 @@ def adicionar_medicamento(request, paciente_id):
         medicamento, _ = Medicamento.objects.get_or_create(nome=nome_medicamento)
         paciente = get_object_or_404(Paciente, id=paciente_id)
 
-        # Associa o medicamento à doença e ao paciente
         MedicamentoDoencaPaciente.objects.get_or_create(
             paciente=paciente,
             medicamento=medicamento,
@@ -192,7 +209,8 @@ def adicionar_medicamento(request, paciente_id):
             'nome': medicamento.nome
         })
 
-    return JsonResponse({'error': 'Nome do medicamento e doença são obrigatórios.'}, status=400)
+    return JsonResponse({'sucesso': False, 'error': 'Nome do medicamento e doença são obrigatórios.'}, status=400)
+
 
 
 def buscar_doencas(request):
@@ -215,6 +233,8 @@ def buscar_medicamento(request):
 
     return JsonResponse(list(medicamentos), safe=False)
 
+@login_required
+@log_atividade("Cadastrou Doenca")
 @require_POST
 def adicionar_doenca(request, paciente_id):
     nome = request.POST.get("nome", "").strip()
@@ -223,12 +243,5 @@ def adicionar_doenca(request, paciente_id):
 
     doenca, _ = Doenca.objects.get_or_create(nome=nome)
     paciente = get_object_or_404(Paciente, id=paciente_id)
-
-    # Como não tem medicamento ainda, pode registrar com medicamento nulo ou criar uma lógica de placeholder
-    MedicamentoDoencaPaciente.objects.get_or_create(
-        paciente=paciente,
-        doenca=doenca,
-        medicamento=Medicamento.objects.get_or_create(nome="(não especificado)")[0]  # ou outra lógica
-    )
 
     return JsonResponse({"id": doenca.id, "nome": doenca.nome})

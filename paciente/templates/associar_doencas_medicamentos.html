@@ -177,7 +177,10 @@
 
         document.querySelector(`.adicionar-medicamento[data-doenca-id="${doencaId}"]`).addEventListener("click", function () {
             const nome = medicamentoInput.value.trim();
-            if (!nome) return alert("Por favor, insira o nome do medicamento.");
+            if (!nome) {
+                alert("Por favor, insira o nome do medicamento.");
+                return;  // 🚨 impede envio vazio
+            }
 
             fetch(this.dataset.url, {
                 method: "POST",
@@ -185,15 +188,23 @@
                     "Content-Type": "application/x-www-form-urlencoded",
                     "X-CSRFToken": csrftoken,
                 },
-                body: `nome=${nome}&doenca_id=${doencaId}`,
+                body: `nome=${encodeURIComponent(nome)}&doenca_id=${doencaId}`, // 🚨 encodeURIComponent para proteger o valor
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+                return res.json();
+            })
             .then(data => {
-                if (data.id) {
+                if (data.sucesso && data.id) {
                     adicionarMedicamento(data.id, data.nome, doencaId);
+                } else {
                 }
             })
-            .catch(() => alert("Erro ao adicionar medicamento."));
+            .catch((error) => {
+                console.error(error);
+            });
         });
 
         function adicionarMedicamento(id, nome, doencaId) {
@@ -202,6 +213,7 @@
             document.getElementById(`medicamento-input-${doencaId}`).value = "";
             new bootstrap.Toast(document.getElementById("toastSucesso")).show();
         }
+
     }
 
     document.getElementById("associar-form").addEventListener("submit", function (e) {
