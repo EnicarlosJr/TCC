@@ -1,6 +1,7 @@
 from django.db import models
 from paciente.models import Paciente
 
+# Modelo principal de Consulta
 class Consulta(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='consultas')
     data_consulta = models.DateField()
@@ -12,7 +13,7 @@ class Consulta(models.Model):
     def __str__(self):
         return f"Consulta de {self.paciente.nome} em {self.data_consulta}"
 
-
+# Registro de problemas de saúde levantados durante a consulta
 class ProblemaSaude(models.Model):
     consulta = models.ForeignKey(Consulta, related_name='problemas_saude', on_delete=models.CASCADE)
     problema = models.CharField(max_length=255)
@@ -23,7 +24,7 @@ class ProblemaSaude(models.Model):
     def __str__(self):
         return f"{self.problema} em {self.consulta.data_consulta}"
 
-
+# Medicamentos relacionados a uma consulta e problema de saúde
 class Medicamento(models.Model):
     consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='medicamentos', null=True, blank=True)
     problema_saude = models.ForeignKey(ProblemaSaude, on_delete=models.CASCADE, related_name='medicamentos', null=True, blank=True)
@@ -37,10 +38,10 @@ class Medicamento(models.Model):
     def __str__(self):
         return f"{self.nome} - {self.classe}"
 
-
+# Avaliação clínica de medicamentos usados na consulta
 class Avaliacao(models.Model):
     medicamento = models.OneToOneField(Medicamento, on_delete=models.CASCADE, related_name='avaliacao', null=True, blank=True)
-
+    # Classificações possíveis para RNM (Resultado Negativo da Medicamentação)
     CLASSIFICACAO_RNM_1_CHOICES = [
         ("PSNT", "Problema de saúde não tratado"),
         ("EMD", "Efeito de medicamento desnecessário"),
@@ -50,7 +51,7 @@ class Avaliacao(models.Model):
     ]
 
     CLASSIFICACAO_RNM_2_CHOICES = CLASSIFICACAO_RNM_1_CHOICES + [("NC", "Não consta")]
-
+    # Situação do problema de saúde
     SITUACAO_PROBLEMA_SAUDE_CHOICES = [
         ("PM", "Problema manifestado"),
         ("RA", "Risco de aparecimento"),
@@ -67,7 +68,7 @@ class Avaliacao(models.Model):
     def __str__(self):
         return f"Avaliação de {self.medicamento.nome}" if self.medicamento else "Avaliação sem medicamento"
 
-
+# Plano de ação farmacêutica baseado na avaliação da consulta
 class PlanoAtuacao(models.Model):
     PRIORIDADE_CHOICES = [
         ("baixa", "Baixa"),

@@ -1,17 +1,40 @@
-  <!-- Lista de percepção de saúde -->
-  <section class="bg-white p-6 rounded-2xl shadow-xl">
-    <h3 class="text-lg font-semibold text-gray-700 mb-4">
-      🧠 Percepção de Saúde (0 a 10)
-    </h3>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {% for p in percepcao %}
-      <div class="bg-gray-50 p-3 rounded-lg shadow text-center">
-        <p class="text-sm text-gray-500">Nota</p>
-        <p class="text-2xl font-bold text-blue-900">
-          {{ p.perfil_clinico__percepcao_saude }}
-        </p>
-        <p class="text-xs text-gray-600">{{ p.total }} pacientes</p>
+<!-- Percepção de Saúde com Cards Compactos e Organizados -->
+<section class="bg-white p-6 rounded-2xl shadow-xl mb-10">
+  <h3 class="text-2xl font-bold text-gray-800 mb-8 text-center">
+    🧠 Percepção de Saúde (Notas de 0 a 10)
+  </h3>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+    {% for p in percepcao %}
+    <div class="bg-white border border-gray-200 p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center">
+
+      {# Ícone dinâmico #}
+      <div class="text-2xl mb-1">
+        {% if p.perfil_clinico__percepcao_saude > 6 %}
+          🧠
+        {% else %}
+          📈
+        {% endif %}
       </div>
-      {% endfor %}
+
+      {# Nota com cor automática #}
+      <div class="text-3xl font-bold 
+        {% if p.perfil_clinico__percepcao_saude <= 4 %}
+          text-red-600
+        {% elif p.perfil_clinico__percepcao_saude <= 7 %}
+          text-yellow-500
+        {% else %}
+          text-green-600
+        {% endif %}
+      ">
+        {{ p.perfil_clinico__percepcao_saude }}
+      </div>
+
+      <p class="text-xs text-gray-500 mt-1">
+        {{ p.total }} pacientes
+      </p>
+
     </div>
-  </section>
+    {% endfor %}
+  </div>
+</section>
