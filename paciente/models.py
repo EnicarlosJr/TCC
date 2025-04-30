@@ -20,7 +20,6 @@ class Medicamento(models.Model):
 class Paciente(models.Model):
     nome = models.CharField(max_length=150)
     telefone = models.CharField(max_length=15)
-    numero_formulario = models.CharField(max_length=10)
     responsavel = models.CharField(max_length=100)
     data_nascimento = models.DateField()
     # Relacionamento ManyToMany entre Paciente e Doenca
@@ -41,6 +40,7 @@ class Paciente(models.Model):
             ('Solteiro(a)', 'Solteiro(a)'),
             ('Separado(a)', 'Separado(a)'),
             ('Amigado(a)', 'Amigado(a)'),
+            ('Viuvo(a)', 'Viúvo(a)'),
             ('Nao consta', 'Não consta'),
             ('Outro', 'Outro'),
         ]

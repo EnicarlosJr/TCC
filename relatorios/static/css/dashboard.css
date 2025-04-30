@@ -4,8 +4,8 @@ body {
     font-family: 'Segoe UI', Tahoma, sans-serif;
     color: #1e293b;
     padding-top: 4rem; /* Espaço para não ser coberto pelo navbar */
-  }
-  
+  }  
+
   /* === Correção do Menu para não sobrepor === */
   #menuLateral, nav, header {
     z-index: 10 !important;
@@ -106,9 +106,43 @@ body {
     to { opacity: 1; transform: translateY(0); }
   }
   
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.5s ease-out both;
+  }
+  /* Custom Scrollbar apenas dentro dos cards */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #90cdf4; /* Azul suave */
+    border-radius: 6px;
+    border: 2px solid transparent;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;          /* Firefox */
+    scrollbar-color: #90cdf4 transparent; /* Firefox */
+  }
+
+
   
-  
-  
-  
+
   
   

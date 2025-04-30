@@ -22,12 +22,11 @@
     {% include 'relatorios/partials/filtros_dashboard.html' %}
   </section>
 
-  {# 📄 Botão para abrir Modal de Exportação #}
-  <div class="flex justify-end mb-10">
-    <button onclick="openModal()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-      📄 Exportar Relatório
-    </button>
-  </div>
+  {# 📄 Botão Flutuante para Exportar Relatório #}
+  <button onclick="openModal()" class="fixed bottom-8 right-8 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full shadow-lg transition-all duration-300">
+    📄
+  </button>
+  
 
   {# 📄 Modal de Exportação #}
   {% include 'relatorios/partials/modal_exportar.html' %}

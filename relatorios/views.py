@@ -132,6 +132,8 @@ def exportar_dashboard(request):
 
 
 def dashboard_clinico(request):
+
+
     # Filtros Recebidos
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
@@ -218,7 +220,13 @@ def dashboard_clinico(request):
     armazenamento = pacientes.values('autonomia_medicamentos__local_guarda').annotate(total=Count('id'))
     descarte = pacientes.values('autonomia_medicamentos__forma_descarte').annotate(total=Count('id'))
     rnm_tipos = planos.values('registro_intervencao').annotate(total=Count('id'))
-    intervalo_consultas = consultas.values('paciente__nome').annotate(primeira=Min('data_consulta'), ultima=Max('data_consulta'))
+
+    intervalo_consultas = Consulta.objects.values('paciente__nome').annotate(
+        primeira=Min('data_consulta'),
+        ultima=Max('data_consulta'),
+        numero_consultas=Count('id')  # 👈 Aqui soma quantas consultas tem
+    )
+
     percepcao = pacientes.values('perfil_clinico__percepcao_saude').annotate(total=Count('id')).order_by('perfil_clinico__percepcao_saude')
 
     context = {
