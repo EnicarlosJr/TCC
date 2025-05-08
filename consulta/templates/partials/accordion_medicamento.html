@@ -35,8 +35,8 @@
                             <span class="badge text-bg-primary">{{ medicamento.classe }}</span>
                         </h6>
                         <p><strong>📅 Desde:</strong> {{ medicamento.desde }}</p>
-                        <p><strong>📝 Prescrita:</strong> {{ medicamento.prescrita|yesno:"Sim,Não" }}</p>
-                        <p><strong>💡 Utilizada:</strong> {{ medicamento.utilizada|yesno:"Sim,Não" }}</p>
+                        <p><strong>📝 Prescrita:</strong> {{ medicamento.prescrita }}</p>
+                        <p><strong>💡 Utilizada:</strong> {{ medicamento.utilizada }}</p>
                         <p><strong>🤔 Pra que serve:</strong> {{ medicamento.para_que_servir }}</p>
                         {% if medicamento.problema_saude %}
                             <p><strong>🧠 Relacionado a Problema de Saúde:</strong> {{ medicamento.problema_saude.problema }}</p>

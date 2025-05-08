@@ -1,0 +1,117 @@
+{% extends "menu.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center text-primary fw-bold mb-4">
+    🩺 Resumo da Consulta • {{ consulta.data_consulta }}
+  </h2>
+
+  <!-- 👤 Dados do Paciente -->
+  <section class="mb-5">
+    <h4 class="text-secondary">👤 Paciente</h4>
+    <div class="ps-3">
+      <p><strong>Nome:</strong> {{ paciente.nome }}</p>
+      <p><strong>Data de nascimento:</strong> {{ paciente.data_nascimento }}</p>
+      <p><strong>Sexo:</strong> {{ paciente.get_sexo_display }}</p>
+      <!-- Adicione mais campos se desejar -->
+    </div>
+  </section>
+
+  <!-- 📋 Consulta -->
+  <section class="mb-5">
+    <h4 class="text-secondary">📋 Detalhes da Consulta</h4>
+    <div class="ps-3">
+      <p><strong>Data:</strong> {{ consulta.data_consulta }}</p>
+      <p><strong>Motivo:</strong> {{ consulta.motivo_consulta }}</p>
+      <p><strong>Evolução:</strong> {{ consulta.evolucao }}</p>
+      <p><strong>Prescrições/Exames:</strong> {{ consulta.prescricoes_exames }}</p>
+      <p><strong>Próxima Revisão:</strong> {{ consulta.data_proxima_revisao }}</p>
+    </div>
+  </section>
+
+  <!-- 🩺 Problemas de Saúde -->
+  <section class="mb-5">
+    <h4 class="text-secondary">🩺 Problemas de Saúde</h4>
+    {% for problema in problemas %}
+      <div class="ps-3 mb-2">
+        <p><strong>Problema:</strong> {{ problema.problema }}</p>
+        <p><strong>Desde:</strong> {{ problema.inicio }}</p>
+        <p><strong>Controlado:</strong> {{ problema.controlado|yesno:"Sim,Não" }}</p>
+        <p><strong>Preocupa o paciente:</strong> {{ problema.preocupa|yesno:"Sim,Não" }}</p>
+      </div>
+    {% empty %}
+      <p class="text-muted">Nenhum problema registrado.</p>
+    {% endfor %}
+  </section>
+
+  <!-- 💊 Medicamentos -->
+  <section class="mb-5">
+    <h4 class="text-secondary">💊 Medicamentos</h4>
+    {% for medicamento in medicamentos %}
+      <div class="ps-3 mb-2">
+        <p><strong>Nome:</strong> {{ medicamento.nome }}</p>
+        <p><strong>Classe:</strong> {{ medicamento.classe }}</p>
+        <p><strong>Desde:</strong> {{ medicamento.desde }}</p>
+        <p><strong>Prescrita:</strong> {{ medicamento.prescrita }}</p>
+        <p><strong>Utilizada:</strong> {{ medicamento.utilizada }}</p>
+        <p><strong>Finalidade:</strong> {{ medicamento.para_que_servir }}</p>
+      </div>
+    {% empty %}
+      <p class="text-muted">Nenhum medicamento registrado.</p>
+    {% endfor %}
+  </section>
+
+  <!-- 🧠 Avaliações -->
+  <section class="mb-5">
+    <h4 class="text-secondary">🧠 Avaliações Farmacêuticas</h4>
+    {% for avaliacao in avaliacoes %}
+      <div class="ps-3 mb-4">
+        <p><strong>Medicamento:</strong> {{ avaliacao.medicamento.nome }}</p>
+        <p><strong>RNM 1:</strong> {{ avaliacao.get_classificacao_rnm_1_display }}</p>
+        <p><strong>RNM 2:</strong> {{ avaliacao.get_classificacao_rnm_2_display }}</p>
+        <p><strong>Situação:</strong> {{ avaliacao.get_situacao_problema_saude_display }}</p>
+        <p><strong>Causa:</strong> {{ avaliacao.causa_rnm }}</p>
+        <p><strong>Necessidade:</strong> {{ avaliacao.necessidade|yesno:"Sim,Não" }}</p>
+        <p><strong>Efetividade:</strong> {{ avaliacao.efetividade|yesno:"Sim,Não" }}</p>
+        <p><strong>Segurança:</strong> {{ avaliacao.seguranca|yesno:"Sim,Não" }}</p>
+      </div>
+    {% empty %}
+      <p class="text-muted">Nenhuma avaliação registrada.</p>
+    {% endfor %}
+  </section>
+
+  <!-- 📋 Planos de Atuação -->
+  <section class="mb-5">
+    <h4 class="text-secondary">📋 Planos de Atuação</h4>
+    {% for avaliacao, planos in planos_por_avaliacao.items %}
+      <div class="mb-3 ps-3 border-start border-3">
+        <h6 class="fw-bold text-primary mb-2">
+          💊 {{ avaliacao.medicamento.nome }} | 🩺 {{ avaliacao.medicamento.problema_saude.problema }}
+        </h6>
+
+        {% for plano in planos %}
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <p><strong>🎯 Objetivos:</strong> {{ plano.objetivos }}</p>
+            <p><strong>Prioridade:</strong> {{ plano.get_prioridade_display }}</p>
+            <p><strong>Intervenção:</strong> {{ plano.get_registro_intervencao_display }}</p>
+            <p><strong>Classificação:</strong> {{ plano.get_classificacao_intervencao_display }}</p>
+            <p><strong>Descrição:</strong> {{ plano.descricao_planejamento }}</p>
+            <p><strong>Data da intervenção:</strong> {{ plano.data_intervencao }}</p>
+            <hr>
+            <p><strong>✅ Alcançado:</strong> {{ plano.alcancado|yesno:"Sim,Não" }}</p>
+            <p><strong>📆 Data de acompanhamento:</strong> {{ plano.data_alcancado }}</p>
+            <p><strong>📌 Resultado:</strong> {{ plano.resultado|default:"—" }}</p>
+            <p><strong>🧩 RNM Resolvido:</strong> {{ plano.rnm_resolvido|yesno:"Sim,Não" }}</p>
+            <p><strong>📝 O que aconteceu:</strong> {{ plano.o_que_aconteceu|default:"—" }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% empty %}
+      <p class="text-muted">Nenhum plano registrado.</p>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}

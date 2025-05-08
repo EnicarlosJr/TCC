@@ -2,6 +2,8 @@ from django.db import models
 from paciente.models import Paciente
 
 # Modelo principal de Consulta
+from django.db import models
+
 class Consulta(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='consultas')
     data_consulta = models.DateField()
@@ -9,9 +11,16 @@ class Consulta(models.Model):
     motivo_consulta = models.TextField(max_length=255)
     prescricoes_exames = models.TextField()
     data_proxima_revisao = models.DateField()
+    exames_arquivo = models.FileField(
+        upload_to='exames_consulta/',
+        blank=True,
+        null=True,
+        verbose_name='Arquivo de Exames (PDF, JPG, PNG, DOC etc.)'
+    )
 
     def __str__(self):
         return f"Consulta de {self.paciente.nome} em {self.data_consulta}"
+
 
 # Registro de problemas de saúde levantados durante a consulta
 class ProblemaSaude(models.Model):
@@ -95,13 +104,18 @@ class PlanoAtuacao(models.Model):
         ("nao_claro", "Não está claro"),
     ]
 
-    consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='planos_de_atuacao')
+    avaliacao = models.ForeignKey('Avaliacao', on_delete=models.CASCADE, related_name='planos_atuacao', null=True, blank=True)
+    consulta = models.ForeignKey('Consulta', on_delete=models.CASCADE, related_name='planos_de_atuacao')  # opcional
+
+    # Etapa 1 – Planejamento da Intervenção
     objetivos = models.TextField()
     prioridade = models.CharField(max_length=20, choices=PRIORIDADE_CHOICES)
     registro_intervencao = models.CharField(max_length=50, choices=REGISTRO_INTERVENCAO_CHOICES)
     classificacao_intervencao = models.CharField(max_length=50, choices=CLASSIFICACAO_INTERVENCAO_CHOICES)
     descricao_planejamento = models.TextField(null=True, blank=True)
     data_intervencao = models.DateField()
+
+    # Etapa 2 – Acompanhamento após retorno
     alcancado = models.BooleanField(default=False)
     data_alcancado = models.DateField(null=True, blank=True)
     resultado = models.TextField(blank=True)
@@ -109,4 +123,5 @@ class PlanoAtuacao(models.Model):
     o_que_aconteceu = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"Plano de Ação para consulta em {self.consulta.data_consulta}"
+        return f"Plano para {self.avaliacao} - {self.classificacao_intervencao}"
+

@@ -362,20 +362,17 @@
 
                 <div class="info-item">
                     <span class="info-label">Deixa de tomar quando se sente bem?</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_bem_display
-                        }}</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_bem_display }}</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-label">Deixa de tomar quando se sente mal?</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_mal_display
-                        }}</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_mal_display }}</span>
                 </div>
 
                 <div class="info-item">
                     <span class="info-label">Desconforto com medicamentos:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_desconforto_medicamento_display
-                        }}</span>
+                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_desconforto_medicamento_display }}</span>
                 </div>
                 {% if paciente.autonomia_medicamentos.desconforto_outro %}
                 <div class="info-item">

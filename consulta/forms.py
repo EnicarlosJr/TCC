@@ -1,5 +1,7 @@
 from django import forms
 from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
+from django import forms
+from .models import Consulta
 
 class ConsultaForm(forms.ModelForm):
     class Meta:
@@ -7,12 +9,37 @@ class ConsultaForm(forms.ModelForm):
         exclude = ['paciente']
         fields = '__all__'
         widgets = {
-            'data_consulta': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Selecione a data da consulta'}),
-            'data_proxima_revisao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Selecione a data da próxima revisão'}),
-            'evolucao': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Descreva a evolução do paciente'}),
-            'motivo_consulta': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'Qual o motivo da consulta?'}),
-            'prescricoes_exames': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Prescrições e exames realizados'}),
+            'data_consulta': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'placeholder': 'Selecione a data da consulta'
+            }),
+            'data_proxima_revisao': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'placeholder': 'Selecione a data da próxima revisão'
+            }),
+            'evolucao': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'form-control',
+                'placeholder': 'Descreva a evolução do paciente'
+            }),
+            'motivo_consulta': forms.Textarea(attrs={
+                'rows': 2,
+                'class': 'form-control',
+                'placeholder': 'Qual o motivo da consulta?'
+            }),
+            'prescricoes_exames': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'form-control',
+                'placeholder': 'Prescrições e exames realizados'
+            }),
+            'arquivo_exames': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': '.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx'
+            }),
         }
+
 
 class ProblemaSaudeForm(forms.ModelForm):
     class Meta:
@@ -67,18 +94,67 @@ class AvaliacaoForm(forms.ModelForm):
             'situacao_problema_saude': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Selecione a situação do problema de saúde'}),
         }
 
-class PlanoAtuacaoForm(forms.ModelForm):
+class PlanoAtuacaoPlanejamentoForm(forms.ModelForm):
     class Meta:
         model = PlanoAtuacao
-        exclude = ['consulta']
-        fields = '__all__'
+        fields = [
+            'avaliacao',  # <- campo visível no formulário
+            'objetivos', 'prioridade', 'registro_intervencao',
+            'classificacao_intervencao', 'descricao_planejamento', 'data_intervencao'
+        ]
         widgets = {
-            'objetivos': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Quais são os objetivos para a intervenção?'}),
-            'descricao_planejamento': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Descreva o planejamento da intervenção'}),
-            'resultado': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Resultado da intervenção'}),
-            'data_intervencao': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Data da intervenção'}),
-            'data_alcancado': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Data de quando o objetivo foi alcançado'}),
-            'registro_intervencao': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Selecione o tipo de intervenção'}),
-            'classificacao_intervencao': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Selecione a classificação da intervenção'}),
-            'prioridade': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Selecione a prioridade'}),
+            'avaliacao': forms.Select(attrs={'class': 'form-select'}),
+            'objetivos': forms.Textarea(attrs={
+                'class': 'form-control', 'rows': 3,
+                'placeholder': 'Descreva os objetivos da intervenção...'
+            }),
+            'prioridade': forms.Select(attrs={'class': 'form-select'}),
+            'registro_intervencao': forms.Select(attrs={'class': 'form-select'}),
+            'classificacao_intervencao': forms.Select(attrs={'class': 'form-select'}),
+            'descricao_planejamento': forms.Textarea(attrs={
+                'class': 'form-control', 'rows': 2
+            }),
+            'data_intervencao': forms.DateInput(attrs={
+                'class': 'form-control', 'type': 'date'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        consulta = kwargs.pop('consulta', None)
+        super().__init__(*args, **kwargs)
+        if consulta:
+            self.fields['avaliacao'].queryset = Avaliacao.objects.filter(
+                medicamento__problema_saude__consulta=consulta
+            ).select_related('medicamento')
+            self.fields['avaliacao'].label_from_instance = lambda obj: f"{obj.medicamento.nome} ({obj.medicamento.problema_saude.problema})"
+
+    
+class PlanoAtuacaoAcompanhamentoForm(forms.ModelForm):
+    class Meta:
+        model = PlanoAtuacao
+        fields = [
+            'alcancado', 'data_alcancado', 'resultado',
+            'rnm_resolvido', 'o_que_aconteceu'
+        ]
+        widgets = {
+            'alcancado': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'data_alcancado': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'resultado': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Descreva o resultado observado...'
+            }),
+            'rnm_resolvido': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'o_que_aconteceu': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 2,
+                'placeholder': 'Explique o que ocorreu após a intervenção...'
+            }),
         }

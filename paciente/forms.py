@@ -21,21 +21,64 @@ class PacienteForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control', 'placeholder': field.label})
 
+from django import forms
+from .models import HistoriaSocial
+
 class HistoriaSocialForm(forms.ModelForm):
     class Meta:
         model = HistoriaSocial
         fields = [
-            'consome_bebida', 'tipos_bebidas', 'quantidade_ingerida', 'frequencia_uso', 'fumante',
-            'tempo_parou', 'tempo_fumou', 'pratica_atividade_fisica', 'atividades_fisicas', 'frequencia_atividade', 'observacoes'
+            'consome_bebida', 'tipos_bebidas', 'quantidade_ingerida', 'frequencia_uso',
+            'fumante', 'tempo_parou', 'tempo_fumou', 'pratica_atividade_fisica',
+            'atividades_fisicas', 'frequencia_atividade', 'observacoes'
         ]
         widgets = {
-            'observacoes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Observações sobre hábitos de consumo...'}),
+            'consome_bebida': forms.RadioSelect(choices=HistoriaSocial._meta.get_field('consome_bebida').choices),
+            'tipos_bebidas': forms.Select(attrs={'class': 'form-select'}),
+            'quantidade_ingerida': forms.Select(attrs={'class': 'form-select'}),
+            'frequencia_uso': forms.Select(attrs={'class': 'form-select'}),
+            'fumante': forms.RadioSelect(choices=HistoriaSocial._meta.get_field('fumante').choices),
+            'tempo_parou': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Anos desde que parou (se aplicável)',
+                'min': 0
+            }),
+            'tempo_fumou': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Anos de tabagismo (se aplicável)',
+                'min': 0
+            }),
+            'pratica_atividade_fisica': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'atividades_fisicas': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Caminhada, natação, academia...'
+            }),
+            'frequencia_atividade': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: 3 vezes por semana'
+            }),
+            'observacoes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Observações sobre hábitos de vida, consumo, etc.'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control', 'placeholder': field.label})
+
+        # Adiciona classes uniformes para os campos que não foram sobrescritos no widget
+        for name, field in self.fields.items():
+            if not isinstance(field.widget, (forms.RadioSelect, forms.CheckboxInput, forms.Select, forms.Textarea, forms.NumberInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+        for name in ['consome_bebida', 'fumante']:
+            self.fields[name].required = True
+            self.fields[name].choices = [
+                choice for choice in self.fields[name].choices if choice[0] != ''
+            ]
+
 
 class HabitosAlimentaresForm(forms.ModelForm):
     class Meta:
@@ -194,6 +237,19 @@ class AutonomiaMedicamentosForm(forms.ModelForm):
 
         for field in opcionais:
             self.fields[field].required = False
+
+                # Remove opção vazia ('---------') de campos obrigatórios
+        sem_opcao_vazia = [
+            'autonomia_gestao', 'dificuldade_tomar', 'esquecimentos', 'toma_no_horario',
+            'interrompe_quando_bem', 'interrompe_quando_mal', 'desconforto_medicamento',
+            'uso_alternativos', 'forma_descarte'
+        ]
+
+        for field in sem_opcao_vazia:
+            self.fields[field].required = True
+            self.fields[field].choices = [
+                choice for choice in self.fields[field].choices if choice[0] != ''
+            ]
 
 
 class SaudeForm(forms.ModelForm):

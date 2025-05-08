@@ -25,7 +25,7 @@ urlpatterns = [
 
     # Home padrão redireciona para Tela Inicial
     path('', include('tela_inicial.urls')),  # Raiz "/" vai para tela_inicial
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # (opcional) Para servir arquivos estáticos em desenvolvimento
 if settings.DEBUG:
