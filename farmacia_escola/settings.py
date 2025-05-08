@@ -155,6 +155,11 @@ AUTHENTICATION_BACKENDS = (
     'django_cas_ng.backends.CASBackend',
 )
 
+# URL para acessar os arquivos de mídia (para upload de arquivos)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
 # configurações do django-cas-ng
 # CAS_SERVER_URL = 'https://ecampus.ufvjm.edu.br/cas/'
 # CAS_VERSION = 'CAS_2_SAML_1_0'

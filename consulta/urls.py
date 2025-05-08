@@ -14,5 +14,9 @@ urlpatterns = [
     path('consulta/<int:consulta_id>/medicamento/adicionar/', views.adicionar_medicamento, name='consulta_adicionar_medicamento'),
     path('consulta/<int:consulta_id>/problema/adicionar/', views.adicionar_problema_saude, name='consulta_adicionar_problema_saude'),
     path('consulta/avaliacao/adicionar/', views.adicionar_avaliacao, name='consulta_adicionar_avaliacao'),
-    path('consulta/<int:consulta_id>/plano/adicionar/', views.adicionar_plano_atuacao, name='consulta_adicionar_plano_atuacao'),
+    path('plano_atuacao/adicionar/', views.adicionar_plano_atuacao, name='adicionar_plano_atuacao'),
+    path('plano_atuacao/acompanhamento/<int:plano_id>/', views.atualizar_acompanhamento, name='atualizar_acompanhamento'),
+    path('consulta/<int:consulta_id>/visualizar/', views.visualizar_consulta, name='visualizar_consulta'),
+
+
 ]

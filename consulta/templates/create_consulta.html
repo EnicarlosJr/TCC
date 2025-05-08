@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-5">
   <h2 class="mb-4">Nova Consulta para {{ paciente.nome }}</h2>
-  <form method="post" class="card p-4 shadow-sm">
+  <form method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
     {% csrf_token %}
     {% for field in form %}
       <div class="mb-3">

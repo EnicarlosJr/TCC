@@ -1,4 +1,5 @@
 {% extends "menu.html" %}
+{% load static %}
 
 {% block content %}
 <!DOCTYPE html>
@@ -7,16 +8,184 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Formulário de Alcolismo</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/paciente.css' %}">
+    <title>História Social</title>
+    <style>
+        body {
+            font-family: 'Poppins', 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #e3f2fd, #e8f5e9);
+            color: #2e3c50;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 700px;
+            background: #ffffff;
+            padding: 45px 35px;
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            font-size: 2.4em;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: 600;
+            color: #455a64;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 1px solid #cfd8dc;
+            background: #f9f9f9;
+            font-size: 1rem;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #2e7d32;
+            background: #ffffff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.25);
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            color: #37474f;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            accent-color: #2e7d32;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 35px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 14px 28px;
+            background-color: #2e7d32;
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #1b5e20;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background-color: #1565c0;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0d47a1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 0.85rem;
+            color: #78909c;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container">
         <h1>HISTÓRIA SOCIAL</h1>
         <form method="post">
-            {% csrf_token %} {{ form.as_p }}
+            {% csrf_token %}
+
+            <label for="{{ form.consome_bebida.id_for_label }}">Consome bebida?</label>
+            <div class="radio-group">
+                {% for radio in form.consome_bebida %}
+                    <label class="radio-option">{{ radio.tag }} {{ radio.choice_label }}</label>
+                {% endfor %}
+            </div>
+
+            <label for="{{ form.tipos_bebidas.id_for_label }}">Tipo de bebida</label>
+            {{ form.tipos_bebidas }}
+
+            <label for="{{ form.quantidade_ingerida.id_for_label }}">Quantidade ingerida</label>
+            {{ form.quantidade_ingerida }}
+
+            <label for="{{ form.frequencia_uso.id_for_label }}">Frequência de uso</label>
+            {{ form.frequencia_uso }}
+
+            <label for="{{ form.fumante.id_for_label }}">Fumante</label>
+            <div class="radio-group">
+                {% for radio in form.fumante %}
+                    <label class="radio-option">{{ radio.tag }} {{ radio.choice_label }}</label>
+                {% endfor %}
+            </div>
+
+            <label for="{{ form.tempo_parou.id_for_label }}">Tempo que parou de fumar (anos)</label>
+            {{ form.tempo_parou }}
+
+            <label for="{{ form.tempo_fumou.id_for_label }}">Tempo que fumou (anos)</label>
+            {{ form.tempo_fumou }}
+
+            <label for="{{ form.pratica_atividade_fisica.id_for_label }}">Pratica atividade física?</label>
+            <div class="checkbox-group">
+                <label class="checkbox-option">
+                    {{ form.pratica_atividade_fisica }}
+                    <span id="atividade_fisica_status">Não</span>
+                </label>
+            </div>
+            
+
+            <label for="{{ form.atividades_fisicas.id_for_label }}">Atividades físicas praticadas</label>
+            {{ form.atividades_fisicas }}
+
+            <label for="{{ form.frequencia_atividade.id_for_label }}">Frequência da atividade</label>
+            {{ form.frequencia_atividade }}
+
+            <label for="{{ form.observacoes.id_for_label }}">Observações</label>
+            {{ form.observacoes }}
 
             <div class="button-container">
                 {% if request.META.HTTP_REFERER %}
@@ -28,6 +197,18 @@
             </div>
         </form>
     </div>
+    <script>
+        const checkbox = document.getElementById("id_pratica_atividade_fisica");
+        const status = document.getElementById("atividade_fisica_status");
+    
+        function atualizarTexto() {
+            status.textContent = checkbox.checked ? "Sim" : "Não";
+        }
+    
+        checkbox.addEventListener("change", atualizarTexto);
+        document.addEventListener("DOMContentLoaded", atualizarTexto);
+    </script>
+    
     <footer>
         <p>&copy; 2024 Farmácia Escola. Todos os direitos reservados.</p>
     </footer>

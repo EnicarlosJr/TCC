@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 import paciente
 from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
 from .forms import (
-    ConsultaForm, ProblemaSaudeForm, MedicamentoForm,
-    AvaliacaoForm, PlanoAtuacaoForm
+    ConsultaForm, PlanoAtuacaoAcompanhamentoForm, PlanoAtuacaoPlanejamentoForm, ProblemaSaudeForm, MedicamentoForm,
+    AvaliacaoForm
 )
 from paciente.models import Doenca, Paciente
 from django.contrib import messages
@@ -14,7 +14,7 @@ from django.contrib import messages
 def create_consulta(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
     if request.method == 'POST':
-        form = ConsultaForm(request.POST)
+        form = ConsultaForm(request.POST, request.FILES)
         if form.is_valid():
             consulta = form.save(commit=False)
             consulta.paciente = paciente
@@ -30,16 +30,26 @@ def listar_consultas(request, paciente_id):
     consultas = paciente.consultas.all()
     return render(request, 'listar_consultas.html', {'paciente': paciente, 'consultas': consultas})
 
-# Detalhes da consulta (mostrar botões para adicionar mais dados)
+# Detalhe da consulta
 def detalhe_consulta(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
 
     problemas = ProblemaSaude.objects.filter(consulta=consulta)
     medicamentos = Medicamento.objects.filter(problema_saude__in=problemas).select_related('problema_saude')
     avaliacoes = Avaliacao.objects.filter(medicamento__in=medicamentos).select_related('medicamento')
-    planos = PlanoAtuacao.objects.filter(consulta=consulta)
 
-    # Agrupar medicamentos por problema de saúde
+    avaliacao_principal = avaliacoes.first() if avaliacoes.exists() else None
+
+    if avaliacao_principal:
+        planos_qs = avaliacao_principal.planos_atuacao.all()
+    else:
+        planos_qs = PlanoAtuacao.objects.none()
+
+    planos = []
+    for plano in planos_qs:
+        plano.acompanhamento_form = PlanoAtuacaoAcompanhamentoForm(instance=plano)
+        planos.append(plano)
+
     problemas_com_medicamentos = []
     for problema in problemas:
         medicamentos_relacionados = problema.medicamentos.all()
@@ -55,15 +65,18 @@ def detalhe_consulta(request, consulta_id):
         'problemas': problemas,
         'medicamentos': medicamentos,
         'avaliacoes': avaliacoes,
+        'avaliacao': avaliacao_principal,
         'planos': planos,
         'problema_form': ProblemaSaudeForm(),
         'medicamento_form': MedicamentoForm(consulta=consulta),
         'avaliacao_form': AvaliacaoForm(),
-        'plano_form': PlanoAtuacaoForm(),
+        'plano_form': PlanoAtuacaoPlanejamentoForm(consulta=consulta),
+        'acompanhamento': PlanoAtuacaoAcompanhamentoForm(),
         'problemas_com_medicamentos': problemas_com_medicamentos,
     }
 
     return render(request, 'detalhe_consulta.html', context)
+
 
 
 # Adicionar problema de saúde
@@ -144,20 +157,64 @@ def adicionar_avaliacao(request):
             return redirect('consulta_detalhe_consulta', consulta_id=medicamento.problema_saude.consulta.id)
 
 
-
-
-# Adicionar plano de atuação
-def adicionar_plano_atuacao(request, consulta_id):
-    consulta = get_object_or_404(Consulta, id=consulta_id)
+# Adicionar plano de atuação com seleção da avaliação no formulário
+def adicionar_plano_atuacao(request):
     if request.method == 'POST':
-        form = PlanoAtuacaoForm(request.POST)
+        form = PlanoAtuacaoPlanejamentoForm(request.POST)
         if form.is_valid():
             plano = form.save(commit=False)
-            plano.consulta = consulta
+            # Definir a consulta com base na avaliação selecionada
+            plano.consulta = plano.avaliacao.medicamento.problema_saude.consulta
             plano.save()
-            return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
+            return redirect('consulta_detalhe_consulta', consulta_id=plano.consulta.id)
     else:
-        form = PlanoAtuacaoForm()
-    return render(request, 'adicionar_plano_atuacao.html', {'form': form, 'consulta': consulta})
+        return redirect('home')  # ou exibir erro/404
+
+    return render(request, 'adicionar_plano_atuacao.html', {'form': form})
+
+
+def atualizar_acompanhamento(request, plano_id):
+    plano = get_object_or_404(PlanoAtuacao, id=plano_id)
+    if request.method == 'POST':
+        form = PlanoAtuacaoAcompanhamentoForm(request.POST, instance=plano)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Acompanhamento atualizado com sucesso.")
+            return redirect('consulta_detalhe_consulta', consulta_id=plano.consulta.id)
+    else:
+        form = PlanoAtuacaoAcompanhamentoForm(instance=plano)
+
+    return render(request, 'atualizar_acompanhamento.html', {
+        'form': form,
+        'plano': plano,
+    })
+
+def visualizar_consulta(request, consulta_id):
+    consulta = get_object_or_404(Consulta, id=consulta_id)
+    paciente = consulta.paciente
+
+    problemas = consulta.problemas_saude.all()
+    medicamentos = Medicamento.objects.filter(problema_saude__in=problemas).select_related('problema_saude')
+    avaliacoes = Avaliacao.objects.filter(medicamento__in=medicamentos).select_related('medicamento')
+    planos = PlanoAtuacao.objects.filter(consulta=consulta).select_related('avaliacao__medicamento')
+
+    # Agrupar por avaliação
+    planos_por_avaliacao = {}
+    for plano in planos:
+        aval = plano.avaliacao
+        if aval not in planos_por_avaliacao:
+            planos_por_avaliacao[aval] = []
+        planos_por_avaliacao[aval].append(plano)
+
+    context = {
+        'consulta': consulta,
+        'paciente': paciente,
+        'problemas': problemas,
+        'medicamentos': medicamentos,
+        'avaliacoes': avaliacoes,
+        'planos_por_avaliacao': planos_por_avaliacao,
+    }
+
+    return render(request, 'visualizar_consulta.html', context)
 
 

@@ -1,50 +1,96 @@
-      <!-- Plano de Atuação -->
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="headingPlano">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#collapsePlano">
-                📋 Adicionar Plano de Atuação
-            </button>
-        </h2>
-        <div id="collapsePlano" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
-            <div class="accordion-body">
-                <form method="POST" action="{% url 'consulta_adicionar_plano_atuacao' consulta.id %}">
-                    {% csrf_token %} {% for field in plano_form %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                    </div>
+<!-- Plano de Atuação -->
+<div class="accordion-item">
+    <h2 class="accordion-header" id="headingPlano">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+            data-bs-target="#collapsePlano">
+            📋 Adicionar Plano de Atuação
+        </button>
+    </h2>
+    <div id="collapsePlano" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+        <div class="accordion-body">
+
+            <!-- Formulário de Etapa 1 (Planejamento) -->
+            {% if avaliacao %}
+            <form method="POST" action="{% url 'adicionar_plano_atuacao' %}">
+                {% csrf_token %}
+                {% for field in plano_form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <div class="text-danger">{{ error }}</div>
                     {% endfor %}
-                    <button type="submit" class="btn btn-success">
-                        💾 Salvar Plano
-                    </button>
-                </form>
-                <hr />
-                <h5 class="mt-4">📘 Planos de Atuação Cadastrados</h5>
-                {% for plano in planos %}
-                <div class="card mt-2 shadow-sm">
-                    <div class="card-body">
-                        <p><strong>🎯 Objetivos:</strong> {{ plano.objetivos }}</p>
-                        <p><strong>🏷️ Prioridade:</strong> {{ plano.prioridade }}</p>
-                        <p>
-                            <strong>🛠️ Intervenção:</strong> {{ plano.registro_intervencao
-                            }}
-                        </p>
-                        <p>
-                            <strong>📚 Classificação:</strong> {{
-                            plano.classificacao_intervencao }}
-                        </p>
-                        <p><strong>📆 Data:</strong> {{ plano.data }}</p>
-                        <p>
-                            <strong>✅ Alcançado:</strong> {{
-                            plano.alcancado|yesno:"Sim,Não" }}
-                        </p>
-                        <p><strong>📌 Resultado:</strong> {{ plano.resultado }}</p>
-                    </div>
                 </div>
-                {% empty %}
-                <p class="text-muted">Nenhum plano adicionado ainda.</p>
                 {% endfor %}
-            </div>
+                <button type="submit" class="btn btn-success">
+                    💾 Salvar Plano
+                </button>
+            </form>
+            {% else %}
+            <p class="text-danger">⚠ Nenhuma avaliação disponível para associar plano de atuação.</p>
+            {% endif %}
+            <h5 class="mt-4">📘 Planos de Atuação Cadastrados</h5>
+
+            {% regroup planos by avaliacao as planos_por_avaliacao %}
+            
+            {% for grupo in planos_por_avaliacao %}
+              <div class="mb-4 border-start border-3 ps-3">
+                <h6 class="text-primary fw-bold">
+                  💊 Medicamento: {{ grupo.grouper.medicamento.nome }} |
+                  🩺 Problema: {{ grupo.grouper.medicamento.problema_saude.problema }}
+                </h6>
+            
+                {% for plano in grupo.list %}
+                <div class="card mt-2 shadow-sm">
+                  <div class="card-body">
+                    <p><strong>🎯 Objetivos:</strong> {{ plano.objetivos }}</p>
+                    <p><strong>🏷️ Prioridade:</strong> {{ plano.get_prioridade_display }}</p>
+                    <p><strong>🛠️ Intervenção:</strong> {{ plano.get_registro_intervencao_display }}</p>
+                    <p><strong>📚 Classificação:</strong> {{ plano.get_classificacao_intervencao_display }}</p>
+                    <p><strong>📆 Data da Intervenção:</strong> {{ plano.data_intervencao }}</p>
+                    <p><strong>✅ Alcançado:</strong> {{ plano.alcancado|yesno:"Sim,Não" }}</p>
+                    <p><strong>📌 Resultado:</strong> {{ plano.resultado|default:"—" }}</p>
+                    <p><strong>🧩 RNM Resolvido:</strong> {{ plano.rnm_resolvido|yesno:"Sim,Não" }}</p>
+                    <p><strong>📝 O que aconteceu:</strong> {{ plano.o_que_aconteceu|default:"—" }}</p>
+            
+                    <!-- Botão do accordion -->
+                    <button class="btn btn-outline-primary btn-sm mt-3" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#acompanhamento{{ plano.id }}">
+                      ✏️ Preencher/Editar Acompanhamento
+                    </button>
+            
+                    <!-- Accordion interno do acompanhamento -->
+                    <div class="collapse mt-3" id="acompanhamento{{ plano.id }}">
+                      <div class="card card-body bg-light">
+                        <form method="POST" action="{% url 'atualizar_acompanhamento' plano.id %}">
+                          {% csrf_token %}
+                          {% for field in plano.acompanhamento_form %}
+                            <div class="mb-3">
+                              <label class="form-label">{{ field.label }}</label>
+                              {{ field }}
+                              {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                              {% endfor %}
+                            </div>
+                          {% endfor %}
+                          <div class="text-end">
+                            <button type="submit" class="btn btn-success">💾 Salvar Acompanhamento</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% empty %}
+              <p class="text-muted">Nenhum plano de atuação cadastrado ainda.</p>
+            {% endfor %}
+            
         </div>
+
     </div>
+</div>
