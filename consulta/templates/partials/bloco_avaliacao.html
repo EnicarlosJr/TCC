@@ -1,0 +1,118 @@
+<section id="avaliacoes" class="card section-card shadow-sm mb-4">
+  <div class="card-body">
+
+
+    {% if problemas_com_medicamentos %}
+    <div class="row">
+      {% for item in problemas_com_medicamentos %}
+      <div class="col-12 mb-4">
+        <div class="card shadow-sm border-primary">
+          <div class="card-header bg-primary text-white">
+            <strong>🩺 Problema:</strong> {{ item.problema.problema }} |
+            <strong>📅 Início:</strong> {{ item.problema.inicio }} |
+            <strong>✅ Controlado:</strong> {{ item.problema.controlado|yesno:"Sim,Não" }} |
+            <strong>⚠️ Preocupa:</strong> {{ item.problema.preocupa|yesno:"Sim,Não" }}
+          </div>
+          <div class="card-body table-responsive">
+            {% if item.medicamentos %}
+            <table class="table table-bordered table-hover align-middle text-center">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th class="bg-white">💊 Medicamento</th>
+                  <th class="bg-white">Classe</th>
+                  <th class="bg-white">Desde</th>
+                  <th class="bg-white">Posologia Prescrita</th>
+                  <th class="bg-white">Posologia Utilizada</th>
+                  <th class="bg-white">Necessidade</th>
+                  <th class="bg-white">Efetividade</th>
+                  <th class="bg-white">Segurança</th>
+                  <th class="bg-white">RNM 1</th>
+                  <th class="bg-white">RNM 2</th>
+                  <th class="bg-white">Situação</th>
+                  <th class="bg-white">Causa</th>
+                  <th class="bg-white">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for medicamento in item.medicamentos %}
+                <tr>
+                  <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}" style="display: contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="medicamento" value="{{ medicamento.id }}">
+                    <td>{{ medicamento.nome }}</td>
+                    <td>{{ medicamento.classe }}</td>
+                    <td>{{ medicamento.desde }}</td>
+                    <td>{{ medicamento.posologia_prescrita }}</td>
+                    <td>{{ medicamento.posologia_utilizada }}</td>
+                    <td>
+                      <select name="necessidade" class="form-select form-select-sm" required>
+                        <option value="True" {% if medicamento.avaliacao and medicamento.avaliacao.necessidade %}selected{% endif %}>Sim</option>
+                        <option value="False" {% if medicamento.avaliacao and not medicamento.avaliacao.necessidade %}selected{% endif %}>Não</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="efetividade" class="form-select form-select-sm" required>
+                        <option value="True" {% if medicamento.avaliacao and medicamento.avaliacao.efetividade %}selected{% endif %}>Sim</option>
+                        <option value="False" {% if medicamento.avaliacao and not medicamento.avaliacao.efetividade %}selected{% endif %}>Não</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="seguranca" class="form-select form-select-sm" required>
+                        <option value="True" {% if medicamento.avaliacao and medicamento.avaliacao.seguranca %}selected{% endif %}>Sim</option>
+                        <option value="False" {% if medicamento.avaliacao and not medicamento.avaliacao.seguranca %}selected{% endif %}>Não</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="classificacao_rnm_1" class="form-select form-select-sm" required>
+                        {% for val, label in avaliacao_form.fields.classificacao_rnm_1.choices %}
+                        <option value="{{ val }}" {% if medicamento.avaliacao and medicamento.avaliacao.classificacao_rnm_1 == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td>
+                      <select name="classificacao_rnm_2" class="form-select form-select-sm" required>
+                        {% for val, label in avaliacao_form.fields.classificacao_rnm_2.choices %}
+                        <option value="{{ val }}" {% if medicamento.avaliacao and medicamento.avaliacao.classificacao_rnm_2 == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td>
+                      <select name="situacao_problema_saude" class="form-select form-select-sm" required>
+                        {% for val, label in avaliacao_form.fields.situacao_problema_saude.choices %}
+                        <option value="{{ val }}" {% if medicamento.avaliacao and medicamento.avaliacao.situacao_problema_saude == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td>
+                      <textarea name="causa_rnm" class="form-control form-control-sm" rows="1" required>{{ medicamento.avaliacao.causa_rnm }}</textarea>
+                    </td>
+                    <td>
+                      <button type="submit" class="btn btn-sm btn-success">💾</button>
+                    </td>
+                  </form>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted">Nenhum medicamento relacionado a esse problema.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">Nenhuma avaliação cadastrada ainda.</p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Fullscreen Modal -->
+<div id="avaliacao-fullscreen" class="fullscreen-overlay d-none">
+  <div class="fullscreen-content">
+    <button id="close-fullscreen" class="btn btn-danger btn-sm mb-3">❌ Fechar</button>
+    <div id="avaliacoes-fullscreen-clone"></div>
+  </div>
+</div>
+

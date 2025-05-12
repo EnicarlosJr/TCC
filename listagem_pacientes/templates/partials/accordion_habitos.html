@@ -1,0 +1,28 @@
+<div class="card expand-card collapsed">
+  <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+    <i class="fa fa-utensils"></i> Hábitos Alimentares <i class="fa fa-arrow-down float-end"></i>
+  </div>
+  <div class="card-body">
+    {% if anamnese.habitos %}
+      {% if anamnese.habitos.horario_acorda %}<p><strong>Horário que acorda:</strong> {{ anamnese.habitos.horario_acorda|time:"H:i" }}</p>{% endif %}
+      {% if anamnese.habitos.cafe_da_manha %}<p><strong>Café da manhã:</strong> {{ anamnese.habitos.cafe_da_manha }}</p>{% endif %}
+      {% if anamnese.habitos.lanche_manha %}<p><strong>Lanche da manhã:</strong> {{ anamnese.habitos.lanche_manha }}</p>{% endif %}
+      {% if anamnese.habitos.almoco %}<p><strong>Almoço:</strong> {{ anamnese.habitos.almoco }}</p>{% endif %}
+      {% if anamnese.habitos.lanche_tarde %}<p><strong>Lanche da tarde:</strong> {{ anamnese.habitos.lanche_tarde }}</p>{% endif %}
+      {% if anamnese.habitos.jantar %}<p><strong>Jantar:</strong> {{ anamnese.habitos.jantar }}</p>{% endif %}
+      {% if anamnese.habitos.horario_dorme %}<p><strong>Horário que dorme:</strong> {{ anamnese.habitos.horario_dorme|time:"H:i" }}</p>{% endif %}
+      {% if anamnese.habitos.ultima_refeicao %}<p><strong>Última refeição:</strong> {{ anamnese.habitos.ultima_refeicao }}</p>{% endif %}
+      {% if anamnese.habitos.observacoes %}<p><strong>Observações:</strong> {{ anamnese.habitos.observacoes }}</p>{% endif %}
+      <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'habitos' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">
+          🗑️ Excluir
+        </button>
+        <a href="{% url 'editar_anamnese_bloco' anamnese.id 'habitos' %}" class="btn btn-sm btn-warning">✏️ Editar</a>
+
+      </form> 
+    {% else %}
+      <p>Não preenchido. <a href="{% url 'cadastrar_habitos_alimentares' anamnese.id %}" class="create-button">Cadastrar</a></p>
+    {% endif %}
+  </div>
+</div>

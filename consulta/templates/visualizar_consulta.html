@@ -1,5 +1,6 @@
 {% extends "menu.html" %}
 {% load static %}
+{% load custom_tags %}
 
 {% block content %}
 <div class="container my-5">
@@ -34,14 +35,14 @@
   <section class="mb-5">
     <h4 class="text-secondary">🩺 Problemas de Saúde</h4>
     {% for problema in problemas %}
-      <div class="ps-3 mb-2">
-        <p><strong>Problema:</strong> {{ problema.problema }}</p>
-        <p><strong>Desde:</strong> {{ problema.inicio }}</p>
-        <p><strong>Controlado:</strong> {{ problema.controlado|yesno:"Sim,Não" }}</p>
-        <p><strong>Preocupa o paciente:</strong> {{ problema.preocupa|yesno:"Sim,Não" }}</p>
-      </div>
+    <div class="ps-3 mb-2">
+      <p><strong>Problema:</strong> {{ problema.problema }}</p>
+      <p><strong>Desde:</strong> {{ problema.inicio }}</p>
+      <p><strong>Controlado:</strong> {{ problema.controlado|yesno:"Sim,Não" }}</p>
+      <p><strong>Preocupa o paciente:</strong> {{ problema.preocupa|yesno:"Sim,Não" }}</p>
+    </div>
     {% empty %}
-      <p class="text-muted">Nenhum problema registrado.</p>
+    <p class="text-muted">Nenhum problema registrado.</p>
     {% endfor %}
   </section>
 
@@ -49,16 +50,16 @@
   <section class="mb-5">
     <h4 class="text-secondary">💊 Medicamentos</h4>
     {% for medicamento in medicamentos %}
-      <div class="ps-3 mb-2">
-        <p><strong>Nome:</strong> {{ medicamento.nome }}</p>
-        <p><strong>Classe:</strong> {{ medicamento.classe }}</p>
-        <p><strong>Desde:</strong> {{ medicamento.desde }}</p>
-        <p><strong>Prescrita:</strong> {{ medicamento.prescrita }}</p>
-        <p><strong>Utilizada:</strong> {{ medicamento.utilizada }}</p>
-        <p><strong>Finalidade:</strong> {{ medicamento.para_que_servir }}</p>
-      </div>
+    <div class="ps-3 mb-2">
+      <p><strong>Nome:</strong> {{ medicamento.nome }}</p>
+      <p><strong>Classe:</strong> {{ medicamento.classe }}</p>
+      <p><strong>Desde:</strong> {{ medicamento.desde }}</p>
+      <p><strong>Prescrita:</strong> {{ medicamento.prescrita }}</p>
+      <p><strong>Utilizada:</strong> {{ medicamento.utilizada }}</p>
+      <p><strong>Finalidade:</strong> {{ medicamento.para_que_servir }}</p>
+    </div>
     {% empty %}
-      <p class="text-muted">Nenhum medicamento registrado.</p>
+    <p class="text-muted">Nenhum medicamento registrado.</p>
     {% endfor %}
   </section>
 
@@ -66,52 +67,74 @@
   <section class="mb-5">
     <h4 class="text-secondary">🧠 Avaliações Farmacêuticas</h4>
     {% for avaliacao in avaliacoes %}
-      <div class="ps-3 mb-4">
-        <p><strong>Medicamento:</strong> {{ avaliacao.medicamento.nome }}</p>
-        <p><strong>RNM 1:</strong> {{ avaliacao.get_classificacao_rnm_1_display }}</p>
-        <p><strong>RNM 2:</strong> {{ avaliacao.get_classificacao_rnm_2_display }}</p>
-        <p><strong>Situação:</strong> {{ avaliacao.get_situacao_problema_saude_display }}</p>
-        <p><strong>Causa:</strong> {{ avaliacao.causa_rnm }}</p>
-        <p><strong>Necessidade:</strong> {{ avaliacao.necessidade|yesno:"Sim,Não" }}</p>
-        <p><strong>Efetividade:</strong> {{ avaliacao.efetividade|yesno:"Sim,Não" }}</p>
-        <p><strong>Segurança:</strong> {{ avaliacao.seguranca|yesno:"Sim,Não" }}</p>
-      </div>
+    <div class="ps-3 mb-4">
+      <p><strong>Medicamento:</strong> {{ avaliacao.medicamento.nome }}</p>
+      <p><strong>RNM 1:</strong> {{ avaliacao.get_classificacao_rnm_1_display }}</p>
+      <p><strong>RNM 2:</strong> {{ avaliacao.get_classificacao_rnm_2_display }}</p>
+      <p><strong>Situação:</strong> {{ avaliacao.get_situacao_problema_saude_display }}</p>
+      <p><strong>Causa:</strong> {{ avaliacao.causa_rnm }}</p>
+      <p><strong>Necessidade:</strong> {{ avaliacao.necessidade|yesno:"Sim,Não" }}</p>
+      <p><strong>Efetividade:</strong> {{ avaliacao.efetividade|yesno:"Sim,Não" }}</p>
+      <p><strong>Segurança:</strong> {{ avaliacao.seguranca|yesno:"Sim,Não" }}</p>
+    </div>
     {% empty %}
-      <p class="text-muted">Nenhuma avaliação registrada.</p>
+    <p class="text-muted">Nenhuma avaliação registrada.</p>
     {% endfor %}
   </section>
 
-  <!-- 📋 Planos de Atuação -->
-  <section class="mb-5">
-    <h4 class="text-secondary">📋 Planos de Atuação</h4>
-    {% for avaliacao, planos in planos_por_avaliacao.items %}
-      <div class="mb-3 ps-3 border-start border-3">
-        <h6 class="fw-bold text-primary mb-2">
-          💊 {{ avaliacao.medicamento.nome }} | 🩺 {{ avaliacao.medicamento.problema_saude.problema }}
-        </h6>
+<!-- 📋 Planos de Atuação -->
+<section class="mb-10">
+  <h4 class="text-xl font-bold text-gray-800 mb-4">📋 Todos os Planos de Atuação</h4>
 
-        {% for plano in planos %}
-        <div class="card mb-3 shadow-sm">
-          <div class="card-body">
-            <p><strong>🎯 Objetivos:</strong> {{ plano.objetivos }}</p>
-            <p><strong>Prioridade:</strong> {{ plano.get_prioridade_display }}</p>
-            <p><strong>Intervenção:</strong> {{ plano.get_registro_intervencao_display }}</p>
-            <p><strong>Classificação:</strong> {{ plano.get_classificacao_intervencao_display }}</p>
-            <p><strong>Descrição:</strong> {{ plano.descricao_planejamento }}</p>
-            <p><strong>Data da intervenção:</strong> {{ plano.data_intervencao }}</p>
-            <hr>
-            <p><strong>✅ Alcançado:</strong> {{ plano.alcancado|yesno:"Sim,Não" }}</p>
-            <p><strong>📆 Data de acompanhamento:</strong> {{ plano.data_alcancado }}</p>
-            <p><strong>📌 Resultado:</strong> {{ plano.resultado|default:"—" }}</p>
-            <p><strong>🧩 RNM Resolvido:</strong> {{ plano.rnm_resolvido|yesno:"Sim,Não" }}</p>
-            <p><strong>📝 O que aconteceu:</strong> {{ plano.o_que_aconteceu|default:"—" }}</p>
-          </div>
+  {% if planos %}
+    {% for plano in planos %}
+      <div class="bg-white p-4 mb-4 rounded-xl shadow-sm border border-gray-200">
+
+        <h5 class="text-blue-700 font-semibold mb-3">
+          💊 {{ plano.avaliacao.medicamento.nome }} | 
+          🩺 {{ plano.avaliacao.medicamento.problema_saude.problema }}
+        </h5>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+          <p><strong>🎯 Objetivos:</strong> {{ plano.objetivos|default:"—" }}</p>
+          <p><strong>🏷️ Prioridade:</strong> {{ plano.get_prioridade_display|default:"—" }}</p>
+          <p><strong>🩹 Intervenção:</strong> {{ plano.get_registro_intervencao_display|default:"—" }}</p>
+          <p><strong>📂 Classificação:</strong> {{ plano.get_classificacao_intervencao_display|default:"—" }}</p>
+          <p><strong>📝 Descrição:</strong> {{ plano.descricao_planejamento|default:"—" }}</p>
+          <p><strong>📆 Data da Intervenção:</strong> {{ plano.data_intervencao|date:"d/m/Y"|default:"—" }}</p>
         </div>
-        {% endfor %}
+
+        <hr class="my-3">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <p><strong>✅ Alcançado:</strong>
+            {% if plano.alcancado == True %}Sim
+            {% elif plano.alcancado == False %}Não
+            {% else %}—{% endif %}
+          </p>
+
+          <p><strong>📆 Data de Acompanhamento:</strong> {{ plano.data_alcancado|date:"d/m/Y"|default:"—" }}</p>
+
+          <p><strong>📌 Resultado:</strong> {{ plano.resultado|default:"—" }}</p>
+
+          <p><strong>🧩 RNM Resolvido:</strong>
+            {% if plano.rnm_resolvido == True %}Sim
+            {% elif plano.rnm_resolvido == False %}Não
+            {% else %}—{% endif %}
+          </p>
+
+          <p class="md:col-span-2"><strong>📝 O que aconteceu:</strong> {{ plano.o_que_aconteceu|default:"—" }}</p>
+        </div>
+
       </div>
-    {% empty %}
-      <p class="text-muted">Nenhum plano registrado.</p>
     {% endfor %}
-  </section>
+  {% else %}
+    <p class="text-gray-500">Nenhum plano registrado para esta consulta.</p>
+  {% endif %}
+</section>
+
+
+
+
 </div>
 {% endblock %}

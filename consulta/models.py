@@ -10,7 +10,7 @@ class Consulta(models.Model):
     evolucao = models.TextField()
     motivo_consulta = models.TextField(max_length=255)
     prescricoes_exames = models.TextField()
-    data_proxima_revisao = models.DateField()
+    data_proxima_revisao = models.DateField(null=True, blank=True)
     exames_arquivo = models.FileField(
         upload_to='exames_consulta/',
         blank=True,
@@ -39,10 +39,10 @@ class Medicamento(models.Model):
     problema_saude = models.ForeignKey(ProblemaSaude, on_delete=models.CASCADE, related_name='medicamentos', null=True, blank=True)
     nome = models.CharField(max_length=255)
     classe = models.CharField(max_length=255)
-    desde = models.DateField()
-    prescrita = models.CharField(max_length=255)
-    utilizada = models.CharField(max_length=255)
-    para_que_servir = models.TextField()
+    desde = models.DateField(null=True, blank=True)
+    posologia_prescrita = models.CharField(max_length=255)
+    posologia_utilizada = models.CharField(max_length=255)
+    entendimento_paciente = models.TextField()
 
     def __str__(self):
         return f"{self.nome} - {self.classe}"
@@ -116,10 +116,10 @@ class PlanoAtuacao(models.Model):
     data_intervencao = models.DateField()
 
     # Etapa 2 – Acompanhamento após retorno
-    alcancado = models.BooleanField(default=False)
+    alcancado = models.BooleanField(null=True, blank=True)
     data_alcancado = models.DateField(null=True, blank=True)
     resultado = models.TextField(blank=True)
-    rnm_resolvido = models.BooleanField(default=False)
+    rnm_resolvido = models.BooleanField(null=True, blank=True)
     o_que_aconteceu = models.TextField(null=True, blank=True)
 
     def __str__(self):

@@ -47,22 +47,32 @@ class ProblemaSaudeForm(forms.ModelForm):
         exclude = ['consulta']
         fields = '__all__'
         widgets = {
-            'inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Data de início do problema'}),
-            'problema': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descrição do problema de saúde'}),
+            'inicio': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'placeholder': 'Data de início do problema'
+            }),
+            'problema': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Descrição do problema de saúde'
+            }),
+            'controlado': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'preocupa': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
 
 class MedicamentoForm(forms.ModelForm):
     class Meta:
         model = Medicamento
         exclude = ['consulta']
-        fields = ['nome', 'classe', 'desde', 'prescrita', 'utilizada', 'para_que_servir', 'problema_saude']
+        fields = ['nome', 'classe', 'desde', 'posologia_prescrita', 'posologia_utilizada', 'entendimento_paciente', 'problema_saude']
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'classe': forms.TextInput(attrs={'class': 'form-control'}),
             'desde': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'prescrita': forms.TextInput(attrs={'class': 'form-control'}),  # Widget para o campo prescrita
-            'utilizada': forms.TextInput(attrs={'class': 'form-control'}),  # Widget para o campo utilizada
-            'para_que_servir': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'posologia_prescrita': forms.TextInput(attrs={'class': 'form-control'}),  # Widget para o campo prescrita
+            'posologia_utilizada': forms.TextInput(attrs={'class': 'form-control'}),  # Widget para o campo utilizada
+            'entendimento_paciente': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
             'problema_saude': forms.Select(attrs={'class': 'form-control'})  # Garantindo que o campo problema_saude seja um select estilizado
         }
 

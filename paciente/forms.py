@@ -22,7 +22,7 @@ class PacienteForm(forms.ModelForm):
             field.widget.attrs.update({'class': 'form-control', 'placeholder': field.label})
 
 from django import forms
-from .models import HistoriaSocial
+from .models import Anamnese, HistoriaSocial
 
 class HistoriaSocialForm(forms.ModelForm):
     class Meta:
@@ -103,10 +103,9 @@ class PerfilClinicoForm(forms.ModelForm):
         model = PerfilClinico
         fields = [
             'capacidade_atividade', 'incomodo',
-            'ultima_visita_dentista', 'percepcao_saude', 'observacoes'
+            'observacoes'
         ]
         widgets = {
-            'ultima_visita_dentista': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'observacoes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Observações sobre o perfil clínico...'}),
         }
 
@@ -309,12 +308,7 @@ class MedicamentoDoencaPacienteForm(forms.ModelForm):
     observacao = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Motivo ou explicação'}), required=False)
 
 
-class MedicamentoDoencaPacienteForm(forms.ModelForm):
+class AnamneseForm(forms.ModelForm):
     class Meta:
-        model = MedicamentoDoencaPaciente
-        fields = ['doenca', 'medicamento', 'observacao']
-
-    # Configura para o campo de doença não ser editável, pois vai ser selecionado automaticamente
-    doenca = forms.ModelChoiceField(queryset=Doenca.objects.all(), disabled=True)
-    medicamento = forms.ModelChoiceField(queryset=Medicamento.objects.all())
-    observacao = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Motivo ou explicação'}), required=False)
+        model = Anamnese
+        fields = []

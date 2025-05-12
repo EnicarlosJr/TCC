@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 
-from paciente.models import Paciente, Doenca as DoencaPaciente, Medicamento as MedicamentoPaciente
+from paciente.models import Paciente, Anamnese, Doenca as DoencaPaciente, Medicamento as MedicamentoPaciente
 from consulta.models import Avaliacao, Consulta, ProblemaSaude, PlanoAtuacao, Medicamento as MedicamentoConsulta
 
 
@@ -119,6 +119,19 @@ def exportar_dashboard(request):
                     str(a.efetividade) if a.efetividade is not None else "Não informado"
                 ])
 
+        if 'anamneses' in exportar:
+            ws = wb.create_sheet(limpar_nome_aba('Anamneses'))
+            ws.append(['Paciente', 'Data', 'Esquecimentos', 'Percepção de Saúde'])
+            style_header(ws)
+            anamneses = Anamnese.objects.select_related('paciente').all()
+            for a in anamneses:
+                ws.append([
+                    a.paciente.nome,
+                    str(getattr(a, 'data', 'Não informado')),
+                    a.autonomia_medicamentos.esquecimentos if a.autonomia_medicamentos else 'Não informado',
+                    a.perfil_clinico.percepcao_saude if a.perfil_clinico else 'Não informado',
+                ])
+
         if not wb.sheetnames:
             ws = wb.create_sheet('Sem Dados')
             ws.append(['Nenhum dado selecionado'])
@@ -130,11 +143,7 @@ def exportar_dashboard(request):
 
     
 
-
 def dashboard_clinico(request):
-
-
-    # Filtros Recebidos
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
     doenca_paciente_id = request.GET.get('doenca_paciente')
@@ -143,21 +152,16 @@ def dashboard_clinico(request):
     classe_medicamento_filtro = request.GET.get('classe_medicamento')
     problema_saude_filtro = request.GET.get('problema_saude')
 
-    # Bases Iniciais
     pacientes = Paciente.objects.all()
     consultas = Consulta.objects.all()
     planos = PlanoAtuacao.objects.all()
 
-    # Aplicar Filtros
     if data_inicio and data_fim:
         consultas = consultas.filter(data_consulta__range=[data_inicio, data_fim])
-
     if doenca_paciente_id:
         pacientes = pacientes.filter(doencas__id=doenca_paciente_id)
-
     if medicamento_paciente_id:
         pacientes = pacientes.filter(medicamentos__id=medicamento_paciente_id)
-
     if faixa_etaria_filtro:
         try:
             idade_min, idade_max = map(int, faixa_etaria_filtro.split('-'))
@@ -176,11 +180,9 @@ def dashboard_clinico(request):
 
     if classe_medicamento_filtro:
         medicamentos_consulta = medicamentos_consulta.filter(classe__icontains=classe_medicamento_filtro)
-
     if problema_saude_filtro:
         problemas_consulta = problemas_consulta.filter(problema__icontains=problema_saude_filtro)
 
-    # Cards (Indicadores)
     total_pacientes = pacientes.count()
     total_consultas = consultas.count()
     total_intervencoes = planos.exclude(classificacao_intervencao__isnull=True).count()
@@ -192,9 +194,11 @@ def dashboard_clinico(request):
     media_prm = Avaliacao.objects.filter(medicamento__consulta__in=consultas).values('medicamento__consulta__paciente').annotate(total=Count('id')).aggregate(avg=Avg('total'))['avg'] or 0
     media_consultas_paciente = consultas.values('paciente').annotate(total=Count('id')).aggregate(avg=Avg('total'))['avg'] or 0
 
-    esquecem = pacientes.filter(autonomia_medicamentos__esquecimentos='sim').count()
+    esquecem = Anamnese.objects.filter(
+        paciente__in=pacientes,
+        autonomia__esquecimentos='sim'
+    ).count()
 
-    # Gráficos
     grupos = [(0,18), (19,40), (41,60), (61,120)]
     labels_faixa = ["0-18", "19-40", "41-60", "60+"]
     valores_faixa = []
@@ -216,18 +220,28 @@ def dashboard_clinico(request):
     labels_inter = [i['classificacao_intervencao'] or 'Não informado' for i in intervencao_data]
     valores_inter = [i['total'] for i in intervencao_data]
 
-    # Relatórios auxiliares
-    armazenamento = pacientes.values('autonomia_medicamentos__local_guarda').annotate(total=Count('id'))
-    descarte = pacientes.values('autonomia_medicamentos__forma_descarte').annotate(total=Count('id'))
+    armazenamento = Anamnese.objects.filter(paciente__in=pacientes).values(
+        'autonomia__local_guarda'
+    ).annotate(total=Count('id'))
+
+    descarte = Anamnese.objects.filter(paciente__in=pacientes).values(
+        'autonomia__forma_descarte'
+    ).annotate(total=Count('id'))
+
     rnm_tipos = planos.values('registro_intervencao').annotate(total=Count('id'))
 
     intervalo_consultas = Consulta.objects.values('paciente__nome').annotate(
         primeira=Min('data_consulta'),
         ultima=Max('data_consulta'),
-        numero_consultas=Count('id')  # 👈 Aqui soma quantas consultas tem
+        numero_consultas=Count('id')
     )
 
-    percepcao = pacientes.values('perfil_clinico__percepcao_saude').annotate(total=Count('id')).order_by('perfil_clinico__percepcao_saude')
+    percepcao = Anamnese.objects.filter(
+        paciente__in=pacientes,
+        saude__percepcao_saude__isnull=False
+    ).values(
+        'saude__percepcao_saude'
+    ).annotate(total=Count('id')).order_by('saude__percepcao_saude')
 
     context = {
         'labels_faixa': json.dumps(labels_faixa),
@@ -284,6 +298,7 @@ def dashboard_clinico(request):
             ("Armazenamento de Medicamentos", "armazenamento"),
             ("Forma de Descarte", "descarte"),
             ("Percepção de Saúde", "percepcao"),
+            ("Anamneses", "anamneses"),
         ]
     }
 
