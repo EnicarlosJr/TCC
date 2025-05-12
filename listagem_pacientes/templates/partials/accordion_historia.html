@@ -1,0 +1,31 @@
+<div class="card expand-card collapsed">
+  <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+    <i class="fa fa-users"></i> História Social <i class="fa fa-arrow-down float-end"></i>
+  </div>
+  <div class="card-body">
+    {% if anamnese.historia %}
+      <p><strong>Consome bebida:</strong> {{ anamnese.historia.consome_bebida|yesno:"Sim,Não" }}</p>
+      <p><strong>Tipo de bebida:</strong> {{ anamnese.historia.get_tipos_bebidas_display }}</p>
+      <p><strong>Quantidade ingerida:</strong> {{ anamnese.historia.get_quantidade_ingerida_display }}</p>
+      <p><strong>Frequência de uso:</strong> {{ anamnese.historia.get_frequencia_uso_display }}</p>
+      <p><strong>Fumante:</strong> {{ anamnese.historia.get_fumante_display }}</p>
+      {% if anamnese.historia.tempo_fumou %}<p><strong>Tempo que fumou:</strong> {{ anamnese.historia.tempo_fumou }} anos</p>{% endif %}
+      {% if anamnese.historia.tempo_parou %}<p><strong>Tempo que parou:</strong> {{ anamnese.historia.tempo_parou }} anos</p>{% endif %}
+      <p><strong>Pratica atividade física:</strong> {{ anamnese.historia.pratica_atividade_fisica|yesno:"Sim,Não" }}</p>
+      {% if anamnese.historia.atividades_fisicas %}<p><strong>Atividades:</strong> {{ anamnese.historia.atividades_fisicas }}</p>{% endif %}
+      {% if anamnese.historia.frequencia_atividade %}<p><strong>Frequência:</strong> {{ anamnese.historia.frequencia_atividade }}</p>{% endif %}
+      {% if anamnese.historia.observacoes %}<p><strong>Observações:</strong> {{ anamnese.historia.observacoes }}</p>{% endif %}
+      <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'historia' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">
+          🗑️ Excluir
+        </button>
+        <a href="{% url 'editar_anamnese_bloco' anamnese.id 'historia' %}" class="btn btn-sm btn-warning">✏️ Editar</a>
+
+      </form> 
+
+    {% else %}
+      <p>Não preenchido. <a href="{% url 'cadastrar_historia_social' anamnese.id %}" class="create-button">Cadastrar</a></p>
+    {% endif %}
+  </div>
+</div>

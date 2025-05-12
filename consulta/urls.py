@@ -17,6 +17,8 @@ urlpatterns = [
     path('plano_atuacao/adicionar/', views.adicionar_plano_atuacao, name='adicionar_plano_atuacao'),
     path('plano_atuacao/acompanhamento/<int:plano_id>/', views.atualizar_acompanhamento, name='atualizar_acompanhamento'),
     path('consulta/<int:consulta_id>/visualizar/', views.visualizar_consulta, name='visualizar_consulta'),
-
+    path('consulta/excluir/<str:model_name>/<int:object_id>/', views.excluir_objeto, name='excluir_objeto'),
+    path('editar/<str:model_name>/<int:obj_id>/', views.editar, name='editar'),
+    path('consulta/<int:consulta_id>/avaliacao/fullscreen/', views.avaliacao_fullscreen, name='avaliacao_fullscreen'),
 
 ]

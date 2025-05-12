@@ -1,0 +1,178 @@
+/* Base */
+body {
+    background-color: #f7f9fc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #1f2937;
+    scroll-behavior: smooth;
+}
+
+.container {
+    max-width: 1200px;
+    margin-top: 90px;
+    padding: 0 24px;
+}
+
+/* Títulos */
+.section-title {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #1d4ed8;
+    margin-top: 40px;
+    margin-bottom: 32px;
+    border-left: 4px solid #3b82f6;
+    padding-left: 12px;
+    animation: fadeInDown 0.6s ease;
+}
+
+/* Cartões */
+.card {
+    background-color: #ffffff;
+    margin-bottom: 28px;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+    transition: 0.3s ease-in-out;
+    animation: fadeInUp 0.5s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 500;
+    padding: 16px 24px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-body {
+    padding: 24px 28px;
+    background-color: #f9fafb;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+/* Botões */
+.btn,
+.create-button,
+.back-button {
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-success, .create-button {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-success:hover,
+.create-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-danger, .back-button {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover,
+.back-button:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.btn-outline-warning {
+    color: #f59e0b;
+    border: 1px solid #facc15;
+    background-color: transparent;
+}
+
+.btn-outline-warning:hover {
+    background-color: #fde68a;
+    color: #92400e;
+    border-color: #fbbf24;
+}
+
+/* Campos */
+.info-item {
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 2px;
+    display: block;
+}
+
+.info-value {
+    color: #374151;
+}
+
+/* Accordion */
+.expand-card {
+    transition: all 0.3s ease-in-out;
+}
+
+.expand-card.collapsed .card-body {
+    display: none;
+}
+
+.expand-card.collapsed .card-header {
+    border-radius: 16px;
+}
+
+/* Ícones */
+.icon {
+    font-size: 1.3rem;
+    color: #3b82f6;
+    margin-right: 8px;
+}
+
+/* Rodapé */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.9em;
+    color: #6b7280;
+}
+
+/* Animações */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+input, select, textarea {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 1rem;
+    width: 100%;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    outline: none;
+}

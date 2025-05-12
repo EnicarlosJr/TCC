@@ -7,7 +7,7 @@
 <div class="container mt-5">
     <h2 class="mb-4">💊 Associar Medicamentos às Doenças</h2>
 
-    <form method="POST" action="{% url 'paciente_associar_doencas_medicamentos' paciente.id %}" id="associar-form">
+    <form method="POST" action="{% url 'associar_doencas_medicamentos' anamnese.id %}" id="associar-form">
         {% csrf_token %}
 
         <!-- Campo para adicionar nova doença -->
@@ -97,7 +97,7 @@
         const nomeDoenca = document.getElementById("doenca-input").value.trim();
         if (!nomeDoenca) return alert("Por favor, insira o nome da doença.");
 
-        fetch("{% url 'paciente_adicionar_doenca' paciente.id %}", {
+        fetch("{% url 'paciente_adicionar_doenca' anamnese.id %}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
@@ -126,7 +126,7 @@
                 <label class="form-label"><strong>Adicionar Medicamento</strong></label>
                 <div class="input-group">
                     <input type="text" id="medicamento-input-${doencaId}" class="form-control" placeholder="Digite o nome do medicamento" />
-                    <button type="button" class="btn btn-outline-primary adicionar-medicamento" data-doenca-id="${doencaId}" data-paciente-id="{{ paciente.id }}" data-url="{% url 'paciente_adicionar_medicamento' paciente.id %}">
+                    <button type="button" class="btn btn-outline-primary adicionar-medicamento" data-doenca-id="${doencaId}" data-paciente-id="{{ paciente.id }}" data-url="{% url 'adicionar_medicamento' anamnese.id %}" >
                         Adicionar Medicamento
                     </button>
                 </div>
@@ -231,7 +231,7 @@
             associacoes.push({ doenca: nomeDoenca, medicamentos, observacao });
         });
 
-        fetch("{% url 'paciente_associar_doencas_medicamentos' paciente.id %}", {
+        fetch("{% url 'associar_doencas_medicamentos' anamnese.id %}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

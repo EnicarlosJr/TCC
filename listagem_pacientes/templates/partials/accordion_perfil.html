@@ -1,0 +1,27 @@
+<div class="card expand-card collapsed">
+  <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+    <i class="fa fa-user-md"></i> Perfil Clínico <i class="fa fa-arrow-down float-end"></i>
+  </div>
+  <div class="card-body">
+    {% if anamnese.perfil %}
+      {% if anamnese.perfil.capacidade_atividade %}<p><strong>Capacidade para atividades do dia a dia:</strong> {{ anamnese.perfil.capacidade_atividade }}</p>{% endif %}
+      {% if anamnese.perfil.incomodo %}<p><strong>Medicamentos causam incômodo?</strong> {{ anamnese.perfil.incomodo }}</p>{% endif %}
+      {% if anamnese.perfil.ultima_visita_dentista %}<p><strong>Última visita ao dentista:</strong> {{ anamnese.perfil.ultima_visita_dentista|date:"d/m/Y" }}</p>{% endif %}
+      {% if anamnese.perfil.percepcao_saude is not None %}<p><strong>Percepção geral da saúde (0-10):</strong> {{ anamnese.perfil.percepcao_saude }}</p>{% endif %}
+      {% if anamnese.perfil.observacoes %}<p><strong>Observações:</strong> {{ anamnese.perfil.observacoes }}</p>{% endif %}
+      <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'perfil' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">
+          🗑️ Excluir
+        </button>
+        <a href="{% url 'editar_anamnese_bloco' anamnese.id 'perfil' %}" class="btn btn-sm btn-warning">✏️ Editar</a>
+
+      </form> 
+    {% else %}
+      <p>Não preenchido. <a href="{% url 'cadastrar_perfil_clinico' anamnese.id %}" class="create-button">Cadastrar</a></p>
+      <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'perfil' %}" style="display:inline;">
+        {% csrf_token %}
+      </form>
+    {% endif %}
+  </div>
+</div>

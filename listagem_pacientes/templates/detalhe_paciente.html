@@ -1,571 +1,106 @@
 {% extends 'menu.html' %}
-
+{% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Paciente</title>
-    <!-- Adicionando Bootstrap 5 -->
-    <!-- MANTER APENAS ESTA -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        integrity="sha512-mQ...suaChave..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-
-    <style>
-        /* Estilo geral */
-        body {
-            background-color: #f0f4f8;
-            font-family: 'Arial', sans-serif;
-            color: #2c3e50;
-        }
-    
-        .container {
-            max-width: 1200px;
-            margin-top: 90px;
-        }
-    
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #1e3a8a; /* Azul escuro bonito */
-            margin-top: 40px;
-            text-align: center;
-            margin-bottom: 40px;
-        }
-    
-        .card {
-            background-color: #ffffff;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease-in-out;
-        }
-    
-        .card:hover {
-            transform: translateY(-3px);
-        }
-    
-        .card-header {
-            background: linear-gradient(to right, #3b82f6, #60a5fa); /* Azul degradê */
-            color: white;
-            font-size: 1.3rem;
-            padding: 18px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-    
-        .card-body {
-            padding: 20px 25px;
-            background-color: #f9fafb;
-        }
-    
-        .create-button, .back-button {
-            padding: 12px 24px;
-            font-weight: bold;
-            border-radius: 8px;
-            display: inline-block;
-            text-align: center;
-            transition: background-color 0.3s ease;
-        }
-    
-        .create-button {
-            background-color: #3b82f6;
-            color: white;
-            margin-top: 15px;
-        }
-    
-        .create-button:hover {
-            background-color: #2563eb;
-        }
-    
-        .back-button {
-            background-color: #ef4444;
-            color: white;
-            margin-top: 30px;
-        }
-    
-        .back-button:hover {
-            background-color: #dc2626;
-        }
-    
-        .info-item {
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-        }
-    
-        .info-label {
-            font-weight: bold;
-            color: #1e40af; /* Azul bonito */
-            display: block;
-            margin-bottom: 2px;
-        }
-    
-        .info-value {
-            color: #475569; /* Cinza azulado */
-            font-size: 0.95rem;
-        }
-    
-        /* Ícones */
-        .icon {
-            font-size: 1.5rem;
-            color: #3b82f6;
-            margin-right: 6px;
-        }
-    
-        /* Animação Accordion */
-        .expand-card {
-            transition: all 0.3s ease-in-out;
-        }
-    
-        .expand-card.collapsed .card-body {
-            display: none;
-        }
-    
-        .expand-card.collapsed .card-header {
-            border-radius: 12px;
-        }
-    
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #777;
-        }
-    </style>
-    
-
-    <script>
-        // Função para alternar a visibilidade dos cartões
-        function toggleCard(card) {
-            card.classList.toggle('collapsed');
-        }
-    </script>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 
-</head>
-<div class="container">
-    <h2 class="section-title">Detalhes do Paciente: <strong>{{ paciente.nome }}</strong></h2>
+<div class="container mt-5">
+    <h2 class="section-title text-center d-flex justify-content-between align-items-center">
+        <span>Detalhes do Paciente: <strong>{{ paciente.nome }}</strong></span>
+        <a href="?editar=1" class="btn btn-outline-warning btn-sm">✏️ Editar</a>
+    </h2>
+    {% if modo_edicao %}
+    <form method="post" class="card p-4 shadow-sm mb-4">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="text-danger small">{{ field.errors }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between mt-4" autocomplete="off">
+            <a href="{% url 'paciente_detail' paciente.id %}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success">💾 Salvar Alterações</button>
+        </div>
+    </form>
+    {% else %}
+
 
     {% if paciente %}
-    <div class="patient-info">
-        <!-- Informações do Paciente -->
-        <div class="row">
-            <div class="card mb-5">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <!-- Lado Esquerdo: Ícone e Nome -->
-                        <div class="col-md-4 text-center">
-                            <i class="fa fa-user-circle" style="font-size: 5rem; color: #3b82f6;"></i>
-                            <h3 class="mt-3">{{ paciente.nome }}</h3>
-                            <span class="badge bg-primary">{{ paciente.get_genero_display }}</span>
+    <!-- Card com dados básicos -->
+    <div class="card mb-5">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center">
+                    <i class="fa fa-user-circle" style="font-size: 5rem; color: #3b82f6;"></i>
+                    <h3 class="mt-3">{{ paciente.nome }}</h3>
+                    <span class="badge bg-primary">{{ paciente.get_genero_display }}</span>
+                </div>
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><span class="info-label">Telefone:</span> {{ paciente.telefone }}
                         </div>
-            
-                        <!-- Lado Direito: Informações detalhadas -->
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Telefone:</span><br>
-                                    <span class="info-value">{{ paciente.telefone }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Data de Nascimento:</span><br>
-                                    <span class="info-value">{{ paciente.data_nascimento|date:"d/m/Y" }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Município:</span><br>
-                                    <span class="info-value">{{ paciente.municipio }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Bairro:</span><br>
-                                    <span class="info-value">{{ paciente.bairro }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Distrito:</span><br>
-                                    <span class="info-value">{{ paciente.distrito }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Responsável:</span><br>
-                                    <span class="info-value">{{ paciente.responsavel }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Estado Civil:</span><br>
-                                    <span class="info-value">{{ paciente.get_estado_civil_display }}</span>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <span class="info-label">Escolaridade:</span><br>
-                                    <span class="info-value">{{ paciente.get_escolaridade_display }}</span>
-                                </div>
-                            </div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Nascimento:</span> {{  paciente.data_nascimento|date:"d/m/Y" }}</div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Município:</span> {{ paciente.municipio }}
                         </div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Bairro:</span> {{ paciente.bairro }}</div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Distrito:</span> {{ paciente.distrito }}
+                        </div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Responsável:</span> {{ paciente.responsavel  }}</div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Estado Civil:</span> {{ paciente.get_estado_civil_display }}</div>
+                        <div class="col-md-6 mb-3"><span class="info-label">Escolaridade:</span> {{ paciente.get_escolaridade_display }}</div>
                     </div>
                 </div>
             </div>
-        </div>            
-
-        <!-- Card para História Social -->
-        <div class="card expand-card collapsed">
-            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-                <i class="fa fa-users"></i> História Social <i class="fa fa-arrow-down float-end"></i>
-            </div>
-            <div class="card-body">
-                {% if paciente.historia_social %}
-                <div class="info-item">
-                    <span class="info-label">Consome Bebida:</span>
-                    <span class="info-value">{{ paciente.historia_social.consome_bebida }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Tipo de Bebida:</span>
-                    <span class="info-value">{{ paciente.historia_social.tipos_bebidas }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Quantidade Ingerida:</span>
-                    <span class="info-value">{{ paciente.historia_social.quantidade_ingerida }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Frequência de Uso:</span>
-                    <span class="info-value">{{ paciente.historia_social.frequencia_uso }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Fumante:</span>
-                    <span class="info-value">{{ paciente.historia_social.fumante }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Tempo Fumou:</span>
-                    <span class="info-value">{{ paciente.historia_social.tempo_fumou }} anos</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Tempo Parou:</span>
-                    <span class="info-value">{{ paciente.historia_social.tempo_parou }} anos</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Pratica Atividade Física:</span>
-                    <span class="info-value">{{ paciente.historia_social.pratica_atividade_fisica }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Atividades Físicas:</span>
-                    <span class="info-value">{{ paciente.historia_social.atividades_fisicas }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Frequência de Atividade Física:</span>
-                    <span class="info-value">{{ paciente.historia_social.frequencia_atividade }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Observações:</span>
-                    <span class="info-value">{{ paciente.historia_social.observacoes }}</span>
-                </div>
-                {% else %}
-                <p>Este paciente não tem informações sobre História Social. <a
-                        href="{% url 'paciente_cadastrar_historia_social' paciente.id %}" class="create-button">cadastrar
-                        História Social</a></p>
-                {% endif %}
-            </div>
         </div>
-
-
-        <!-- Card para Hábitos Alimentares -->
-        <div class="card expand-card collapsed">
-            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-                <i class="fa-solid fa-bowl-food"></i> Hábitos Alimentares <i class="fa fa-arrow-down float-end"></i>
-            </div>
-            <div class="card-body">
-                {% if paciente.habitos_alimentares %}
-                <div class="info-item">
-                    <span class="info-label">Horário que Acorda:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.horario_acorda|time:"H:i" }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Café da Manhã:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.cafe_da_manha }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Lanche da Manhã:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.lanche_manha }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Almoço:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.almoco }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Lanche da Tarde:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.lanche_tarde }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Jantar:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.jantar }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Horário que Dorme:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.horario_dorme|time:"H:i" }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Última Refeição:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.ultima_refeicao }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Observações:</span>
-                    <span class="info-value">{{ paciente.habitos_alimentares.observacoes }}</span>
-                </div>
-                {% else %}
-                <p>Este paciente não tem informações sobre Hábitos Alimentares. <a
-                        href="{% url 'paciente_cadastrar_habitos_alimentares' paciente.id %}" class="create-button">cadastrar
-                        Hábitos Alimentares</a></p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Card para Autonomia de Medicamentos -->
-        <div class="card expand-card collapsed">
-            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-                <i class="fa fa-medkit"></i> Autonomia Medicamentos <i class="fa fa-arrow-down float-end"></i>
-            </div>
-            <div class="card-body">
-                {% if paciente.autonomia_medicamentos %}
-                <div class="info-item">
-                    <span class="info-label">Autonomia na gestão:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_autonomia_gestao_display }}</span>
-                </div>
-                {% if paciente.autonomia_medicamentos.autonomia_outro %}
-                <div class="info-item">
-                    <span class="info-label">Outro (quem auxilia):</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.autonomia_outro }}</span>
-                </div>
-                {% endif %}
-
-                <div class="info-item">
-                    <span class="info-label">Dificuldade para tomar medicamentos:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_dificuldade_tomar_display }}</span>
-                </div>
-                {% if paciente.autonomia_medicamentos.dificuldade_outro %}
-                <div class="info-item">
-                    <span class="info-label">Outro (dificuldade):</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.dificuldade_outro }}</span>
-                </div>
-                {% endif %}
-
-                <div class="info-item">
-                    <span class="info-label">Já esqueceu de tomar os medicamentos?</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_esquecimentos_display }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Toma os medicamentos no horário indicado?</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_toma_no_horario_display }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Deixa de tomar quando se sente bem?</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_bem_display }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Deixa de tomar quando se sente mal?</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_interrompe_quando_mal_display }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Desconforto com medicamentos:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_desconforto_medicamento_display }}</span>
-                </div>
-                {% if paciente.autonomia_medicamentos.desconforto_outro %}
-                <div class="info-item">
-                    <span class="info-label">Descreva o desconforto:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.desconforto_outro }}</span>
-                </div>
-                {% endif %}
-
-                <div class="info-item">
-                    <span class="info-label">Uso de chás ou terapias alternativas:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_uso_alternativos_display }}</span>
-                </div>
-                {% if paciente.autonomia_medicamentos.uso_alternativos_outro %}
-                <div class="info-item">
-                    <span class="info-label">Descreva quais:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.uso_alternativos_outro }}</span>
-                </div>
-                {% endif %}
-
-                <div class="info-item">
-                    <span class="info-label">Local onde guarda os medicamentos:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_local_guarda_display }}</span>
-                </div>
-
-                <div class="info-item">
-                    <span class="info-label">Forma de descarte:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.get_forma_descarte_display }}</span>
-                </div>
-                {% if paciente.autonomia_medicamentos.forma_descarte_outro %}
-                <div class="info-item">
-                    <span class="info-label">Outro (forma de descarte):</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.forma_descarte_outro }}</span>
-                </div>
-                {% endif %}
-
-                <!-- Rastreamento em Saúde -->
-                <div class="info-item">
-                    <span class="info-label">Pressão Arterial:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.pressao_arterial }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Frequência Cardíaca:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.frequencia_cardiaca }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Glicemia:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.glicemia }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Observações Importantes:</span>
-                    <span class="info-value">{{ paciente.autonomia_medicamentos.observacoes_importantes }}</span>
-                </div>
-                {% else %}
-                <p>Este paciente não tem informações sobre Autonomia na gestão dos medicamentos. <a
-                        href="{% url 'paciente_cadastrar_autonomia_medicamentos' paciente.id %}" class="create-button">Cadastrar
-                        informações</a></p>
-                {% endif %}
-            </div>
-        </div>
-
-
-
-        <div class="card expand-card collapsed">
-            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-                <i class="fa fa-heartbeat"></i> Saúde <i class="fa fa-arrow-down float-end"></i>
-            </div>
-            <div class="card-body">
-                {% if paciente.saude %}
-                <div class="info-item">
-                    <span class="info-label">Incomodo:</span>
-                    <span class="info-value">{{ paciente.saude.incomodo }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Informações Importantes:</span>
-                    <span class="info-value">{{ paciente.saude.informacoes_importantes }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Última Visita ao Dentista:</span>
-                    <span class="info-value">{{ paciente.saude.ultima_visita_dentista }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Percepção Geral da Saúde (0-10):</span>
-                    <span class="info-value">{{ paciente.saude.percepcao_saude }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Justificativa:</span>
-                    <span class="info-value">{{ paciente.saude.justificativa }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Pressão Arterial Controlada:</span>
-                    <span class="info-value">{{ paciente.saude.pressao_controlada|yesno:"Sim,Não" }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Observações Importantes:</span>
-                    <span class="info-value">{{ paciente.saude.observacoes }}</span>
-                </div>
-                {% else %}
-                <p>Este paciente não tem informações sobre Saúde. <a href="{% url 'paciente_cadastrar_saude' paciente.id %}"
-                        class="create-button">cadastrar Saúde</a></p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Card para Perfil Clínico -->
-        <div class="card expand-card collapsed">
-            <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-                <i class="fa fa-user-md"></i> Perfil Clínico <i class="fa fa-arrow-down float-end"></i>
-            </div>
-            <div class="card-body">
-                {% if paciente.perfil_clinico %}
-                <div class="info-item">
-                    <span class="info-label">Capacidade de realizar atividades do dia a dia:</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.capacidade_atividade }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Medicamentos causam incômodo?</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.incomodo }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Última Visita ao Dentista:</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.ultima_visita_dentista }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Percepção Geral da Saúde (0-10):</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.percepcao_saude }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Observações:</span>
-                    <span class="info-value">{{ paciente.perfil_clinico.observacoes }}</span>
-                </div>
-                {% else %}
-                <p>Este paciente não tem informações sobre Perfil Clínico.
-                    <a href="{% url 'paciente_cadastrar_perfil_clinico' paciente.id %}" class="create-button">cadastrar Perfil
-                        Clínico</a>
-                </p>
-                {% endif %}
-            </div>
-        </div>
-
-<!-- Card para Doenças e Medicamentos -->
-<div class="card expand-card collapsed">
-    <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-        <i class="fa fa-stethoscope"></i> Doenças e Medicamentos <i class="fa fa-arrow-down float-end"></i>
     </div>
-    <div class="card-body">
-        {% if paciente.medicamentos_doenca_paciente.exists %}
-            {% regroup paciente.medicamentos_doenca_paciente.all by doenca as doencas_agrupadas %}
-            <div class="info-item">
-                <span class="info-label">Doenças:</span>
-                <ul class="info-value">
-                    {% for grupo in doencas_agrupadas %}
-                        <li>
-                            <strong>{{ grupo.grouper.nome }}</strong>
-                            <ul>
-                                <span class="info-label">Medicamentos:</span>
-                                {% for item in grupo.list %}
-                                    <li>
-                                        {{ item.medicamento.nome }}
-                                        {% if item.observacao %}
-                                            <br><small><strong>Obs:</strong> {{ item.observacao }}</small>
-                                        {% endif %}
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% else %}
-            <p>Este paciente ainda não possui doenças e medicamentos associados.
-                <a href="{% url 'paciente_associar_doencas_medicamentos' paciente.id %}" class="create-button">
-                    Associar Doenças e Medicamentos
-                </a>
-            </p>
-        {% endif %}
+
+    <!-- Anamneses -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="section-title text-start mb-0">🧠 Anamneses do Paciente</h3>
+        <a href="{% url 'criar_anamnese' paciente.id %}" class="btn btn-success">➕ Nova Anamnese</a>
     </div>
-</div>
 
-
-
-
-
-
+    {% if paciente.anamneses.exists %}
+    {% for anamnese in paciente.anamneses.all %}
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>🩺 Anamnese nº {{ forloop.counter }} • Criada em {{ anamnese.data_criacao|date:"d/m/Y" }}</span>
+            <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'tudo' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    🗑️ Excluir
+                </button>
+            </form>
+            
+        </div>
+        <div class="card-body">
+            {% include 'partials/accordion_historia.html' %}
+            {% include 'partials/accordion_habitos.html' %}
+            {% include 'partials/accordion_perfil.html' %}
+            {% include 'partials/accordion_autonomia.html' %}
+            {% include 'partials/accordion_saude.html' %}
+            {% include 'partials/accordion_doencas_medicamentos.html' %}
+        </div>
     </div>
+    {% endfor %}
+    {% else %}
+    <p>Este paciente ainda não possui anamnese.</p>
+    <a href="{% url 'criar_anamnese' paciente.id %}" class="btn btn-primary">➕ Criar Nova Anamnese</a>
+    {% endif %}
 
     <!-- Botão de voltar -->
-    <a href="{% url 'paciente_list' %}" class="back-button">Voltar à Lista de Pacientes</a>
+    <div class="text-center mt-5">
+        <a href="{% url 'paciente_list' %}" class="back-button">⬅️ Voltar à Lista de Pacientes</a>
+    </div>
+
     {% else %}
-    <p>Paciente não encontrado.</p>
+    <p class="text-danger">Paciente não encontrado.</p>
     {% endif %}
 </div>
-
-</body>
-
-</html>
-{%endblock%}
+{% endif %}
+<script src="{% static 'js/js.js' %}"></script>
+{% endblock %}

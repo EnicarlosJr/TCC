@@ -1,0 +1,97 @@
+<script>
+  function toggleForm(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.toggle('d-none');
+    }
+  }
+
+  function preencherFormularioMedicamento(btn) {
+    const formDiv = document.getElementById('formMedicamento');
+    const form = document.getElementById('formMedicamentoForm');
+    formDiv.classList.remove('d-none');
+
+    document.getElementById('id_nome').value = btn.dataset.nome;
+    document.getElementById('id_desde').value = btn.dataset.desde;
+    document.getElementById('id_classe').value = btn.dataset.classe;
+    document.getElementById('id_posologia_prescrita').value = btn.dataset.prescrita;
+    document.getElementById('id_posologia_utilizada').value = btn.dataset.utilizada;
+    document.getElementById('id_entendimento_paciente').value = btn.dataset.entendimento;
+    document.getElementById('id_problema_saude').value = btn.dataset.problema;
+
+    form.action = `/consulta/editar/medicamento/${btn.dataset.id}/`;
+  }
+</script>
+
+<section id="medicamentos" class="card section-card shadow-sm mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="section-title mb-0">💊 Medicamentos</h5>
+      <button class="btn btn-sm btn-outline-primary" onclick="toggleForm('formMedicamento')">➕ Adicionar</button>
+    </div>
+
+    <!-- Formulário Oculto para Adição/Edição -->
+    <div id="formMedicamento" class="mb-3 d-none">
+      <form id="formMedicamentoForm" method="POST" action="{% url 'consulta_adicionar_medicamento' consulta.id %}">
+        {% csrf_token %}
+        <div class="row">
+          {% for field in medicamento_form %}
+          <div class="col-md-6 mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="text-end">
+          <button type="submit" class="btn btn-success">💾 Salvar Medicamento</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Lista de Medicamentos -->
+    {% if medicamentos %}
+    <div class="row">
+      {% for medicamento in medicamentos %}
+      <div class="col-md-6">
+        <div class="card mb-3 border-start border-3 border-teal shadow-sm">
+          <div class="card-body">
+            <h6 class="text-primary fw-bold mb-2">{{ medicamento.nome }}</h6>
+            {% if medicamento.problema_saude %}
+            <p><strong>🧠 Relacionado a:</strong> {{ medicamento.problema_saude.problema }}</p>
+            {% endif %}
+            <p><strong>📅 Desde:</strong> {{ medicamento.desde }}</p>
+            <p><strong>🏷️ Classe:</strong> {{ medicamento.classe }}</p>
+            <p><strong>📝 Posologia Prescrita:</strong> {{ medicamento.posologia_prescrita }}</p>
+            <p><strong>💡 Posologia Utilizada:</strong> {{ medicamento.posologia_utilizada }}</p>
+            <p><strong>🤔 Entendimento do paciente:</strong> {{ medicamento.entendimento_paciente }}</p>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm"
+                onclick="preencherFormularioMedicamento(this)"
+                data-id="{{ medicamento.id }}"
+                data-nome="{{ medicamento.nome }}"
+                data-desde="{{ medicamento.desde|date:'Y-m-d' }}"
+                data-classe="{{ medicamento.classe }}"
+                data-prescrita="{{ medicamento.posologia_prescrita }}"
+                data-utilizada="{{ medicamento.posologia_utilizada }}"
+                data-entendimento="{{ medicamento.entendimento_paciente }}"
+                data-problema="{{ medicamento.problema_saude.id }}">
+                ✏️ Editar
+              </button>
+              <form method="POST" action="{% url 'excluir_objeto' 'medicamento' medicamento.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este medicamento?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">🗑️ Excluir</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted">Nenhum medicamento cadastrado.</p>
+    {% endif %}
+  </div>
+</section>

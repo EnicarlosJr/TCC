@@ -1,14 +1,17 @@
 # views.py
+from collections import defaultdict
+from urllib.parse import urlencode
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
-
-import paciente
+from django.contrib.auth.decorators import login_required
 from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
 from .forms import (
     ConsultaForm, PlanoAtuacaoAcompanhamentoForm, PlanoAtuacaoPlanejamentoForm, ProblemaSaudeForm, MedicamentoForm,
     AvaliacaoForm
 )
-from paciente.models import Doenca, Paciente
+from paciente.models import Paciente
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 # Criar nova consulta
 def create_consulta(request, paciente_id):
@@ -37,19 +40,20 @@ def detalhe_consulta(request, consulta_id):
     problemas = ProblemaSaude.objects.filter(consulta=consulta)
     medicamentos = Medicamento.objects.filter(problema_saude__in=problemas).select_related('problema_saude')
     avaliacoes = Avaliacao.objects.filter(medicamento__in=medicamentos).select_related('medicamento')
-
     avaliacao_principal = avaliacoes.first() if avaliacoes.exists() else None
 
-    if avaliacao_principal:
-        planos_qs = avaliacao_principal.planos_atuacao.all()
-    else:
-        planos_qs = PlanoAtuacao.objects.none()
+    # ✅ Buscar todos os planos da consulta (não apenas da primeira avaliação)
+    planos_qs = PlanoAtuacao.objects.filter(
+        consulta=consulta
+    ).select_related('avaliacao__medicamento__problema_saude')
 
+    # ✅ Adiciona o form de acompanhamento para cada plano
     planos = []
     for plano in planos_qs:
         plano.acompanhamento_form = PlanoAtuacaoAcompanhamentoForm(instance=plano)
         planos.append(plano)
 
+    # ✅ Organiza os problemas com medicamentos associados
     problemas_com_medicamentos = []
     for problema in problemas:
         medicamentos_relacionados = problema.medicamentos.all()
@@ -60,22 +64,28 @@ def detalhe_consulta(request, consulta_id):
             'medicamentos': medicamentos_relacionados
         })
 
+    form_problemas_edit = {}
+    for problema in problemas:
+        form_problemas_edit[problema.id] = ProblemaSaudeForm(instance=problema)
+
     context = {
         'consulta': consulta,
         'problemas': problemas,
         'medicamentos': medicamentos,
         'avaliacoes': avaliacoes,
-        'avaliacao': avaliacao_principal,
-        'planos': planos,
+        'avaliacao': avaliacao_principal,  # usada para exibir nome ou form
+        'planos': planos,                  # usado para {% regroup planos by avaliacao %}
         'problema_form': ProblemaSaudeForm(),
         'medicamento_form': MedicamentoForm(consulta=consulta),
         'avaliacao_form': AvaliacaoForm(),
         'plano_form': PlanoAtuacaoPlanejamentoForm(consulta=consulta),
         'acompanhamento': PlanoAtuacaoAcompanhamentoForm(),
         'problemas_com_medicamentos': problemas_com_medicamentos,
+        'form_problemas_edit': form_problemas_edit,
     }
 
     return render(request, 'detalhe_consulta.html', context)
+
 
 
 
@@ -189,6 +199,7 @@ def atualizar_acompanhamento(request, plano_id):
         'plano': plano,
     })
 
+
 def visualizar_consulta(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
     paciente = consulta.paciente
@@ -196,15 +207,15 @@ def visualizar_consulta(request, consulta_id):
     problemas = consulta.problemas_saude.all()
     medicamentos = Medicamento.objects.filter(problema_saude__in=problemas).select_related('problema_saude')
     avaliacoes = Avaliacao.objects.filter(medicamento__in=medicamentos).select_related('medicamento')
-    planos = PlanoAtuacao.objects.filter(consulta=consulta).select_related('avaliacao__medicamento')
+    planos = PlanoAtuacao.objects.filter(consulta=consulta).select_related('avaliacao__medicamento__problema_saude')
 
-    # Agrupar por avaliação
-    planos_por_avaliacao = {}
+    # ✅ Agrupar por avaliacao.id
+    planos_por_avaliacao = defaultdict(list)
+    avaliacoes_por_id = {a.id: a for a in avaliacoes}
+
     for plano in planos:
-        aval = plano.avaliacao
-        if aval not in planos_por_avaliacao:
-            planos_por_avaliacao[aval] = []
-        planos_por_avaliacao[aval].append(plano)
+        if plano.avaliacao:
+            planos_por_avaliacao[plano.avaliacao.id].append(plano)
 
     context = {
         'consulta': consulta,
@@ -212,9 +223,143 @@ def visualizar_consulta(request, consulta_id):
         'problemas': problemas,
         'medicamentos': medicamentos,
         'avaliacoes': avaliacoes,
-        'planos_por_avaliacao': planos_por_avaliacao,
+        'avaliacoes_por_id': avaliacoes_por_id,  
+        'planos': planos
+
     }
 
     return render(request, 'visualizar_consulta.html', context)
 
+def editar_problema_saude(request, problema_id):
+    problema = get_object_or_404(ProblemaSaude, id=problema_id)
 
+    if request.method == 'POST':
+        form = ProblemaSaudeForm(request.POST, instance=problema)
+        if form.is_valid():
+            form.save()
+            return redirect('consulta_detalhe_consulta', consulta_id=problema.consulta.id)
+    else:
+        form = ProblemaSaudeForm(instance=problema)
+
+    return render(request, 'editar_problema_saude.html', {
+        'form': form,
+        'problema': problema,
+    })
+
+
+
+DELETE_MODEL_MAP = {
+    'problema': (ProblemaSaude, 'consulta_detalhe_consulta'),
+    'medicamento': (Medicamento, 'consulta_detalhe_consulta'),
+    'avaliacao': (Avaliacao, 'consulta_detalhe_consulta'),
+    'plano': (PlanoAtuacao, 'consulta_detalhe_consulta'),
+}
+
+@login_required
+def excluir_objeto(request, model_name, object_id):
+    if model_name not in DELETE_MODEL_MAP:
+        messages.error(request, "Tipo de objeto inválido.")
+        return redirect('tela_inicial')
+
+    model_class, redirect_view = DELETE_MODEL_MAP[model_name]
+    instance = get_object_or_404(model_class, id=object_id)
+
+    # Identifica a consulta para redirecionamento
+    consulta_id = instance.consulta.id if hasattr(instance, 'consulta') else instance.avaliacao.consulta.id
+
+    if request.method == 'POST':
+        instance.delete()
+        messages.success(request, "Item excluído com sucesso.")
+    
+    return redirect(redirect_view, consulta_id=consulta_id)
+
+
+def editar(request, model_name, obj_id):
+    MODEL_MAP = {
+        'problema': (ProblemaSaude, ProblemaSaudeForm, 'consulta'),
+        'medicamento': (Medicamento, MedicamentoForm, 'consulta'),
+        'avaliacao': (Avaliacao, AvaliacaoForm, 'consulta'),
+        'plano': (PlanoAtuacao, PlanoAtuacaoPlanejamentoForm, 'avaliacao__medicamento__problema_saude__consulta'),
+
+    }
+
+    if model_name not in MODEL_MAP:
+        return HttpResponseBadRequest("Tipo de objeto desconhecido.")
+
+    model_class, form_class, consulta_path = MODEL_MAP[model_name]
+    instance = get_object_or_404(model_class, id=obj_id)
+
+    # Obter consulta associada via atributo direto ou encadeado
+    consulta = instance
+    for attr in consulta_path.split("__"):
+        consulta = getattr(consulta, attr)
+
+    if request.method == 'POST':
+        form = form_class(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            print(f"Objeto {model_name} editado com sucesso.")
+            return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
+        else:
+            # ⚠️ Adicione este bloco para debug
+            print("Erros no formulário de edição:", form.errors)
+    else:
+        form = form_class(instance=instance)
+
+    # Sempre retorne algo
+    return render(request, 'consulta/editar.html', {
+        'form': form,
+        'form_name': model_name,
+        'consulta': consulta,
+    })
+
+def avaliacao_fullscreen(request, consulta_id):
+    consulta = get_object_or_404(Consulta, id=consulta_id)
+    
+    # Reaproveita os dados já utilizados no detalhe
+    problemas = ProblemaSaude.objects.filter(consulta=consulta)
+    medicamentos = Medicamento.objects.filter(consulta=consulta)
+    problemas_com_medicamentos = [
+        {
+            'problema': problema,
+            'medicamentos': medicamentos.filter(problema_saude=problema)
+        }
+        for problema in problemas
+    ]
+
+    from .forms import AvaliacaoForm  # ou ajuste o caminho
+
+    return render(request, 'avaliacao_fullscreen.html', {
+        'consulta': consulta,
+        'problemas_com_medicamentos': problemas_com_medicamentos,
+        'avaliacao_form': AvaliacaoForm(),
+    })
+
+def listar_consultas(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    consultas_list = Consulta.objects.filter(paciente=paciente).order_by('-data_consulta')
+
+    paginator = Paginator(consultas_list, 6)  # 6 por página
+    page_number = request.GET.get('page')
+    consultas = paginator.get_page(page_number)
+
+    # Construir URLs de navegação
+    base_url = '?'
+    previous_url = next_url = None
+    if consultas.has_previous():
+        previous_url = base_url + urlencode({'page': consultas.previous_page_number})
+    if consultas.has_next():
+        next_url = base_url + urlencode({'page': consultas.next_page_number})
+
+    context = {
+        'paciente': paciente,
+        'consultas': consultas,
+        'pagination_info': {
+            'has_pages': consultas.has_other_pages(),
+            'page': consultas.number,
+            'total': consultas.paginator.num_pages,
+            'previous_url': previous_url,
+            'next_url': next_url,
+        }
+    }
+    return render(request, 'listar_consultas.html', context)

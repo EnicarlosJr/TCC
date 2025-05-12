@@ -10,7 +10,7 @@
 
       {# Ícone dinâmico #}
       <div class="text-2xl mb-1">
-        {% if p.perfil_clinico__percepcao_saude > 6 %}
+        {% if p.saude__percepcao_saude > 6 %}
           🧠
         {% else %}
           📈
@@ -19,15 +19,15 @@
 
       {# Nota com cor automática #}
       <div class="text-3xl font-bold 
-        {% if p.perfil_clinico__percepcao_saude <= 4 %}
+        {% if p.saude__percepcao_saude <= 4 %}
           text-red-600
-        {% elif p.perfil_clinico__percepcao_saude <= 7 %}
+        {% elif p.saude__percepcao_saude <= 7 %}
           text-yellow-500
         {% else %}
           text-green-600
         {% endif %}
       ">
-        {{ p.perfil_clinico__percepcao_saude }}
+        {{ p.saude__percepcao_saude }}
       </div>
 
       <p class="text-xs text-gray-500 mt-1">

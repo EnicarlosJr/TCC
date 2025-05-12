@@ -1,0 +1,26 @@
+<div class="card expand-card collapsed">
+    <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
+      <i class="fa fa-heartbeat"></i> Saúde <i class="fa fa-arrow-down float-end"></i>
+    </div>
+    <div class="card-body">
+      {% if anamnese.saude %}
+        {% if anamnese.saude.incomodo %}<p><strong>Incômodo:</strong> {{ anamnese.saude.get_incomodo_display }}</p>{% endif %}
+        {% if anamnese.saude.informacoes_importantes %}<p><strong>Informações importantes:</strong> {{ anamnese.saude.informacoes_importantes }}</p>{% endif %}
+        {% if anamnese.saude.ultima_visita_dentista %}<p><strong>Última visita ao dentista:</strong> {{ anamnese.saude.ultima_visita_dentista|date:"d/m/Y" }}</p>{% endif %}
+        {% if anamnese.saude.percepcao_saude is not None %}<p><strong>Percepção geral da saúde (0-10):</strong> {{ anamnese.saude.percepcao_saude }}</p>{% endif %}
+        {% if anamnese.saude.justificativa %}<p><strong>Justificativa:</strong> {{ anamnese.saude.justificativa }}</p>{% endif %}
+        <p><strong>Pressão arterial controlada:</strong> {{ anamnese.saude.pressao_controlada|yesno:"Sim,Não" }}</p>
+        {% if anamnese.saude.observacoes %}<p><strong>Observações:</strong> {{ anamnese.saude.observacoes }}</p>{% endif %}
+        <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'saude' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">
+              🗑️ Excluir
+            </button>
+          </form> 
+          <a href="{% url 'editar_anamnese_bloco' anamnese.id 'saude' %}" class="btn btn-sm btn-warning">✏️ Editar</a>
+      {% else %}
+        <p>Não preenchido. <a href="{% url 'cadastrar_saude' anamnese.id %}" class="create-button">Cadastrar</a></p>
+      {% endif %}
+    </div>
+  </div>
+  

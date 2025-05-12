@@ -1,0 +1,117 @@
+:root {
+  --primary-color: #0d6efd;
+  --hover-bg: #e9f2ff;
+  --text-dark: #333;
+  --bg-light: #f8f9fa;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.floating-sidebar {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 60px;
+  height: calc(100vh - 70px);
+  background-color: var(--bg-light);
+  border-right: 1px solid #dee2e6;
+  transition: width 0.3s ease;
+  overflow-x: hidden;
+  z-index: 1030;
+  padding-top: 10px;
+  backdrop-filter: blur(6px);
+}
+
+.floating-sidebar:hover {
+  width: 180px;
+}
+
+.floating-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 12px;
+  color: var(--text-dark);
+  font-weight: 500;
+  border-left: 4px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.floating-sidebar .nav-link:hover,
+.floating-sidebar .nav-link.active {
+  background-color: var(--hover-bg);
+  color: var(--primary-color);
+  border-left: 4px solid var(--primary-color);
+}
+
+.floating-sidebar .nav-link span {
+  display: none;
+  margin-left: 10px;
+}
+
+.floating-sidebar:hover .nav-link span {
+  display: inline;
+}
+
+.main-content {
+  margin-left: 70px;
+  transition: margin-left 0.3s ease;
+}
+
+.floating-sidebar:hover~.main-content {
+  margin-left: 190px;
+}
+
+.section-card {
+  border: none;
+  border-radius: 1rem;
+  background-color: #ffffff;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.section-card:hover {
+  transform: translateY(-5px);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--primary-color);
+  text-transform: uppercase;
+}
+
+.table th,
+.table td {
+  white-space: nowrap;
+}
+
+.details-row .details-content {
+  background-color: #f1f3f5;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .floating-sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+}

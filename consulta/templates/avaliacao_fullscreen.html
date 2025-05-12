@@ -1,0 +1,13 @@
+{% extends 'menu.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/fullscreen_avaliacao.css' %}">
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-primary">📝 Avaliação em Tela Cheia</h2>
+    <a href="{% url 'consulta_detalhe_consulta' consulta.id %}" class="btn btn-outline-secondary">⬅️ Voltar</a>
+  </div>
+  {% include 'partials/bloco_avaliacao.html' %}
+</div>
+{% endblock %}

@@ -14,9 +14,6 @@ class Medicamento(models.Model):
     def __str__(self):
         return self.nome
     
-
-
-
 class Paciente(models.Model):
     nome = models.CharField(max_length=150)
     telefone = models.CharField(max_length=15)
@@ -81,16 +78,26 @@ class Paciente(models.Model):
     def __str__(self):
         return self.nome
 
+
+class Anamnese(models.Model):
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='anamneses')
+    data_criacao = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Anamnese de {self.paciente.nome} em {self.data_criacao.strftime('%d/%m/%Y')}"
+
 class MedicamentoDoencaPaciente(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="medicamentos_doenca_paciente")
+    anamnese = models.ForeignKey(Anamnese, on_delete=models.CASCADE, related_name="medicamentos_doenca")
     medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE)
     doenca = models.ForeignKey(Doenca, on_delete=models.CASCADE)
-    observacao = models.TextField(blank=True, null=True)  # Novo campo para observações
+    observacao = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.paciente.nome} - {self.medicamento.nome} - {self.doenca.nome}"
+
 class HistoriaSocial(models.Model):
-    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='historia_social')
+    anamnese = models.OneToOneField(Anamnese, on_delete=models.CASCADE, related_name='historia')
     consome_bebida = models.CharField(max_length=3, choices=[('nao', 'Não'), ('sim', 'Sim')])
     tipos_bebidas = models.CharField(
         max_length=20, choices=[('fermentadas', 'Bebidas Fermentadas'), ('mistas', 'Bebidas Mistas'), ('destiladas', 'Bebidas Destiladas')], blank=True
@@ -126,11 +133,11 @@ class HistoriaSocial(models.Model):
     observacoes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"História Social de {self.paciente.nome}"
+        return f"História Social de {self.anamnese.paciente.nome}"
 
 
 class HabitosAlimentares(models.Model):
-    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='habitos_alimentares')
+    anamnese = models.OneToOneField(Anamnese, on_delete=models.CASCADE, related_name='habitos')
     horario_acorda = models.TimeField(null=True, blank=True)
     cafe_da_manha = models.TextField(blank=True)
     lanche_manha = models.TextField(blank=True)
@@ -142,22 +149,20 @@ class HabitosAlimentares(models.Model):
     observacoes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Hábitos Alimentares de {self.paciente.nome}"
+        return f"Hábitos Alimentares de {self.anamnese.paciente.nome}"
 
 
 class PerfilClinico(models.Model):
-    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='perfil_clinico')
+    anamnese = models.OneToOneField(Anamnese, on_delete=models.CASCADE, related_name='perfil')
     capacidade_atividade = models.CharField(max_length=50, blank=True)
     incomodo = models.CharField(max_length=100, blank=True, null=True)
-    ultima_visita_dentista = models.DateField(blank=True, null=True)
-    percepcao_saude = models.IntegerField(choices=[(i, str(i)) for i in range(11)], blank=True, null=True)
     observacoes = models.TextField(blank=True)
 
     def __str__(self):
-        return f"Perfil Clínico de {self.paciente.nome}"
+        return f"Perfil Clínico de {self.anamnese.paciente.nome}"
 
 class AutonomiaMedicamentos(models.Model):
-    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='autonomia_medicamentos', null=True, blank=True)
+    anamnese = models.OneToOneField(Anamnese, on_delete=models.CASCADE, related_name='autonomia')
     OPCOES_AUTONOMIA = [
         ('sem_assistencia', 'Toma medicamento sem assistência'),
         ('assistencia_lembrete', 'Necessita de lembretes ou de assistência'),
@@ -301,13 +306,13 @@ class AutonomiaMedicamentos(models.Model):
 
     def __str__(self):
         if self.paciente:
-            return f"Autonomia Medicamentos - {self.paciente.nome}"
+            return f"Autonomia Medicamentos - {self.anamnese.paciente.nome}"
         return "Autonomia Medicamentos - Paciente não atribuído"
 
 
 
 class Saude(models.Model):
-    paciente = models.OneToOneField(Paciente, on_delete=models.CASCADE, related_name='saude')
+    anamnese = models.OneToOneField(Anamnese, on_delete=models.CASCADE, related_name='saude')
     
     # Problemas de saúde e queixas
     INCOMODOS_CHOICES = [
@@ -358,6 +363,7 @@ class Saude(models.Model):
     )
 
     def __str__(self):
-        return f"Saúde de {self.paciente.nome}"
+        return f"Saúde de {self.anamnese.paciente.nome}"
     
+
 

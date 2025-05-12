@@ -4,146 +4,137 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from login.utils import log_atividade
+import paciente
 
 
 
-from .models import  Doenca, Medicamento, MedicamentoDoencaPaciente, Paciente, PerfilClinico, Saude
+from .models import  Anamnese, AutonomiaMedicamentos, Doenca, HabitosAlimentares, HistoriaSocial, Medicamento, MedicamentoDoencaPaciente, Paciente, PerfilClinico, Saude
 from .forms import (
     DoencaForm, MedicamentoDoencaPacienteForm, MedicamentoForm, PacienteForm, HistoriaSocialForm, HabitosAlimentaresForm,
     PerfilClinicoForm, AutonomiaMedicamentosForm, SaudeForm,
 )
+
 @login_required
 @log_atividade("Cadastrou um paciente!")
 def cadastrar_paciente(request):
     if request.method == "POST":
-        
         form = PacienteForm(request.POST)
         if form.is_valid():
             paciente = form.save()
-            # Criação automática das relações se não existirem
-
-            return redirect('paciente_detail', pk=paciente.id)  # Redireciona para os detalhes do paciente
+            return redirect('paciente_detail', pk=paciente.id)
     else:
         form = PacienteForm()
-
     return render(request, 'cadastrar_paciente.html', {'form': form})
 
 @login_required
 @log_atividade("Cadastrou historia social!")
-def cadastrar_historia_social(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+def cadastrar_historia_social(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
 
-    # Se a história social já existir, redireciona
-    if hasattr(paciente, 'historia_social') and paciente.historia_social:
-        return redirect('paciente_detail', pk=paciente.id)
+    if hasattr(anamnese, 'historia'):
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
 
     if request.method == 'POST':
         form = HistoriaSocialForm(request.POST)
         if form.is_valid():
             historia_social = form.save(commit=False)
-            historia_social.paciente = paciente
+            historia_social.anamnese = anamnese
             historia_social.save()
-            return redirect('paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
     else:
         form = HistoriaSocialForm()
+    return render(request, 'historia_social.html', {'form': form, 'anamnese': anamnese})
 
-    return render(request, 'historia_social.html', {'form': form, 'paciente': paciente})
 
 @login_required
 @log_atividade("Cadastrou Habitos Alimentares!")
-def cadastrar_habitos_alimentares(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+def cadastrar_habitos_alimentares(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
 
-    # Se os hábitos alimentares já existirem, redireciona
-    if hasattr(paciente, 'habitos_alimentares') and paciente.habitos_alimentares:
-        return redirect('paciente_detail', pk=paciente.id)
+    if hasattr(anamnese, 'habitos'):
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
 
     if request.method == 'POST':
         form = HabitosAlimentaresForm(request.POST)
         if form.is_valid():
-            habitos_alimentares = form.save(commit=False)
-            habitos_alimentares.paciente = paciente
-            habitos_alimentares.save()
-            return redirect('paciente_detail', pk=paciente.id)
+            habitos = form.save(commit=False)
+            habitos.anamnese = anamnese
+            habitos.save()
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
     else:
         form = HabitosAlimentaresForm()
-
-    return render(request, 'habitos_alimentares.html', {'form': form, 'paciente': paciente})
+    return render(request, 'habitos_alimentares.html', {'form': form, 'anamnese': anamnese})
 
 @login_required
 @log_atividade("Cadastrou Perfil Clinico!")
-def cadastrar_perfil_clinico(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+def cadastrar_perfil_clinico(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
 
-    # Se o perfil clínico já existir, redireciona
-    if hasattr(paciente, 'perfil_clinico') and paciente.perfil_clinico:
-        return redirect('paciente_detail', pk=paciente.id)
+    if hasattr(anamnese, 'perfil'):
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
 
     if request.method == 'POST':
         form = PerfilClinicoForm(request.POST)
         if form.is_valid():
-            perfil_clinico = form.save(commit=False)
-            perfil_clinico.paciente = paciente
-            perfil_clinico.save()
-            return redirect('paciente_detail', pk=paciente.id)
+            perfil = form.save(commit=False)
+            perfil.anamnese = anamnese
+            perfil.save()
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
     else:
         form = PerfilClinicoForm()
-
-    return render(request, 'perfil_clinico.html', {'form': form, 'paciente': paciente})
+    return render(request, 'perfil_clinico.html', {'form': form, 'anamnese': anamnese})
 
 @login_required
 @log_atividade("Cadastrou Autonomia Medicamentosa!")
-def cadastrar_autonomia_medicamentos(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+def cadastrar_autonomia_medicamentos(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
 
-    # Se a autonomia de medicamentos já existir, redireciona
-    if hasattr(paciente, 'autonomia_medicamentos') and paciente.autonomia_medicamentos:
-        return redirect('paciente_detail', pk=paciente.id)
+    if hasattr(anamnese, 'autonomia'):
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
 
     if request.method == 'POST':
         form = AutonomiaMedicamentosForm(request.POST)
         if form.is_valid():
-            autonomia_medicamentos = form.save(commit=False)
-            autonomia_medicamentos.paciente = paciente
-            autonomia_medicamentos.save()
-            return redirect('paciente_detail', pk=paciente.id)
+            autonomia = form.save(commit=False)
+            autonomia.anamnese = anamnese
+            autonomia.save()
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
     else:
         form = AutonomiaMedicamentosForm()
-
-    return render(request, 'autonomia_medicamentos.html', {'form': form, 'paciente': paciente})
+    return render(request, 'autonomia_medicamentos.html', {'form': form, 'anamnese': anamnese})
 
 
 @login_required
 @log_atividade("Cadastrou Percp Saúde")
-def saude(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+def saude(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
 
-    # Se a saúde já existir, redireciona
-    if hasattr(paciente, 'saude') and paciente.saude:
-        return redirect('paciente_detail', pk=paciente.id)
+    if hasattr(anamnese, 'saude'):
+        return redirect('paciente_detail', anamnese_id=anamnese.id)
 
     if request.method == 'POST':
         form = SaudeForm(request.POST)
         if form.is_valid():
             saude = form.save(commit=False)
-            saude.paciente = paciente
+            saude.anamnese = anamnese
             saude.save()
-            return redirect('paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
     else:
         form = SaudeForm()
-
-    return render(request, 'adicionar_saude.html', {'form': form, 'paciente': paciente})
+    return render(request, 'adicionar_saude.html', {'form': form, 'anamnese': anamnese})
 
 @login_required
+@login_required
 @log_atividade("Cadastrou doença e medicamentos")
-def associar_doencas_medicamentos(request, paciente_id):
-    paciente = get_object_or_404(Paciente, id=paciente_id)
+def associar_doencas_medicamentos(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
+    paciente = anamnese.paciente  # para exibir no template se quiser
 
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
-            return redirect('paciente_detail', pk=paciente.id)
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
 
         associacoes = data.get('associacoes', [])
 
@@ -158,15 +149,12 @@ def associar_doencas_medicamentos(request, paciente_id):
             if not doenca_nome or not medicamentos_nomes:
                 return JsonResponse({'error': 'Nome da doença e medicamentos são obrigatórios.'}, status=400)
 
-            # Cria ou recupera a doença
             doenca, _ = Doenca.objects.get_or_create(nome=doenca_nome)
 
             for medicamento_nome in medicamentos_nomes:
                 medicamento, _ = Medicamento.objects.get_or_create(nome=medicamento_nome)
-
-                # Cria associação evitando duplicações
                 MedicamentoDoencaPaciente.objects.get_or_create(
-                    paciente=paciente,
+                    anamnese=anamnese,
                     medicamento=medicamento,
                     doenca=doenca,
                     defaults={'observacao': observacao}
@@ -175,30 +163,33 @@ def associar_doencas_medicamentos(request, paciente_id):
         return JsonResponse({
             'sucesso': True,
             'message': 'Associações salvas com sucesso.',
-            'redirect': f'/paciente/{paciente_id}/'
+            'redirect': f'/anamnese/{anamnese.id}/'
         })
 
     elif request.method == 'GET':
-        return render(request, 'associar_doencas_medicamentos.html', {'paciente': paciente})
+        return render(request, 'associar_doencas_medicamentos.html', {'anamnese': anamnese, 'paciente': paciente})
+
 
 @login_required
 @log_atividade("Cadastrou medicamento!")
 @require_POST
-def adicionar_medicamento(request, paciente_id):
+def adicionar_medicamento(request, anamnese_id):
     nome_medicamento = request.POST.get('nome')
     doenca_id = request.POST.get('doenca_id')
 
     if nome_medicamento and doenca_id:
         try:
             doenca = Doenca.objects.get(id=doenca_id)
-        except Doenca.DoesNotExist:
-            return JsonResponse({'error': 'Doença não encontrada!'}, status=404)
+            anamnese = get_object_or_404(Anamnese, id=anamnese_id)
+            paciente = anamnese.paciente
+        except (Doenca.DoesNotExist, Anamnese.DoesNotExist):
+            return JsonResponse({'error': 'Doença ou Anamnese não encontrada!'}, status=404)
 
         medicamento, _ = Medicamento.objects.get_or_create(nome=nome_medicamento)
-        paciente = get_object_or_404(Paciente, id=paciente_id)
 
         MedicamentoDoencaPaciente.objects.get_or_create(
             paciente=paciente,
+            anamnese=anamnese,
             medicamento=medicamento,
             doenca=doenca
         )
@@ -210,6 +201,7 @@ def adicionar_medicamento(request, paciente_id):
         })
 
     return JsonResponse({'sucesso': False, 'error': 'Nome do medicamento e doença são obrigatórios.'}, status=400)
+
 
 
 
@@ -245,3 +237,133 @@ def adicionar_doenca(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
 
     return JsonResponse({"id": doenca.id, "nome": doenca.nome})
+
+@login_required
+@log_atividade("Criou uma anamnese!")
+def criar_anamnese(request, paciente_id):
+    paciente = get_object_or_404(Paciente, id=paciente_id)
+    Anamnese.objects.create(paciente=paciente)
+    return redirect('paciente_detail', pk=paciente.id)
+
+
+@login_required
+def detalhe_anamnese(request, anamnese_id):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
+    return render(request, 'paciente_detail.html', {
+        'anamnese': anamnese,
+        'paciente': anamnese.paciente,
+    })
+
+@login_required
+@log_atividade("Removeu um bloco da anamnese")
+def excluir_anamnese_bloco(request, anamnese_id, bloco):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
+
+    # Mapeia o nome do bloco para o atributo relacionado
+    bloco_map = {
+        'historia': 'historia',
+        'habitos': 'habitos',
+        'perfil': 'perfil',
+        'autonomia': 'autonomia',
+        'saude': 'saude',
+    }
+
+    attr = bloco_map.get(bloco)
+    if not attr:
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
+
+    objeto = getattr(anamnese, attr, None)
+    if objeto:
+        objeto.delete()
+
+    return redirect('paciente_detail', pk=anamnese.paciente.id)
+
+@login_required
+@log_atividade("Editou um bloco da anamnese")
+def editar_anamnese_bloco(request, anamnese_id, bloco):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
+
+    blocos = {
+        'historia': {'model': HistoriaSocial, 'form': HistoriaSocialForm, 'related': 'historia'},
+        'habitos': {'model': HabitosAlimentares, 'form': HabitosAlimentaresForm, 'related': 'habitos'},
+        'perfil': {'model': PerfilClinico, 'form': PerfilClinicoForm, 'related': 'perfil'},
+        'autonomia': {'model': AutonomiaMedicamentos, 'form': AutonomiaMedicamentosForm, 'related': 'autonomia'},
+        'saude': {'model': Saude, 'form': SaudeForm, 'related': 'saude'},
+    }
+
+    bloco_info = blocos.get(bloco)
+    if not bloco_info:
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
+
+    # Pega instância do objeto relacionado, ou 404
+    instance = getattr(anamnese, bloco_info['related'], None)
+    if not instance:
+        return redirect('paciente_detail', pk=anamnese.paciente.id)
+
+    FormClass = bloco_info['form']
+    if request.method == 'POST':
+        form = FormClass(request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('paciente_detail', pk=anamnese.paciente.id)
+    else:
+        form = FormClass(instance=instance)
+
+    templates_map = {
+    'historia': 'historia_social.html',
+    'habitos': 'habitos_alimentares.html',
+    'perfil': 'perfil_clinico.html',
+    'autonomia': 'autonomia_medicamentos.html',
+    'saude': 'adicionar_saude.html',
+}
+    return render(request, templates_map[bloco], {'form': form, 'anamnese': anamnese})
+
+@login_required
+@log_atividade("Excluiu um bloco da anamnese ou a anamnese completa")
+@require_POST
+def excluir_anamnese_bloco(request, anamnese_id, bloco):
+    anamnese = get_object_or_404(Anamnese, id=anamnese_id)
+    paciente = anamnese.paciente
+
+    if bloco == 'tudo':
+        anamnese.delete()
+        return redirect('paciente_detail', pk=paciente.id)
+
+    blocos = {
+        'historia': anamnese.historia,
+        'habitos': anamnese.habitos,
+        'perfil': anamnese.perfil,
+        'autonomia': anamnese.autonomia,
+        'saude': anamnese.saude,
+        'doencas_medicamentos': anamnese.medicamentos_doenca.all(),
+    }
+
+    objeto = blocos.get(bloco)
+
+    if objeto:
+        if bloco == 'doencas_medicamentos':
+            objeto.delete()
+        else:
+            objeto.delete()
+
+    return redirect('paciente_detail', pk=paciente.id)
+
+
+@login_required
+@log_atividade("Editou um paciente!")
+def paciente_detail(request, pk):
+    paciente = get_object_or_404(Paciente, id=pk)
+
+    if request.method == 'POST':
+        form = PacienteForm(request.POST, instance=paciente)
+        if form.is_valid():
+            form.save()
+            return redirect('paciente_detail', pk=paciente.id)
+    else:
+        form = PacienteForm(instance=paciente)
+
+    return render(request, 'detalhe_paciente.html', {
+        'paciente': paciente,
+        'form': form,
+        'modo_edicao': request.GET.get('editar') == '1'
+    })

@@ -1,9 +1,10 @@
 from collections import defaultdict
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView, DetailView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Max
 from consulta.models import Consulta
+from paciente.forms import PacienteForm
 from paciente.models import MedicamentoDoencaPaciente, Paciente
 
 class PacienteListView(ListView):
@@ -50,5 +51,25 @@ class PacienteDetailView(DetailView):
     def get_object(self):
         return get_object_or_404(Paciente, id=self.kwargs['pk'])
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        paciente = self.get_object()
+        modo_edicao = self.request.GET.get("editar") == "1"
 
+        context['anamneses'] = paciente.anamneses.all().order_by('-data_criacao')
+        context['modo_edicao'] = modo_edicao
+        if modo_edicao:
+            context['form'] = PacienteForm(instance=paciente)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = PacienteForm(request.POST, instance=self.object)
+        if form.is_valid():
+            form.save()
+            return redirect('paciente_detail', pk=self.object.id)
+        context = self.get_context_data()
+        context['form'] = form
+        context['modo_edicao'] = True
+        return self.render_to_response(context)
 
