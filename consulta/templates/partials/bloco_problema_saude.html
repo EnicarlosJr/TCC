@@ -59,7 +59,7 @@
       <div class="card mb-3 border-start border-3 border-primary shadow-sm">
         <div class="card-body">
           <p><strong>🧬 Problema:</strong> {{ problema.problema }}</p>
-          <p><strong>🕐 Início:</strong> {{ problema.inicio|date:"d/m/Y" }}</p>
+          <p><strong>🕐 Início:</strong> {{ problema.inicio }}</p>
           <p><strong>✅ Controlado:</strong> {{ problema.controlado|yesno:"Sim,Não,Não informado" }}</p>
           <p><strong>⚠️ Preocupa:</strong> {{ problema.preocupa|yesno:"Sim,Não,Não informado" }}</p>
           <div class="d-flex justify-content-end gap-2">

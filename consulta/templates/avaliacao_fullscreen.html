@@ -2,12 +2,38 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/fullscreen_avaliacao.css' %}">
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="text-primary">📝 Avaliação em Tela Cheia</h2>
-    <a href="{% url 'consulta_detalhe_consulta' consulta.id %}" class="btn btn-outline-secondary">⬅️ Voltar</a>
+<div class="w-full px-8 py-12 space-y-20">
+
+  <div class="flex justify-between items-center">
+    <h1 class="text-5xl font-extrabold text-blue-800">📝 Avaliação Completa - {{ consulta.paciente.nome }}</h1>
+    <a href="{% url 'consulta_detalhe_consulta' consulta.id %}" class="text-xl text-blue-700 hover:underline">
+      🔙 Voltar
+    </a>
   </div>
-  {% include 'partials/bloco_avaliacao.html' %}
+
+  {# Bloco de medicamentos com problema #}
+  {% for item in problemas_com_medicamentos %}
+    <div class="space-y-6">
+      <h2 class="text-4xl font-bold text-blue-700">
+        🩺 Problema: {{ item.problema.problema }}
+      </h2>
+      <div class="overflow-x-auto w-full">
+        {% include 'partials/bloco_avaliacao.html' with medicamentos=item.medicamentos %}
+      </div>
+    </div>
+  {% endfor %}
+
+  {# Bloco de medicamentos sem problema #}
+  {% if medicamentos_sem_problema %}
+    <div class="space-y-6">
+      <h2 class="text-4xl font-bold text-gray-700">
+        🚫 Sem Problema de Saúde Relacionado
+      </h2>
+      <div class="overflow-x-auto w-full">
+        {% include 'partials/bloco_avaliacao.html' with medicamentos=medicamentos_sem_problema %}
+      </div>
+    </div>
+  {% endif %}
+
 </div>
 {% endblock %}

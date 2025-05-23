@@ -38,15 +38,13 @@ class HistoriaSocialForm(forms.ModelForm):
             'quantidade_ingerida': forms.Select(attrs={'class': 'form-select'}),
             'frequencia_uso': forms.Select(attrs={'class': 'form-select'}),
             'fumante': forms.RadioSelect(choices=HistoriaSocial._meta.get_field('fumante').choices),
-            'tempo_parou': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Anos desde que parou (se aplicável)',
-                'min': 0
+            'tempo_parou': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Tempo desde que parou'
             }),
-            'tempo_fumou': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Anos de tabagismo (se aplicável)',
-                'min': 0
+            'tempo_fumou': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Tempo de tabagismo'
             }),
             'pratica_atividade_fisica': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
@@ -65,6 +63,7 @@ class HistoriaSocialForm(forms.ModelForm):
                 'placeholder': 'Observações sobre hábitos de vida, consumo, etc.'
             }),
         }
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -259,16 +258,40 @@ class SaudeForm(forms.ModelForm):
             'justificativa', 'pressao_controlada', 'observacoes'
         ]
         widgets = {
-            'ultima_visita_dentista': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'informacoes_importantes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Informações importantes sobre saúde...'}),
-            'justificativa': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Justifique sua percepção de saúde...'}),
-            'observacoes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Observações sobre saúde...'}),
+            'ultima_visita_dentista': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Selecione o tempo da última visita ao dentista'
+            }),
+            'informacoes_importantes': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'form-control',
+                'placeholder': 'Informações importantes sobre saúde...'
+            }),
+            'justificativa': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'form-control',
+                'placeholder': 'Justifique sua percepção de saúde...'
+            }),
+            'observacoes': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'form-control',
+                'placeholder': 'Observações sobre saúde...'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control', 'placeholder': field.label})
+        for field_name, field in self.fields.items():
+            # Só atualiza se ainda não tiver a classe específica.
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs.update({'class': 'form-select'})
+            elif isinstance(field.widget, (forms.Textarea, forms.TextInput)):
+                field.widget.attrs.update({'class': 'form-control'})
+            elif isinstance(field.widget, forms.CheckboxInput):
+                field.widget.attrs.update({'class': 'form-check-input'})
+            # Placeholder conforme o label.
+            field.widget.attrs.setdefault('placeholder', field.label)
+
 
 
 class DoencaForm(forms.ModelForm):

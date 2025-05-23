@@ -118,10 +118,10 @@
 </style>
 
 <div class="container">
-  <h2>🩺 Consultas de {{ paciente.nome }}</h2>
+  <h2>🩺 Plano de Cuidado de {{ paciente.nome }}</h2>
 
   <div class="top-bar">
-    <a href="{% url 'consulta_create_consulta' paciente.id %}" class="btn btn-primary">➕ Nova Consulta</a>
+    <a href="{% url 'consulta_create_consulta' paciente.id %}" class="btn btn-primary">➕ Novo Plano de Cuidado</a>
     <a href="{% url 'paciente_list' %}" class="btn btn-secondary">↩️ Voltar para Pacientes</a>
   </div>
 
@@ -140,7 +140,7 @@
       </div>
     </div>
     {% empty %}
-    <div class="col-12 text-center text-muted">Nenhuma consulta registrada.</div>
+    <div class="col-12 text-center text-muted">Nenhum Plano de Cuidado registrado.</div>
     {% endfor %}
   </div>
 

@@ -4,48 +4,63 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 
+<div class="container mx-auto w-full max-w-7xl px-6 py-8 space-y-12">
 
-<div class="container mx-auto px-6 py-8">
-  <h1 class="text-4xl font-bold text-blue-900 text-center mb-12">
+  {# ✅ Cabeçalho centralizado #}
+  <h1 class="text-4xl font-bold text-blue-900 text-center">
     Dashboard Clínico • Farmácia Escola
   </h1>
 
-  {# 🔍 Botão para Mostrar/Esconder Filtros #}
-  <div class="flex justify-end mb-6">
-    <button id="toggleFiltros" onclick="toggleFiltros()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-      🔍 Mostrar Filtros
+  {# ✅ Ações principais (Filtros e Exportação) #}
+  <div class="flex justify-center md:justify-between items-center mt-8 gap-4">
+    <button id="toggleFiltros" onclick="toggleFiltros()" 
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-lg">
+      🔍 Filtros
+    </button>
+
+    <button onclick="openModal()" 
+      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow-lg">
+      📄 Exportar
     </button>
   </div>
 
-  {# 🎯 Seção de Filtros Avançados #}
-  <section id="filtros" class="hidden bg-white p-6 rounded-2xl shadow-lg mb-12 transition-all duration-500">
+  {# ✅ Filtros Avançados - com colapso suave #}
+  <section id="filtros" class="hidden bg-white p-6 rounded-2xl shadow-lg transition-all duration-500 w-full">
     {% include 'relatorios/partials/filtros_dashboard.html' %}
   </section>
 
-  {# 📄 Botão Flutuante para Exportar Relatório #}
-  <button onclick="openModal()" class="fixed bottom-8 right-8 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full shadow-lg transition-all duration-300">
-    📄
-  </button>
+  {# ✅ Indicadores rápidos - diretamente na div pai #}
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">📊 Indicadores Rápidos</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {% include 'relatorios/partials/cards_dashboard.html' %}
+  </div>
+
+  {# ✅ Indicadores adicionais #}
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">📋 Indicadores Detalhados</h2>
+  {% include 'relatorios/partials/_indicadores_adicionais.html' %}
+
+  {# ✅ Gráficos analíticos #}
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">📈 Gráficos Analíticos</h2>
   
 
-  {# 📄 Modal de Exportação #}
-  {% include 'relatorios/partials/modal_exportar.html' %}
+    {% include 'relatorios/partials/graficos_dashboard.html' %}
+  
 
-  {# 🧮 Indicadores em Cards #}
-  {% include 'relatorios/partials/cards_dashboard.html' %}
-
-  {# 📊 Gráficos Dinâmicos #}
-  {% include 'relatorios/partials/graficos_dashboard.html' %}
-
-  {# 📅 Tabela Intervalos #}
+  {# ✅ Intervalos de consultas #}
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">📅 Intervalos de Consultas</h2>
   {% include 'relatorios/partials/tabela_intervalo_consultas.html' %}
 
-  {# 🧠 Percepção de Saúde #}
+  {# ✅ Percepção de saúde #}
+  <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">🧠 Percepção de Saúde</h2>
   {% include 'relatorios/partials/percepcao_saude.html' %}
+
+  {# ✅ Modal exportação #}
+  {% include 'relatorios/partials/modal_exportar.html' %}
+
 </div>
 
-{# ✅ Aqui embaixo SÓ UMA VEZ o dashboard.js #}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
+
 {% endblock %}

@@ -1,10 +1,169 @@
+{% load widget_tweaks %}
+
+
+<section id="plano-atuacao" class="card shadow p-4 mb-4 rounded">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="section-title mb-0 text-primary">📌 Planos de Atuação</h5>
+    <button class="btn btn-sm btn-outline-success" onclick="toggleForm('formPlano')" title="Adicionar novo plano">
+      ➕ Novo Plano
+    </button>
+  </div>
+
+  <div id="formPlano" class="mb-3 d-none">
+    <form method="POST" id="formPlanoForm" action="{% url 'adicionar_plano_atuacao' %}">
+      {% csrf_token %}
+      <input type="hidden" name="consulta_id" value="{{ consulta.id }}">
+      <div class="row">
+        {% for field in plano_form %}
+        <div class="col-md-6 mb-3 {% if field.name in 'problema_saude medicamento relato_anamnese avaliacao' %}campo-relacao{% endif %}" 
+             data-relacao="{{ field.name }}">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-success btn-sm">💾 Salvar Plano</button>
+      </div>
+    </form>
+  </div>
+
+  {% if planos %}
+  {% for plano in planos %}
+  <div class="card shadow-sm border-start border-primary mb-3">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h6 class="text-primary mb-2">
+            {% if plano.avaliacao %}
+              📝 Avaliação: {{ plano.avaliacao }}
+              {% if plano.avaliacao.medicamento %}
+                | 💊 {{ plano.avaliacao.medicamento.nome }}
+                {% if plano.avaliacao.medicamento.problema_saude %}
+                  | 🩺 {{ plano.avaliacao.medicamento.problema_saude.problema }}
+                {% endif %}
+              {% endif %}
+            
+            {% elif plano.medicamento %}
+              💊 {{ plano.medicamento.nome }}
+              {% if plano.medicamento.problema_saude %}
+                | 🩺 {{ plano.medicamento.problema_saude.problema }}
+              {% endif %}
+            
+            {% elif plano.problema_saude %}
+              🩺 {{ plano.problema_saude.problema }}
+            
+            {% elif plano.relato_anamnese %}
+              📝 Relato: {{ plano.relato_anamnese|truncatechars:50 }}
+            
+            {% else %}
+              ℹ️ Nenhuma informação vinculada.
+            {% endif %}
+          </h6>
+          
+
+          <ul class="list-unstyled">
+            <li><strong>🎯 Objetivos:</strong> {{ plano.objetivos|default:"—" }}</li>
+            <li><strong>🏷️ Prioridade:</strong> {{ plano.get_prioridade_display|default:"—" }}</li>
+            <li><strong>🛠️ Intervenção:</strong> {{ plano.get_registro_intervencao_display|default:"—" }}</li>
+            <li><strong>📚 Classificação:</strong> {{ plano.get_classificacao_intervencao_display|default:"—" }}</li>
+            <li><strong>📝 Descrição:</strong> {{ plano.descricao_planejamento|default:"—" }}</li>
+            <li><strong>📅 Data da Intervenção:</strong> {{ plano.data_intervencao|date:"Y-m-d"|default:"—" }}</li>
+          </ul>
+        </div>
+
+        <div class="col-md-6 border-start ps-4">
+          <h6 class="text-primary mb-2">🔁 Acompanhamento</h6>
+          <ul class="list-unstyled">
+            <li><strong>✅ Alcançado:</strong> {{ plano.alcancado|yesno:"Sim,Não,—" }}</li>
+            <li><strong>📆 Data:</strong> {{ plano.data_alcancado|date:"d/m/Y"|default:"—" }}</li>
+            <li><strong>📌 Resultado:</strong> {{ plano.resultado|default:"—" }}</li>
+            <li><strong>🧩 RNM Resolvido:</strong> {{ plano.rnm_resolvido|yesno:"Sim,Não,—" }}</li>
+            <li><strong>📝 O que aconteceu:</strong> {{ plano.o_que_aconteceu|default:"—" }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-md-6 d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="preencherFormularioPlano(this)"
+            data-id="{{ plano.id }}"
+            data-avaliacao="{{ plano.avaliacao.id|default_if_none:'' }}"
+            data-objetivos="{{ plano.objetivos }}"
+            data-prioridade="{{ plano.prioridade }}"
+            data-registro="{{ plano.registro_intervencao }}"
+            data-classificacao="{{ plano.classificacao_intervencao }}"
+            data-descricao="{{ plano.descricao_planejamento }}"
+            data-data="{{ plano.data_intervencao|date:'Y-m-d' }}">
+            ✏️ Editar Plano
+          </button>
+
+          <form method="POST" action="{% url 'excluir_objeto' 'plano' plano.id %}"
+            onsubmit="return confirm('Tem certeza que deseja excluir este plano?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">🗑️</button>
+          </form>
+        </div>
+
+        <div class="col-md-6 text-end">
+          <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleAcompanhamento('{{ plano.id }}')">
+            ✏️ Editar Acompanhamento
+          </button>
+        </div>
+      </div>
+
+      <form method="POST" id="formAcompanhamento{{ plano.id }}" action="{% url 'atualizar_acompanhamento' plano.id %}"
+        class="bg-light p-3 rounded d-none mt-3">
+        {% csrf_token %}
+        <div class="row">
+          {% for field in plano.acompanhamento_form %}
+          <div class="col-md-6 mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="text-end">
+          <button type="submit" class="btn btn-success btn-sm">💾 Salvar Acompanhamento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="text-muted">Nenhum plano registrado para esta consulta.</p>
+  {% endif %}
+</section>
+
 <script>
-  function toggleForm(id) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.classList.toggle('d-none');
-    }
-  }
+  document.getElementById('id_tipo_relacao').addEventListener('change', function () {
+    const selected = this.value;
+
+    document.querySelectorAll('.campo-relacao').forEach(function (field) {
+      if (field.dataset.relacao === selected) {
+        field.closest('.mb-3').classList.remove('d-none');
+      } else {
+        field.closest('.mb-3').classList.add('d-none');
+      }
+    });
+  });
+
+  window.addEventListener('load', function () {
+    const selected = document.getElementById('id_tipo_relacao').value;
+    document.querySelectorAll('.campo-relacao').forEach(function (field) {
+      if (field.dataset.relacao === selected) {
+        field.closest('.mb-3').classList.remove('d-none');
+      } else {
+        field.closest('.mb-3').classList.add('d-none');
+      }
+    });
+  });
 
   function preencherFormularioPlano(btn) {
     const formDiv = document.getElementById('formPlano');
@@ -22,125 +181,8 @@
     form.action = `/consulta/editar/plano/${btn.dataset.id}/`;
   }
 
-  function toggleAcompanhamento(btn) {
-    const planoId = btn.dataset.id;
+  function toggleAcompanhamento(planoId) {
     const form = document.getElementById(`formAcompanhamento${planoId}`);
-    if (form) {
-      form.classList.toggle('d-none');
-
-      document.getElementById(`id_alcancado_${planoId}`).checked = (btn.dataset.alcancado === 'True');
-      document.getElementById(`id_data_alcancado_${planoId}`).value = btn.dataset.data;
-      document.getElementById(`id_resultado_${planoId}`).value = btn.dataset.resultado;
-      document.getElementById(`id_rnm_resolvido_${planoId}`).checked = (btn.dataset.rnm === 'True');
-      document.getElementById(`id_o_que_aconteceu_${planoId}`).value = btn.dataset.oque;
-    }
+    form.classList.toggle('d-none');
   }
-
 </script>
-
-<section id="plano-atuacao" class="card section-card shadow-sm p-4 mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="section-title mb-0 text-primary">📌 Planos de Atuação</h5>
-    <button class="btn btn-sm btn-outline-success" onclick="toggleForm('formPlano')" title="Adicionar novo plano">
-      ➕ Novo Plano
-    </button>
-  </div>
-
-  <div id="formPlano" class="mb-3 d-none">
-    <form method="POST" id="formPlanoForm" action="{% url 'adicionar_plano_atuacao' %}">
-      <input type="hidden" name="plano_id" id="plano_id" value="">
-      {% csrf_token %}
-      <div class="row">
-        {% for field in plano_form %}
-        <div class="col-md-6 mb-3">
-          <label class="form-label">{{ field.label }}</label>
-          {{ field }}
-          {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-        </div>
-        {% endfor %}
-      </div>
-      <div class="text-end">
-        <button type="submit" class="btn btn-success btn-sm">💾 Salvar Plano</button>
-      </div>
-    </form>
-  </div>
-
-  {% if planos %}
-  {% for plano in planos %}
-  <div class="card shadow-sm border-start border-primary mb-3">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <h6 class="text-primary mb-2">💊 {{ plano.avaliacao.medicamento.nome }} | 🩺 {{ plano.avaliacao.medicamento.problema_saude.problema }}</h6>
-          <ul class="list-unstyled">
-            <li><strong>🎯 Objetivos:</strong> {{ plano.objetivos|default:"—" }}</li>
-            <li><strong>🏷️ Prioridade:</strong> {{ plano.get_prioridade_display|default:"—" }}</li>
-            <li><strong>🛠️ Intervenção:</strong> {{ plano.get_registro_intervencao_display|default:"—" }}</li>
-            <li><strong>📚 Classificação:</strong> {{ plano.get_classificacao_intervencao_display|default:"—" }}</li>
-            <li><strong>📝 Descrição:</strong> {{ plano.descricao_planejamento|default:"—" }}</li>
-            <li><strong>📅 Data da Intervenção:</strong> {{ plano.data_intervencao|date:"Y-m-d"|default:"—" }}</li>
-          </ul>
-        </div>
-        <div class="col-md-6 border-start ps-4">
-          <h6 class="text-primary mb-2">🔁 Acompanhamento</h6>
-          <ul class="list-unstyled">
-            <li><strong>✅ Alcançado:</strong> {% if plano.alcancado == True %}Sim{% elif plano.alcancado == False %}Não{% else %}—{% endif %}</li>
-            <li><strong>📆 Data:</strong> {{ plano.data_alcancado|date:"d/m/Y"|default:"—" }}</li>
-            <li><strong>📌 Resultado:</strong> {{ plano.resultado|default:"—" }}</li>
-            <li><strong>🧩 RNM Resolvido:</strong> {% if plano.rnm_resolvido == True %}Sim{% elif plano.rnm_resolvido == False %}Não{% else %}—{% endif %}</li>
-            <li><strong>📝 O que aconteceu:</strong> {{ plano.o_que_aconteceu|default:"—" }}</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="row mt-3">
-        <div class="col-md-6 d-flex gap-2">
-          <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="preencherFormularioPlano(this)"
-          data-id="{{ plano.id }}"
-          data-avaliacao="{{ plano.avaliacao.id }}"
-          data-objetivos="{{ plano.objetivos }}"
-          data-prioridade="{{ plano.prioridade }}"
-          data-registro="{{ plano.registro_intervencao }}"
-          data-classificacao="{{ plano.classificacao_intervencao }}"
-          data-descricao="{{ plano.descricao_planejamento }}"
-          data-data="{{ plano.data_intervencao|date:'Y-m-d' }}">
-          ✏️ Editar Plano
-        </button>
-        
-          <form method="POST" action="{% url 'excluir_objeto' 'plano' plano.id %}" onsubmit="return confirm('Tem certeza que deseja excluir este plano?');">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger btn-sm">🗑️</button>
-          </form>
-        </div>
-        <div class="col-md-6 text-end">
-          <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleAcompanhamento(this)"
-            data-id="{{ plano.id }}" data-alcancado="{{ plano.alcancado }}"
-            data-data="{{ plano.data_alcancado|date:'Y-m-d' }}" data-resultado="{{ plano.resultado }}"
-            data-rnm="{{ plano.rnm_resolvido }}" data-oque="{{ plano.o_que_aconteceu }}">
-            ✏️ Editar Acompanhamento
-          </button>
-        </div>
-      </div>
-
-      <form method="POST" id="formAcompanhamento{{ plano.id }}" action="{% url 'atualizar_acompanhamento' plano.id %}" class="bg-light p-3 rounded d-none mt-3">
-        {% csrf_token %}
-        <div class="row">
-          {% for field in plano.acompanhamento_form %}
-          <div class="col-md-6 mb-3">
-            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-          </div>
-          {% endfor %}
-        </div>
-        <div class="text-end">
-          <button type="submit" class="btn btn-success btn-sm">💾 Salvar Acompanhamento</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  {% endfor %}
-  {% else %}
-  <p class="text-muted">Nenhum plano registrado para esta consulta.</p>
-  {% endif %}
-</section>

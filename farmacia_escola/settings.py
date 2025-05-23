@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'relatorios',
     'django_extensions',
     'login',
+    'widget_tweaks',
 ]
 
 

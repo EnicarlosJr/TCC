@@ -2,39 +2,43 @@
   <div class="card-body">
 
 
-    {% if problemas_com_medicamentos %}
+    {% if medicamentos %}
     <div class="row">
-      {% for item in problemas_com_medicamentos %}
+      {% for medicamento in medicamentos %}
       <div class="col-12 mb-4">
         <div class="card shadow-sm border-primary">
-          <div class="card-header bg-primary text-white">
-            <strong>🩺 Problema:</strong> {{ item.problema.problema }} |
-            <strong>📅 Início:</strong> {{ item.problema.inicio }} |
-            <strong>✅ Controlado:</strong> {{ item.problema.controlado|yesno:"Sim,Não" }} |
-            <strong>⚠️ Preocupa:</strong> {{ item.problema.preocupa|yesno:"Sim,Não" }}
+          <div class="card-header {% if medicamento.problema_saude %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}">
+            {% if medicamento.problema_saude %}
+              <strong>🩺 Problema:</strong> {{ medicamento.problema_saude.problema }} |
+              <strong>📅 Início:</strong> {{ medicamento.problema_saude.inicio }} |
+              <strong>✅ Controlado:</strong> {{ medicamento.problema_saude.controlado|yesno:"Sim,Não" }} |
+              <strong>⚠️ Preocupa:</strong> {{ medicamento.problema_saude.preocupa|yesno:"Sim,Não" }}
+            {% else %}
+              <strong>🚫 Sem Problema de Saúde Relacionado</strong>
+            {% endif %}
           </div>
           <div class="card-body table-responsive">
-            {% if item.medicamentos %}
             <table class="table table-bordered table-hover align-middle text-center">
               <thead class="table-light sticky-top">
                 <tr>
-                  <th class="bg-white">💊 Medicamento</th>
-                  <th class="bg-white">Classe</th>
-                  <th class="bg-white">Desde</th>
-                  <th class="bg-white">Posologia Prescrita</th>
-                  <th class="bg-white">Posologia Utilizada</th>
-                  <th class="bg-white">Necessidade</th>
-                  <th class="bg-white">Efetividade</th>
-                  <th class="bg-white">Segurança</th>
-                  <th class="bg-white">RNM 1</th>
-                  <th class="bg-white">RNM 2</th>
-                  <th class="bg-white">Situação</th>
-                  <th class="bg-white">Causa</th>
-                  <th class="bg-white">Ação</th>
+                  <th>💊 Medicamento</th>
+                  <th>Classe</th>
+                  <th>Desde</th>
+                  <th>Posologia Prescrita</th>
+                  <th>Posologia Utilizada</th>
+                  <th>Necessidade</th>
+                  <th>Efetividade</th>
+                  <th>Segurança</th>
+                  <th>RNM 1</th>
+                  <th>RNM 2</th>
+                  <th>Situação</th>
+                  <th>Causa</th>
+                  <th>Parâmetro</th>
+                  <th>Resultado do Parâmetro</th>
+                  <th>Ação</th>
                 </tr>
               </thead>
               <tbody>
-                {% for medicamento in item.medicamentos %}
                 <tr>
                   <form method="POST" action="{% url 'consulta_adicionar_avaliacao' %}" style="display: contents;">
                     {% csrf_token %}
@@ -87,23 +91,29 @@
                       <textarea name="causa_rnm" class="form-control form-control-sm" rows="1" required>{{ medicamento.avaliacao.causa_rnm }}</textarea>
                     </td>
                     <td>
+                      <select name="parametro" class="form-select form-select-sm">
+                        {% for val, label in avaliacao_form.fields.parametro.choices %}
+                        <option value="{{ val }}" {% if medicamento.avaliacao and medicamento.avaliacao.parametro == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                    <td>
+                      <textarea name="resultado_do_parametro" class="form-control form-control-sm" rows="1">{{ medicamento.avaliacao.resultado_do_parametro }}</textarea>
+                    </td>
+                    <td>
                       <button type="submit" class="btn btn-sm btn-success">💾</button>
                     </td>
                   </form>
                 </tr>
-                {% endfor %}
               </tbody>
             </table>
-            {% else %}
-            <p class="text-muted">Nenhum medicamento relacionado a esse problema.</p>
-            {% endif %}
           </div>
         </div>
       </div>
       {% endfor %}
     </div>
     {% else %}
-    <p class="text-muted">Nenhuma avaliação cadastrada ainda.</p>
+    <p class="text-muted">Nenhum medicamento cadastrado ainda.</p>
     {% endif %}
   </div>
 </section>
@@ -115,4 +125,3 @@
     <div id="avaliacoes-fullscreen-clone"></div>
   </div>
 </div>
-

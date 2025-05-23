@@ -20,6 +20,26 @@
     document.getElementById('id_problema_saude').value = btn.dataset.problema;
 
     form.action = `/consulta/editar/medicamento/${btn.dataset.id}/`;
+
+    document.getElementById('sem_medicamento').checked = false;
+    toggleSemMedicamento(false);
+  }
+
+  function toggleSemMedicamento(checked) {
+    const campos = ['id_nome', 'id_desde', 'id_classe', 'id_posologia_prescrita', 'id_posologia_utilizada', 'id_entendimento_paciente', 'id_problema_saude'];
+    campos.forEach(function(id) {
+      const campo = document.getElementById(id);
+      if (checked) {
+        if (campo.tagName === 'SELECT') {
+          campo.selectedIndex = 0;
+        } else {
+          campo.value = 'N/A';
+        }
+        campo.disabled = true;
+      } else {
+        campo.disabled = false;
+      }
+    });
   }
 </script>
 
@@ -34,6 +54,14 @@
     <div id="formMedicamento" class="mb-3 d-none">
       <form id="formMedicamentoForm" method="POST" action="{% url 'consulta_adicionar_medicamento' consulta.id %}">
         {% csrf_token %}
+
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="sem_medicamento" name="sem_medicamento" onchange="toggleSemMedicamento(this.checked)">
+          <label class="form-check-label" for="sem_medicamento">
+            Sem Medicamento
+          </label>
+        </div>
+
         <div class="row">
           {% for field in medicamento_form %}
           <div class="col-md-6 mb-3">
@@ -45,6 +73,7 @@
           </div>
           {% endfor %}
         </div>
+
         <div class="text-end">
           <button type="submit" class="btn btn-success">💾 Salvar Medicamento</button>
         </div>

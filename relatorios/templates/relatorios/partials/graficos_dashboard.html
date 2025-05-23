@@ -1,48 +1,186 @@
-<!-- 🎯 Gráficos Dashboard -->
-<section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+{% load static %}
+
+<section class="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
 
   <!-- Faixa Etária -->
-  <div class="bg-white p-6 rounded-2xl shadow-xl">
+  <div class="grafico-card w-full h-full">
     <h3 class="text-lg font-semibold text-gray-700 mb-3">👶 Faixa Etária</h3>
-    <canvas
-      id="graficoFaixaEtaria"
-      class="rounded-lg w-full"
-      data-labels='{{ labels_faixa|safe }}'
-      data-values='{{ valores_faixa|safe }}'>
+    <canvas id="graficoFaixaEtaria" data-labels='{{ labels_faixa|safe }}' data-values='{{ valores_faixa|safe }}'>
     </canvas>
   </div>
 
   <!-- Gênero -->
-  <div class="bg-white p-6 rounded-2xl shadow-xl">
+  <div class="grafico-card w-full h-full">
     <h3 class="text-lg font-semibold text-gray-700 mb-3">🧍 Gênero</h3>
-    <canvas
-      id="graficoGenero"
-      class="rounded-lg w-full"
-      data-labels='{{ labels_genero|safe }}'
-      data-values='{{ valores_genero|safe }}'>
+    <canvas id="graficoGenero" data-labels='{{ labels_genero|safe }}' data-values='{{ valores_genero|safe }}'>
     </canvas>
   </div>
 
   <!-- Doenças -->
-  <div class="bg-white p-6 rounded-2xl shadow-xl">
-    <h3 class="text-lg font-semibold text-gray-700 mb-3">🦠 Top 10 Doenças</h3>
-    <canvas
-      id="graficoDoencas"
-      class="rounded-lg w-full"
-      data-labels='{{ labels_doenca|safe }}'
-      data-values='{{ valores_doenca|safe }}'>
+  <section class="w-full max-w-7xl mx-auto space-y-12">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-700 mb-3 text-center">🩺⚕️ Comparativo Top 10 Doenças - Anamnese vs
+        Consultas</h3>
+      <div class="grafico-card">
+        <canvas id="graficoComparativoDoencas" class="rounded-lg w-full h-80"
+          data-labels-anamnese='{{ labels_doenca_paciente|safe }}'
+          data-values-anamnese='{{ valores_doenca_paciente|safe }}'
+          data-labels-consulta='{{ labels_problema_consulta|safe }}'
+          data-values-consulta='{{ valores_problema_consulta|safe }}'>
+        </canvas>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- Intervenções -->
+  <div class="grafico-card w-full h-full">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Intervenções</h3>
+    <canvas id="graficoIntervencao" data-labels='{{ labels_inter|safe }}' data-values='{{ valores_inter|safe }}'>
     </canvas>
   </div>
 
-  <!-- Intervenções -->
-  <div class="bg-white p-6 rounded-2xl shadow-xl">
-    <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Intervenções</h3>
-    <canvas
-      id="graficoIntervencao"
-      class="rounded-lg w-full"
-      data-labels='{{ labels_inter|safe }}'
-      data-values='{{ valores_inter|safe }}'>
+  <!-- Doenças - Anamnese -->
+  <div class="grafico-card w-full h-full">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">🩺 Doenças - Anamnese</h3>
+    <canvas id="graficoDoencaPaciente" data-labels='{{ labels_doenca_paciente|safe }}'
+      data-values='{{ valores_doenca_paciente|safe }}'>
+    </canvas>
+  </div>
+
+  <!-- Medicamentos - Anamnese -->
+  <div class="grafico-card w-full h-full">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">💊 Medicamentos - Anamnese</h3>
+    <canvas id="graficoMedicamentoPaciente" data-labels='{{ labels_medicamento_paciente|safe }}'
+      data-values='{{ valores_medicamento_paciente|safe }}'>
+    </canvas>
+  </div>
+
+  <!-- Problemas - Consultas -->
+  <div class="grafico-card w-full h-full">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">⚠️ Problemas - Consultas</h3>
+    <canvas id="graficoProblemaConsulta" data-labels='{{ labels_problema_consulta|safe }}'
+      data-values='{{ valores_problema_consulta|safe }}'>
+    </canvas>
+  </div>
+
+  <!-- Medicamentos - Consultas -->
+  <div class="grafico-card w-full h-full">
+    <h3 class="text-lg font-semibold text-gray-700 mb-3">💊 Medicamentos - Consultas</h3>
+    <canvas id="graficoMedicamentoConsulta" data-labels='{{ labels_medicamento_consulta|safe }}'
+      data-values='{{ valores_medicamento_consulta|safe }}'>
     </canvas>
   </div>
 
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function initChart(canvasId) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    const labels = JSON.parse(ctx.dataset.labels || '[]');
+    const values = JSON.parse(ctx.dataset.values || '[]');
+
+    if (!labels.length || !values.length) {
+      console.warn(`Gráfico ${canvasId} sem dados.`);
+      return;
+    }
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: ctx.previousElementSibling.innerText,
+          data: values,
+          backgroundColor: 'rgba(59, 130, 246, 0.5)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  const graficos = [
+    'graficoFaixaEtaria',
+    'graficoGenero',
+    'graficoDoencas',
+    'graficoIntervencao',
+    'graficoDoencaPaciente',
+    'graficoMedicamentoPaciente',
+    'graficoProblemaConsulta',
+    'graficoMedicamentoConsulta'
+  ];
+
+  graficos.forEach(initChart);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  function initComparativoDoencas() {
+    const ctx = document.getElementById('graficoComparativoDoencas');
+    if (!ctx) return;
+
+    const labelsAnamnese = JSON.parse(ctx.dataset.labelsAnamnese || '[]');
+    const valuesAnamnese = JSON.parse(ctx.dataset.valuesAnamnese || '[]');
+    const labelsConsulta = JSON.parse(ctx.dataset.labelsConsulta || '[]');
+    const valuesConsulta = JSON.parse(ctx.dataset.valuesConsulta || '[]');
+
+    // União de todos os labels únicos
+    const allLabels = Array.from(new Set([...labelsAnamnese, ...labelsConsulta]));
+
+    const datasetAnamnese = allLabels.map(label => {
+      const idx = labelsAnamnese.indexOf(label);
+      return idx !== -1 ? valuesAnamnese[idx] : 0;
+    });
+
+    const datasetConsulta = allLabels.map(label => {
+      const idx = labelsConsulta.indexOf(label);
+      return idx !== -1 ? valuesConsulta[idx] : 0;
+    });
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: allLabels,
+        datasets: [
+          {
+            label: 'Anamnese',
+            data: datasetAnamnese,
+            backgroundColor: 'rgba(59, 130, 246, 0.7)' // Azul
+          },
+          {
+            label: 'Consulta',
+            data: datasetConsulta,
+            backgroundColor: 'rgba(239, 68, 68, 0.7)' // Vermelho
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          x: { stacked: false },
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  initComparativoDoencas();
+</script>

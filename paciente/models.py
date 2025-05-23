@@ -125,8 +125,18 @@ class HistoriaSocial(models.Model):
             ('sim', 'Sim'), ('nao', 'Não'), ('parou', 'Fumava, mas parou'), ('fumante_passivo', 'Fumante passivo'), ('outro', 'Outro')
         ]
     )
-    tempo_parou = models.IntegerField(null=True, blank=True)
-    tempo_fumou = models.IntegerField(null=True, blank=True)
+    TEMPO_CHOICES = [
+        ("<1M", "Menos de 1 mês"),
+        ("1-3M", "De 1 a 3 meses"),
+        ("3-6M", "De 3 a 6 meses"),
+        ("6M-1A", "De 6 meses a 1 ano"),
+        ("1-3A", "De 1 a 3 anos"),
+        ("3-5A", "De 3 a 5 anos"),
+        ("5-10A", "De 5 a 10 anos"),
+        (">10A", "Mais de 10 anos"),
+    ]
+    tempo_parou = models.CharField(max_length=10, choices=TEMPO_CHOICES, null=True, blank=True)
+    tempo_fumou = models.CharField(max_length=10, choices=TEMPO_CHOICES, null=True, blank=True)
     pratica_atividade_fisica = models.BooleanField(default=False)
     atividades_fisicas = models.CharField(max_length=20, blank=True)
     frequencia_atividade = models.CharField(max_length=20, blank=True)
@@ -322,6 +332,16 @@ class Saude(models.Model):
         ('sono', 'Sono'),
         ('outro', 'Outro'),
     ]
+    TEMPO_CHOICES = [
+        ("<1M", "Menos de 1 mês"),
+        ("1-3M", "De 1 a 3 meses"),
+        ("3-6M", "De 3 a 6 meses"),
+        ("6M-1A", "De 6 meses a 1 ano"),
+        ("1-3A", "De 1 a 3 anos"),
+        ("3-5A", "De 3 a 5 anos"),
+        ("5-10A", "De 5 a 10 anos"),
+        (">10A", "Mais de 10 anos"),
+    ]
     incomodo = models.CharField(
         max_length=100,
         choices=INCOMODOS_CHOICES,
@@ -334,11 +354,7 @@ class Saude(models.Model):
         blank=True,
         null=True
     )
-    ultima_visita_dentista = models.DateField(
-        verbose_name='Última vez que foi ao dentista',
-        blank=True,
-        null=True
-    )
+    ultima_visita_dentista= models.CharField(max_length=10, choices=TEMPO_CHOICES, null=True, blank=True)
     percepcao_saude = models.IntegerField(
         verbose_name='PERCEPÇÃO GERAL DA SAÚDE (0-10)',
         choices=[(i, str(i)) for i in range(11)],

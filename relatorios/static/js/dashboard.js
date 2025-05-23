@@ -32,6 +32,45 @@ function toggleFiltros() {
   }
 }
 
+// 🎯 Função para criar gráficos dinamicamente
+function criarGrafico(canvas, config) {
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const labels = JSON.parse(canvas.dataset.labels || '[]');
+  const values = JSON.parse(canvas.dataset.values || '[]');
+
+  if (!labels.length || !values.length) {
+    console.warn(`Gráfico ${canvas.id} sem dados.`);
+    canvas.insertAdjacentHTML('afterend', '<p class="text-gray-400 text-sm text-center">⚠️ Sem dados para exibir.</p>');
+    canvas.style.display = 'none';
+    return;
+  }
+
+  new Chart(ctx, {
+    type: config.type,
+    data: {
+      labels: labels,
+      datasets: [{
+        label: config.label,
+        data: values,
+        backgroundColor: config.backgroundColor,
+        borderColor: config.borderColor || config.backgroundColor,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 1500 },
+      plugins: {
+        legend: { display: config.type === 'pie' },
+        tooltip: { enabled: true }
+      },
+      scales: config.type === 'bar' ? { y: { beginAtZero: true } } : {}
+    }
+  });
+}
+
 // 🎯 Configuração dos Gráficos Chart.js
 window.addEventListener('DOMContentLoaded', function () {
   const configs = [
@@ -39,8 +78,7 @@ window.addEventListener('DOMContentLoaded', function () {
       id: 'graficoFaixaEtaria',
       type: 'bar',
       label: 'Pacientes',
-      backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      borderColor: 'rgba(54, 162, 235, 1)'
+      backgroundColor: 'rgba(54, 162, 235, 0.6)'
     },
     {
       id: 'graficoGenero',
@@ -52,48 +90,43 @@ window.addEventListener('DOMContentLoaded', function () {
       id: 'graficoDoencas',
       type: 'bar',
       label: 'Doenças',
-      backgroundColor: 'rgba(255, 159, 64, 0.6)',
-      borderColor: 'rgba(255, 159, 64, 1)'
+      backgroundColor: 'rgba(255, 159, 64, 0.6)'
     },
     {
       id: 'graficoIntervencao',
       type: 'bar',
       label: 'Intervenções',
-      backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      borderColor: 'rgba(75, 192, 192, 1)'
+      backgroundColor: 'rgba(75, 192, 192, 0.6)'
+    },
+    {
+      id: 'graficoDoencaPaciente',
+      type: 'bar',
+      label: 'Doenças - Anamnese',
+      backgroundColor: 'rgba(153, 102, 255, 0.6)'
+    },
+    {
+      id: 'graficoMedicamentoPaciente',
+      type: 'bar',
+      label: 'Medicamentos - Anamnese',
+      backgroundColor: 'rgba(255, 99, 132, 0.6)'
+    },
+    {
+      id: 'graficoProblemaConsulta',
+      type: 'bar',
+      label: 'Problemas - Consulta',
+      backgroundColor: 'rgba(255, 206, 86, 0.6)'
+    },
+    {
+      id: 'graficoMedicamentoConsulta',
+      type: 'bar',
+      label: 'Medicamentos - Consulta',
+      backgroundColor: 'rgba(75, 192, 192, 0.6)'
     }
   ];
- 
-  configs.forEach(({ id, type, label, backgroundColor, borderColor }) => {
-    const el = document.getElementById(id);
-    if (!el) return;
 
-    const ctx = el.getContext('2d');
-    const labels = JSON.parse(el.dataset.labels || '[]');
-    const values = JSON.parse(el.dataset.values || '[]');
-
-    new Chart(ctx, {
-      type: type,
-      data: {
-        labels: labels,
-        datasets: [{
-          label: label,
-          data: values,
-          backgroundColor: backgroundColor,
-          borderColor: borderColor,
-          borderWidth: 1
-        }]
-      },
-      options: {
-        animation: { duration: 1500 },
-        responsive: true,
-        plugins: {
-          legend: { display: type === 'pie' },
-          datalabels: { display: false }
-        },
-        scales: type === 'bar' ? { y: { beginAtZero: true } } : {}
-      }
-    });
+  configs.forEach(config => {
+    const canvas = document.getElementById(config.id);
+    criarGrafico(canvas, config);
   });
 });
 
@@ -111,4 +144,5 @@ function atualizarContador() {
     }
   }
 }
+
 
