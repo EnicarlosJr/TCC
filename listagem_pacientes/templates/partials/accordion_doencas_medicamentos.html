@@ -1,37 +1,62 @@
 <div class="card expand-card collapsed">
   <div class="card-header" onclick="toggleCard(this.closest('.expand-card'))">
-    <i class="fa fa-stethoscope"></i> Doenças e Medicamentos <i class="fa fa-arrow-down float-end"></i>
+    <i class="fa fa-utensils"></i> Doenças e Medicamentos <i class="fa fa-arrow-down float-end"></i>
   </div>
   <div class="card-body">
     {% if anamnese.medicamentos_doenca.exists %}
       {% regroup anamnese.medicamentos_doenca.all by doenca as doencas_agrupadas %}
-      <ul class="info-value">
+      
+      <div class="space-y-3">
         {% for grupo in doencas_agrupadas %}
-          <li><strong>{{ grupo.grouper.nome }}</strong>
-            <ul>
+          <div class="border rounded shadow-sm p-3">
+            {% if grupo.grouper %}
+              <h6 class="text-primary mb-2">
+                🩺 <strong>{{ grupo.grouper.nome }}</strong>
+              </h6>
+            {% else %}
+              <h6 class="text-secondary mb-2">
+                🚫 <strong>Sem Doença Relacionada</strong>
+              </h6>
+            {% endif %}
+
+            <ul class="list-group">
               {% for item in grupo.list %}
-                <li>
-                  {{ item.medicamento.nome }}
+                <li class="list-group-item">
+                  {% if item.medicamento %}
+                    💊 <strong>{{ item.medicamento.nome }}</strong>
+                  {% else %}
+                    ❗ <em>Sem Medicamento Relacionado</em>
+                  {% endif %}
+
                   {% if item.observacao %}
-                    <br><small><strong>Obs:</strong> {{ item.observacao }}</small>
+                    <br>
+                    <small class="text-muted">📝 <strong>Obs:</strong> {{ item.observacao }}</small>
                   {% endif %}
                 </li>
               {% endfor %}
             </ul>
-          </li>
+          </div>
         {% endfor %}
-      </ul>
-      <div class="mt-3">
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
         <form method="post" action="{% url 'excluir_anamnese_bloco' anamnese.id 'doencas_medicamentos' %}" style="display:inline;">
           {% csrf_token %}
           <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Deseja realmente excluir?')">
             🗑️ Excluir
           </button>
         </form>
-        <a href="{% url 'associar_doencas_medicamentos' anamnese.id %}" class="btn btn-sm btn-warning">✏️ Editar</a>
+        <a href="{% url 'associar_doencas_medicamentos' anamnese.id %}" class="btn btn-sm btn-warning">
+          ✏️ Editar
+        </a>
       </div>
+
     {% else %}
-      <p>Não preenchido. <a href="{% url 'associar_doencas_medicamentos' anamnese.id %}" class="create-button">Associar</a></p>
+      <p class="text-muted">Não preenchido.
+        <a href="{% url 'associar_doencas_medicamentos' anamnese.id %}" class="btn btn-sm btn-outline-primary ms-2">
+          ➕ Cadastrar
+        </a>
+      </p>
     {% endif %}
   </div>
 </div>

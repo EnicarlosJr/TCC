@@ -1,2 +1,3 @@
 #ignore AV
 env/
+media/exames_consulta/*.json

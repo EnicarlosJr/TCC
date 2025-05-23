@@ -89,12 +89,15 @@ class Anamnese(models.Model):
 class MedicamentoDoencaPaciente(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="medicamentos_doenca_paciente")
     anamnese = models.ForeignKey(Anamnese, on_delete=models.CASCADE, related_name="medicamentos_doenca")
-    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE)
-    doenca = models.ForeignKey(Doenca, on_delete=models.CASCADE)
+    
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE, null=True, blank=True)
+    doenca = models.ForeignKey(Doenca, on_delete=models.CASCADE, null=True, blank=True)
+    
     observacao = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.paciente.nome} - {self.medicamento.nome} - {self.doenca.nome}"
+        return f"{self.paciente.nome} - {self.medicamento.nome if self.medicamento else 'Sem Medicamento'} - {self.doenca.nome if self.doenca else 'Sem Doença'}"
+
 
 class HistoriaSocial(models.Model):
     anamnese = models.OneToOneField(Anamnese, on_delete=models.CASCADE, related_name='historia')

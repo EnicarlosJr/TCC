@@ -330,6 +330,19 @@ class MedicamentoDoencaPacienteForm(forms.ModelForm):
     medicamento = forms.ModelChoiceField(queryset=Medicamento.objects.all())
     observacao = forms.CharField(widget=forms.Textarea(attrs={'rows': 4, 'placeholder': 'Motivo ou explicação'}), required=False)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        doenca = cleaned_data.get("doenca")
+        medicamento = cleaned_data.get("medicamento")
+            
+        if not doenca and not medicamento:
+         raise forms.ValidationError("Informe ao menos uma Doença ou um Medicamento.")
+
+        return cleaned_data
+
+
+
+
 
 class AnamneseForm(forms.ModelForm):
     class Meta:

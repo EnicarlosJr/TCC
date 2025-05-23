@@ -1,11 +1,12 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from login.utils import log_atividade
 import paciente
-
+from django.core.exceptions import ObjectDoesNotExist
 
 
 from .models import  Anamnese, AutonomiaMedicamentos, Doenca, HabitosAlimentares, HistoriaSocial, Medicamento, MedicamentoDoencaPaciente, Paciente, PerfilClinico, Saude
@@ -128,46 +129,85 @@ def saude(request, anamnese_id):
 @log_atividade("Cadastrou doença e medicamentos")
 def associar_doencas_medicamentos(request, anamnese_id):
     anamnese = get_object_or_404(Anamnese, id=anamnese_id)
-    paciente = anamnese.paciente  # para exibir no template se quiser
+    paciente = anamnese.paciente  # pode ser usado no template
 
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
-            return redirect('paciente_detail', pk=anamnese.paciente.id)
+            return JsonResponse({'error': 'Dados JSON inválidos.'}, status=400)
 
+        # Doenças com medicamentos
         associacoes = data.get('associacoes', [])
-
-        if not associacoes:
-            return JsonResponse({'error': 'Nenhuma associação fornecida.'}, status=400)
 
         for associacao in associacoes:
             doenca_nome = associacao.get('doenca')
             medicamentos_nomes = associacao.get('medicamentos', [])
             observacao = associacao.get('observacao', '')
 
-            if not doenca_nome or not medicamentos_nomes:
-                return JsonResponse({'error': 'Nome da doença e medicamentos são obrigatórios.'}, status=400)
+            if not doenca_nome:
+                continue  # Se não tiver nome da doença, ignora
 
             doenca, _ = Doenca.objects.get_or_create(nome=doenca_nome)
 
-            for medicamento_nome in medicamentos_nomes:
-                medicamento, _ = Medicamento.objects.get_or_create(nome=medicamento_nome)
+            if medicamentos_nomes:
+                for medicamento_nome in medicamentos_nomes:
+                    medicamento, _ = Medicamento.objects.get_or_create(nome=medicamento_nome)
+
+                    obj, created = MedicamentoDoencaPaciente.objects.get_or_create(
+                        anamnese=anamnese,
+                        paciente=paciente,
+                        medicamento=medicamento,
+                        doenca=doenca
+                    )
+                    obj.observacao = observacao
+                    obj.save()
+            else:
+                # Doença sem medicamento
                 MedicamentoDoencaPaciente.objects.get_or_create(
                     anamnese=anamnese,
-                    medicamento=medicamento,
+                    paciente=paciente,
                     doenca=doenca,
+                    medicamento=None,  # Se quiser permitir null=True, senão precisa ajustar o modelo
+                    defaults={'observacao': observacao}
+                )
+
+        # Doenças isoladas
+        for doenca_nome in data.get('doencas_isoladas', []):
+            if doenca_nome:
+                doenca, _ = Doenca.objects.get_or_create(nome=doenca_nome)
+                MedicamentoDoencaPaciente.objects.get_or_create(
+                    anamnese=anamnese,
+                    paciente=paciente,
+                    doenca=doenca,
+                    medicamento=None
+                )
+
+        # Medicamentos isolados
+        for med in data.get('medicamentos_isolados', []):
+            nome = med.get('nome')
+            observacao = med.get('observacao', '')
+            if nome:
+                medicamento, _ = Medicamento.objects.get_or_create(nome=nome)
+                MedicamentoDoencaPaciente.objects.get_or_create(
+                    anamnese=anamnese,
+                    paciente=paciente,
+                    medicamento=medicamento,
+                    doenca=None,  # Se quiser permitir null=True, senão precisa ajustar o modelo
                     defaults={'observacao': observacao}
                 )
 
         return JsonResponse({
             'sucesso': True,
             'message': 'Associações salvas com sucesso.',
-            'redirect': f'/anamnese/{anamnese.id}/'
+            'redirect_url': reverse('paciente_detail', kwargs={'pk': paciente.id})
         })
 
-    elif request.method == 'GET':
-        return render(request, 'associar_doencas_medicamentos.html', {'anamnese': anamnese, 'paciente': paciente})
+    # GET
+    return render(request, 'associar_doencas_medicamentos.html', {
+        'anamnese': anamnese,
+        'paciente': paciente
+    })
 
 
 @login_required
@@ -233,9 +273,7 @@ def adicionar_doenca(request, paciente_id):
     if not nome:
         return JsonResponse({"erro": "Nome da doença é obrigatório."}, status=400)
 
-    doenca, _ = Doenca.objects.get_or_create(nome=nome)
-    paciente = get_object_or_404(Paciente, id=paciente_id)
-
+    doenca, created = Doenca.objects.get_or_create(nome=nome)
     return JsonResponse({"id": doenca.id, "nome": doenca.nome})
 
 @login_required
@@ -256,6 +294,7 @@ def detalhe_anamnese(request, anamnese_id):
 
 @login_required
 @log_atividade("Removeu um bloco da anamnese")
+@log_atividade("Removeu um bloco da anamnese")
 def excluir_anamnese_bloco(request, anamnese_id, bloco):
     anamnese = get_object_or_404(Anamnese, id=anamnese_id)
 
@@ -272,9 +311,11 @@ def excluir_anamnese_bloco(request, anamnese_id, bloco):
     if not attr:
         return redirect('paciente_detail', pk=anamnese.paciente.id)
 
-    objeto = getattr(anamnese, attr, None)
-    if objeto:
+    try:
+        objeto = getattr(anamnese, attr)
         objeto.delete()
+    except ObjectDoesNotExist:
+        pass  # Não existe, então ignora
 
     return redirect('paciente_detail', pk=anamnese.paciente.id)
 
@@ -329,22 +370,29 @@ def excluir_anamnese_bloco(request, anamnese_id, bloco):
         anamnese.delete()
         return redirect('paciente_detail', pk=paciente.id)
 
+    # Mapeamento dos blocos normais
     blocos = {
-        'historia': anamnese.historia,
-        'habitos': anamnese.habitos,
-        'perfil': anamnese.perfil,
-        'autonomia': anamnese.autonomia,
-        'saude': anamnese.saude,
-        'doencas_medicamentos': anamnese.medicamentos_doenca.all(),
+        'historia': 'historia',
+        'habitos': 'habitos',
+        'perfil': 'perfil',
+        'autonomia': 'autonomia',
+        'saude': 'saude',
     }
 
-    objeto = blocos.get(bloco)
-
-    if objeto:
-        if bloco == 'doencas_medicamentos':
+    if bloco == 'doencas_medicamentos':
+        # Exclui todos os medicamentos associados
+        anamnese.medicamentos_doenca.all().delete()
+    elif bloco in blocos:
+        attr = blocos[bloco]
+        try:
+            objeto = getattr(anamnese, attr)
             objeto.delete()
-        else:
-            objeto.delete()
+        except ObjectDoesNotExist:
+            # O bloco não existe, então nada a fazer
+            pass
+    else:
+        # Bloco inválido, opcional: retornar erro ou apenas redirecionar
+        pass
 
     return redirect('paciente_detail', pk=paciente.id)
 
