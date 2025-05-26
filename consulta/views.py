@@ -5,6 +5,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
+
+from login.utils import log_atividade
 from .models import Consulta, ProblemaSaude, Medicamento, Avaliacao, PlanoAtuacao
 from .forms import (
     ConsultaForm, PlanoAtuacaoAcompanhamentoForm, PlanoAtuacaoPlanejamentoForm, ProblemaSaudeForm, MedicamentoForm,
@@ -12,6 +14,8 @@ from .forms import (
 )
 from paciente.models import Paciente
 
+@login_required
+@log_atividade("Cadastrou um plano de cuidado!")
 # ✅ Criar nova consulta
 def create_consulta(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
@@ -26,7 +30,7 @@ def create_consulta(request, paciente_id):
         form = ConsultaForm()
     return render(request, 'create_consulta.html', {'form': form, 'paciente': paciente})
 
-
+@login_required
 # ✅ Listar todas as consultas de um paciente
 def listar_consultas(request, paciente_id):
     paciente = get_object_or_404(Paciente, id=paciente_id)
@@ -55,7 +59,7 @@ def listar_consultas(request, paciente_id):
         }
     })
 
-
+@login_required
 # ✅ Detalhe da consulta
 def detalhe_consulta(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
@@ -103,7 +107,8 @@ def detalhe_consulta(request, consulta_id):
     }
     return render(request, 'detalhe_consulta.html', context)
 
-
+@login_required
+@log_atividade("Cadastrou Problema de Saúde no plano de cuidado!")
 # ✅ Adicionar problema
 def adicionar_problema_saude(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
@@ -116,7 +121,8 @@ def adicionar_problema_saude(request, consulta_id):
             return redirect('consulta_detalhe_consulta', consulta_id=consulta.id)
     return render(request, 'adicionar_problema_saude.html', {'form': ProblemaSaudeForm(), 'consulta': consulta})
 
-
+@login_required
+@log_atividade("Cadastrou medicamento no plano de cuidado!")
 # ✅ Adicionar medicamento
 def adicionar_medicamento(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
@@ -147,7 +153,8 @@ def adicionar_medicamento(request, consulta_id):
         'form': form, 'consulta': consulta, 'problemas_saude': problemas_saude
     })
 
-
+@login_required
+@log_atividade("Cadastrou uma avaliação!")
 # ✅ Adicionar avaliação
 def adicionar_avaliacao(request):
     if request.method == 'POST':
@@ -167,7 +174,8 @@ def adicionar_avaliacao(request):
             messages.success(request, "Avaliação adicionada com sucesso.")
             return redirect('consulta_detalhe_consulta', consulta_id=medicamento.consulta.id)
 
-
+@login_required
+@log_atividade("Cadastrou uma intervenção!")
 # ✅ Adicionar plano de atuação
 def adicionar_plano_atuacao(request):
     if request.method == 'POST':
@@ -199,7 +207,8 @@ def adicionar_plano_atuacao(request):
 
     return redirect('consulta_listar_consultas', paciente_id=1)
 
-
+@login_required
+@log_atividade("Atualizou o acompanhamento!")
 # ✅ Atualizar acompanhamento
 def atualizar_acompanhamento(request, plano_id):
     plano = get_object_or_404(PlanoAtuacao, id=plano_id)
@@ -211,7 +220,7 @@ def atualizar_acompanhamento(request, plano_id):
             return redirect('consulta_detalhe_consulta', consulta_id=plano.consulta.id)
     return render(request, 'atualizar_acompanhamento.html', {'form': PlanoAtuacaoAcompanhamentoForm(instance=plano), 'plano': plano})
 
-
+@login_required
 # ✅ Visualizar consulta
 def visualizar_consulta(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)
@@ -235,7 +244,8 @@ def visualizar_consulta(request, consulta_id):
         'planos': planos
     })
 
-
+@login_required
+@log_atividade("Editou!")
 # ✅ Editar objeto
 def editar(request, model_name, obj_id):
     MODEL_MAP = {
@@ -267,6 +277,7 @@ def editar(request, model_name, obj_id):
 
 # ✅ Excluir objeto
 @login_required
+@log_atividade("Excluiu!")
 def excluir_objeto(request, model_name, object_id):
     DELETE_MODEL_MAP = {
         'problema': (ProblemaSaude, 'consulta_detalhe_consulta'),
@@ -289,7 +300,7 @@ def excluir_objeto(request, model_name, object_id):
 
     return redirect(redirect_view, consulta_id=consulta_id)
 
-
+@login_required
 # ✅ Avaliação em tela cheia
 def avaliacao_fullscreen(request, consulta_id):
     consulta = get_object_or_404(Consulta, id=consulta_id)

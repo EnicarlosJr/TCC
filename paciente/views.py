@@ -125,7 +125,6 @@ def saude(request, anamnese_id):
     return render(request, 'adicionar_saude.html', {'form': form, 'anamnese': anamnese})
 
 @login_required
-@login_required
 @log_atividade("Cadastrou doença e medicamentos")
 def associar_doencas_medicamentos(request, anamnese_id):
     anamnese = get_object_or_404(Anamnese, id=anamnese_id)

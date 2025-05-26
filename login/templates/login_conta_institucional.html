@@ -1,0 +1,9 @@
+<h2>Login Conta Institucional</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="containstitucional">Conta Institucional:</label>
+    <input type="text" name="containstitucional" required>
+    <label for="password">Senha:</label>
+    <input type="password" name="password" required>
+    <button type="submit">Entrar</button>
+</form>
