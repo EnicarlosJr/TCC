@@ -12,11 +12,14 @@ ENV = os.getenv('DJANGO_ENV', 'dev')
 
 # Caminho para o .env adequado
 env_file = BASE_DIR / f'.env.{ENV}'
+print("🔍 Arquivo .env carregado:", env_file)
+
 
 # Verifica se o arquivo existe
 if not env_file.exists():
     raise FileNotFoundError(f"Arquivo de configuração {env_file} não encontrado.")
 
+print(f"🔍 Arquivo .env carregado: {env_file}")
 # Carrega as variáveis do .env
 config = Config(RepositoryEnv(str(env_file)))
 
