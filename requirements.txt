@@ -16,7 +16,6 @@ pillow==11.1.0
 
 
 #dev example
--r requirements.txt
 django-sslserver==0.22
 Faker==37.1.0
 vulture==2.14

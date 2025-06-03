@@ -1,3 +1,33 @@
-#ignore AV
+# Ambientes virtuais
 env/
-media/exames_consulta/*.json
+venv/
+.env
+.venv
+
+# Arquivos de cache do Python
+__pycache__/
+*.py[cod]
+
+# Arquivos de banco de dados
+*.sqlite3
+*.db
+
+# Arquivos de log
+*.log
+
+# Arquivos de migração
+**/migrations/
+!**/migrations/__init__.py
+
+# Arquivos de configuração sensíveis
+.env
+.env.dev
+.env.docker
+
+# Pastas de mídia e estáticos gerados
+media/
+staticfiles/
+
+# Configurações de IDEs
+.vscode/
+.idea/
