@@ -2,8 +2,7 @@
 
 [![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)]()
 [![Python](https://img.shields.io/badge/Python-3.11-blue)]()
-[![Django](https://img.shields.io/badge/Django-5.1-green)]()
-[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
+[![Django](https://img.shields.io/badge/Django-5.2-green)]()
 
 Este projeto tem como objetivo o desenvolvimento de uma solução web para auxiliar na organização, atendimento e gestão clínica da Farmácia Escola da Universidade Federal dos Vales do Jequitinhonha e Mucuri (UFVJM).
 
@@ -11,71 +10,55 @@ Este projeto tem como objetivo o desenvolvimento de uma solução web para auxil
 
 ## 🚀 Funcionalidades
 
-- Cadastro completo de pacientes com histórico clínico e social
-- Registro e acompanhamento de consultas
-- Gestão de problemas de saúde e medicamentos
-- Avaliação de RNMs (Resultados Negativos associados a Medicamentos)
-- Plano de atuação farmacêutica
-- Relatórios dinâmicos e gráficos interativos com uso de Chart.js
-- Dashboard com indicadores de atenção farmacêutica
+* Cadastro completo de pacientes com histórico clínico e social
+* Registro e acompanhamento de consultas
+* Gestão de problemas de saúde e medicamentos
+* Avaliação de RNMs (Resultados Negativos associados a Medicamentos)
+* Plano de atuação farmacêutica
+* Relatórios dinâmicos e gráficos interativos com uso de ECharts
+* Dashboard com indicadores de atenção farmacêutica
+* Acesso por perfis (estudantes, farmacêuticos, convidados)
+* Sistema 100% web, responsivo e seguro
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Backend:** Python + Django
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Banco de Dados:** SQLite3 (atualmente) | PostgreSQL (planejado)
-- **Visualização de Dados:** Chart.js
-- **Hospedagem (planejada):** Docker + PythonAnywhere / Fly.io
+* **Backend:** Python + Django
+* **Frontend:** HTML5, Bootstrap, JavaScript
+* **Banco de Dados:** PostgreSQL (produção) | SQLite3 (dev)
+* **Visualização de Dados:** ECharts
+* **Ambientes:** Local ou Docker
 
 ---
 
-## 🏁 Como Rodar o Projeto
+## 📄 Guia de Instalação e Execução
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/EnicarlosJr/TCC.git
-   cd TCC
-   ```
+Acesse o guia completo no arquivo [📘 COMO\_RODAR.md](COMO_RODAR.md).
 
-2. Crie e ative um ambiente virtual:
-   ```bash
-   python -m venv env
-   source env/bin/activate    # Linux/macOS
-   .\env\Scripts\activate     # Windows
-   ```
+Este guia contém:
 
-3. Instale as dependências:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Aplique as migrações:
-   ```bash
-   python manage.py migrate
-   ```
-
-5. Inicie o servidor:
-   ```bash
-   python manage.py runserver
-   ```
+* Requisitos do sistema
+* Instalação em ambiente local (sem Docker)
+* Execução usando Docker
+* Configuração de variáveis `.env`
+* Criação e uso de superusuário
+* Deploy para produção
 
 ---
 
 ## 🧪 Testes
 
-> *Em desenvolvimento*  
-Os testes serão adicionados utilizando **pytest** e **Django TestCase**.
+> *Em desenvolvimento*
+> Os testes serão adicionados utilizando **pytest** e **Django TestCase**.
 
 ---
 
 ## 🧠 Autor
 
-**Enicarlos Pereira Gonçalves Júnior**  
-Aluno de Sistemas de Informação - UFVJM  
+**Enicarlos Pereira Gonçalves Júnior**
+Aluno de Sistemas de Informação - UFVJM
 
-- [LinkedIn](#enicarlosjr)
-- [GitHub: @EnicarlosJr](https://github.com/EnicarlosJr)
+* GitHub: [@EnicarlosJr](https://github.com/EnicarlosJr)
 
 ---

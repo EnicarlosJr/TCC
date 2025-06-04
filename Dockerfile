@@ -1,6 +1,7 @@
+# Escolher a imagem base
 FROM python:3.12-slim
 
-# Instalando dependências do sistema
+# Instalar dependências do sistema necessárias
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -8,20 +9,23 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
-# Diretório de trabalho
+# Definir o diretório de trabalho
 WORKDIR /code
 
-# Copia dependências primeiro
+# Copiar o arquivo requirements.txt
 COPY requirements.txt /code/
 
-# Instala dependências Python
+# Instalar as dependências do Python
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copia o restante do projeto
+# Copiar o restante do código
 COPY . /code/
 
-# Comando padrão para produção
-CMD ["gunicorn", "farmacia_escola.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Definir as variáveis de ambiente
+ENV DJANGO_ENV=dev
 
-# Para desenvolvimento, altere para:
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Expor a porta 8000
+EXPOSE 8000
+
+# Comando para rodar a aplicação Django
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

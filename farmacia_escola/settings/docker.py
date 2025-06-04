@@ -63,7 +63,7 @@ DATABASES = {
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='db'),
+        'HOST': config('DB_HOST', default='db'),  # Usando 'db' como host no Docker
         'PORT': config('DB_PORT', default='5432'),
     }
 }

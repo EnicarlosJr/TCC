@@ -1,33 +1,42 @@
+version: "3.9"
+
 services:
   db:
-    image: postgres:15
-    restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+    image: postgres:15  # Usando PostgreSQL versão 15 para compatibilidade
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      POSTGRES_DB: farmaciaescola_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_dev_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
 
   web:
     build: .
-    command: ["./setup.sh"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - .:/code
+      - ./.env.dev:/code/.env.dev
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      DJANGO_ENV: dev
+      DJANGO_SECRET_KEY: your_dev_secret_key
+      DJANGO_ALLOWED_HOSTS: 127.0.0.1,localhost
+      DB_NAME: farmaciaescola_dev
+      DB_USER: postgres
+      DB_PASSWORD: your_dev_password
+      DB_HOST: db  # Nome do serviço do banco de dados
+      DB_PORT: 5432
     depends_on:
-      db:
-        condition: service_healthy
+      - db  # Garante que o banco de dados seja iniciado primeiro
+    networks:
+      - app_network
 
 volumes:
-  postgres_data:
+  postgres_data:  # Volume para persistir os dados do PostgreSQL
+
+networks:
+  app_network:  # Rede compartilhada entre os contêineres
+    driver: bridge
