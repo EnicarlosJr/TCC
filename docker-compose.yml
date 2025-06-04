@@ -4,35 +4,40 @@ services:
   db:
     image: postgres:15  # Usando PostgreSQL versão 15 para compatibilidade
     environment:
-      POSTGRES_DB: farmaciaescola_dev
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: your_dev_password
+      POSTGRES_DB: ${DB_NAME}         # Usando a variável do .env
+      POSTGRES_USER: ${DB_USER}       # Usando a variável do .env
+      POSTGRES_PASSWORD: ${DB_PASSWORD}  # Usando a variável do .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app_network
+    restart: always  # Reiniciar automaticamente se o banco de dados falhar
 
   web:
     build: .
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: >
+      bash -c "
+        python manage.py migrate &&  # Aplica as migrações
+        python manage.py runserver 0.0.0.0:8000"  # Inicia o servidor Django
     volumes:
       - .:/code
-      - ./.env.dev:/code/.env.dev
+      - ./.env.dev:/code/.env  # Mapear .env.dev para .env dentro do contêiner
     ports:
       - "8000:8000"
     environment:
       DJANGO_ENV: dev
-      DJANGO_SECRET_KEY: your_dev_secret_key
-      DJANGO_ALLOWED_HOSTS: 127.0.0.1,localhost
-      DB_NAME: farmaciaescola_dev
-      DB_USER: postgres
-      DB_PASSWORD: your_dev_password
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}   # Usando a variável do .env
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}  # Usando a variável do .env
+      DB_NAME: ${DB_NAME}     # Usando a variável do .env
+      DB_USER: ${DB_USER}     # Usando a variável do .env
+      DB_PASSWORD: ${DB_PASSWORD}  # Usando a variável do .env
       DB_HOST: db  # Nome do serviço do banco de dados
-      DB_PORT: 5432
+      DB_PORT: ${DB_PORT}   # Usando a variável do .env
     depends_on:
       - db  # Garante que o banco de dados seja iniciado primeiro
     networks:
       - app_network
+    restart: on-failure  # Reiniciar o contêiner apenas se ele falhar
 
 volumes:
   postgres_data:  # Volume para persistir os dados do PostgreSQL

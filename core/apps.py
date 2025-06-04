@@ -1,8 +1,7 @@
 from django.apps import AppConfig
 
 class CoreConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
     name = 'core'
 
     def ready(self):
-        import core.signals
+        import core.signals  # Certifique-se de que os signals são carregados
