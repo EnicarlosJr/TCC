@@ -23,7 +23,7 @@ config = Config(RepositoryEnv(str(env_file)))
 # Segurança
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DJANGO_DEBUG', cast=bool, default=True)
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='127.0.0.1').split(',')
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
 
 # Superusuário automático
 SUPERUSER_NAME = config('SUPERUSER_NAME', default='admin')
@@ -96,9 +96,13 @@ DATABASES = {
 # Autenticação
 AUTH_USER_MODEL = 'login.CustomUser'
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'django_cas_ng.backends.CASBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Usado para autenticação com o modelo de usuário personalizado
+    'django_cas_ng.backends.CASBackend',  # Usado para autenticação via CAS
 )
+
+LOGIN_URL = '/conta/login/'
+LOGOUT_URL = '/conta/logout/'
+
 
 # Internacionalização
 LANGUAGE_CODE = 'pt-br'

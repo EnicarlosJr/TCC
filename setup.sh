@@ -19,26 +19,45 @@ echo "✅ Subindo containers com Docker Compose..."
 docker compose up -d --build
 
 # 4. Aguardando o banco de dados ficar disponível
-echo "✅ Aguardando o banco de dados ficar disponível..."
-until docker compose exec web nc -z db 5432; do
+echo "⏳ Aguardando o banco de dados ficar disponível..."
+until docker compose exec web nc -zv db 5432; do
   echo "⏳ Aguardando banco de dados ficar disponível..."
   sleep 2
 done
 echo "✅ Banco de dados está pronto!"
 
-# 5. Aplicando migrações
-echo "✅ Aplicando migrações..."
-docker compose exec web python manage.py migrate
+# 5. Verificando e criando migrações por app
+apps=("paciente" "consulta" "listagem_pacientes" "tela_inicial" "relatorios" "login" "core")
 
-# 6. Coletando arquivos estáticos
+echo "📦 Verificando migrações por app..."
+for app in "${apps[@]}"; do
+  echo "🔍 Verificando app: $app"
+  docker compose exec web sh -c "
+    if [ ! -d $app/migrations ] || [ \$(ls $app/migrations | grep -c '^[0-9].*\.py$') -eq 0 ]; then
+      echo '📁 Criando migrações para $app...'
+      python manage.py makemigrations $app
+    else
+      echo '✔️ Migrações já existentes para $app.'
+    fi
+  "
+done
+
+# 6. Aplicando migrações por app
+echo "✅ Aplicando migrações por app..."
+for app in "${apps[@]}"; do
+  echo "📥 Migrando app: $app..."
+  docker compose exec web python manage.py migrate $app --noinput
+done
+
+# 7. Coletando arquivos estáticos
 echo "✅ Coletando arquivos estáticos..."
 docker compose exec web python manage.py collectstatic --noinput
 
-# 7. Criando superusuário (se necessário)
+# 8. Criando superusuário (se necessário)
 echo "✅ Criando superusuário (se necessário)..."
-docker compose exec web python manage.py createsuperuser --noinput --username "${SUPERUSER_NAME}" --email "${SUPERUSER_EMAIL}" --password "${SUPERUSER_PASSWORD}" || true
+docker compose exec web python manage.py createsuperuser --noinput --username "${SUPERUSER_NAME}" --email "${SUPERUSER_EMAIL}" || true
 
-# 8. Finalizando
+# 9. Finalizando
 echo "✅ Setup finalizado!"
 echo "➡️ Acesse: http://localhost:8000"
 echo "➡️ Admin: http://localhost:8000/admin"

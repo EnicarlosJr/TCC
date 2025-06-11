@@ -2,6 +2,7 @@ from .base import *
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
+AUTH_USER_MODEL = 'login.CustomUser'
 
 DATABASES = {
     'default': {
